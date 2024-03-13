@@ -1,0 +1,73 @@
+[tool.poetry]
+name = "bi-analytics-backend"
+version = "0.1.0"
+description = "analytics backend with django"
+authors = ["jiaulislam <jiaulislam.ict.bd@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "^5.0.3"
+djangorestframework = "^3.14.0"
+djangorestframework-camel-case = "^1.4.2"
+django-cors-headers = "^4.3.1"
+sqlalchemy = "^2.0.28"
+pydantic = "^2.6.4"
+gunicorn = "^21.2.0"
+drf-spectacular = "^0.27.1"
+mssql-django = "^1.4.1"
+python-decouple = "^3.8"
+djangorestframework-simplejwt = "^5.3.1"
+django-filter = "^24.1"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.3.2"
+black = "^24.2.0"
+devtools = "^0.12.2"
+pre-commit = "^3.6.2"
+django-extensions = "^3.2.3"
+poetry-plugin-export = "^1.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+
+[tool.isort]
+atomic = true
+profile = "black"
+line_length = 88
+skip_gitignore = true
+skip_glob = ["tests/data", "profiling"]
+known-third-party = [
+    "django",
+    "django-cors-headers",
+    "djangorestframework",
+    "djangorestframework-simplejwt",
+    "drf-spectacular",
+    "python-decouple",
+    "djangorestframework-camel-case",
+]
+
+[tool.ruff]
+select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # pyflakes
+    "I", # isort
+    "C", # flake8-comprehensions
+    "B", # flake8-bugbear
+    "N", # pep8-naming
+    "T20", # flake8-print
+]
+
+ignore = [
+    "E501", # line too long, handled by black
+    "B008", # do not perform function calls in argument defaults
+]
+
+extend-exclude = [".pyenv", ".vscode", "/usr/**", ".venv/**"]
