@@ -7,10 +7,10 @@ from .managers import BaseUserManager
 
 
 class RoleChoices(models.TextChoices):
-    ADMIN = "admin", "Admin"
-    BRANCH_MANAGER = "branch_manager", "Branch Manager"
-    REGIONAL_MANAGER = "regional_manager", "Regional Manager"
-    CLUSTER_MANAGER = "cluster_manager", "Cluster Manager"
+    ADMIN = "ADMIN", "Admin"
+    BRANCH_MANAGER = "BRANCH_MANAGER", "Branch Manager"
+    REGIONAL_MANAGER = "REGIONAL_MANAGER", "Regional Manager"
+    CLUSTER_MANAGER = "CLUSTER_MANAGER", "Cluster Manager"
 
 
 class User(AbstractUser, AuditLogMixin):

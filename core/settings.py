@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -162,8 +163,8 @@ SPECTACULAR_SETTINGS = {
 
 # JWT Config
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": make_seconds(day=3),
-    "REFRESH_TOKEN_LIFETIME": make_seconds(day=4),
+    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=make_seconds(day=3)),
+    "REFRESH_TOKEN_LIFETIME": timedelta(seconds=make_seconds(day=4)),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": True,
