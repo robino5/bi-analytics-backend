@@ -13,15 +13,15 @@ class CustomRenderer(CamelCaseJSONRenderer):
 
             code_to_msg = {
                 status.HTTP_200_OK: "success",
-                status.HTTP_202_ACCEPTED: "accepted",
-                status.HTTP_201_CREATED: "created",
-                status.HTTP_204_NO_CONTENT: "no_content",
-                status.HTTP_400_BAD_REQUEST: "validation_error",
-                status.HTTP_401_UNAUTHORIZED: "unauthorized",
-                status.HTTP_403_FORBIDDEN: "forbidden",
-                status.HTTP_404_NOT_FOUND: "not_found",
-                status.HTTP_406_NOT_ACCEPTABLE: "not_acceptable",
-                status.HTTP_500_INTERNAL_SERVER_ERROR: "server_error",
+                status.HTTP_202_ACCEPTED: "success",
+                status.HTTP_201_CREATED: "success",
+                status.HTTP_204_NO_CONTENT: "success",
+                status.HTTP_400_BAD_REQUEST: "failure",
+                status.HTTP_401_UNAUTHORIZED: "failure",
+                status.HTTP_403_FORBIDDEN: "failure",
+                status.HTTP_404_NOT_FOUND: "failure",
+                status.HTTP_406_NOT_ACCEPTABLE: "failure",
+                status.HTTP_500_INTERNAL_SERVER_ERROR: "failure",
             }
 
             response = {
@@ -40,10 +40,9 @@ class CustomRenderer(CamelCaseJSONRenderer):
                 ):
                     response["data"] = data
                 case _:
-                    try:
+                    if isinstance(data, dict) and data.get("detail", None):
                         response["message"] = data["detail"]
-                    except (KeyError, TypeError):
-                        logging.exception(data)
+                    else:
                         response["message"] = data
             return super().render(response, accepted_media_type, renderer_context)
         except Exception as err:
