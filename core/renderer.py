@@ -16,12 +16,12 @@ class CustomRenderer(CamelCaseJSONRenderer):
                 status.HTTP_202_ACCEPTED: "success",
                 status.HTTP_201_CREATED: "success",
                 status.HTTP_204_NO_CONTENT: "success",
-                status.HTTP_400_BAD_REQUEST: "failure",
-                status.HTTP_401_UNAUTHORIZED: "failure",
-                status.HTTP_403_FORBIDDEN: "failure",
-                status.HTTP_404_NOT_FOUND: "failure",
-                status.HTTP_406_NOT_ACCEPTABLE: "failure",
-                status.HTTP_500_INTERNAL_SERVER_ERROR: "failure",
+                status.HTTP_400_BAD_REQUEST: "error",
+                status.HTTP_401_UNAUTHORIZED: "error",
+                status.HTTP_403_FORBIDDEN: "error",
+                status.HTTP_404_NOT_FOUND: "error",
+                status.HTTP_406_NOT_ACCEPTABLE: "error",
+                status.HTTP_500_INTERNAL_SERVER_ERROR: "error",
             }
 
             response = {
