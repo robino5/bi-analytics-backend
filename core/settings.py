@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "django_extensions",
     "django_filters",
+    "authusers",
 ]
 
 MIDDLEWARE = [
@@ -148,7 +149,7 @@ REST_FRAMEWORK = {
         "no_underscore_before_number": True,
     },
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication"
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
 }
