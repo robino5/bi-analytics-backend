@@ -86,6 +86,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
             current_user = User.objects.get(username=request.data.get("username"))
             user = UserSerializer(instance=current_user)
             payload = user.data
+            payload["designation"] = current_user.profile.designation
             payload["access_token"] = serializer.validated_data.get("access")
             payload["refresh_token"] = serializer.validated_data.get("refresh")
         except TokenError as e:

@@ -18,6 +18,13 @@ from ..models import Branch, ClusterManager, Trader
 from ..orm import BranchOrm, ClusterManagerOrm, TraderOrm
 from ..serializers import BranchSerializer, ClusterManagerSerializer, TraderSerializer
 
+__all__ = [
+    "get_branches",
+    "get_all_traders",
+    "get_traders_for_branchid",
+    "get_cluster_managers",
+]
+
 
 @extend_schema(
     responses={200: enveloper(BranchSerializer, many=True)}, tags=[OpenApiTags.LOV]
@@ -52,7 +59,7 @@ def get_branches(request: Request) -> Response:
                 ).scalars()
             case _:
                 # management or admin
-                # any selective type of case should be explicitly handle
+                # * Any selective type of case should be explicitly handle
                 qs = session.execute(
                     select(BranchOrm).order_by(BranchOrm.branch_name)
                 ).scalars()

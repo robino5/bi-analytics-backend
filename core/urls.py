@@ -34,6 +34,6 @@ urlpatterns = [
         name="swagger-ui",
     ),
     path("api/token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
-    # Daily Trade Performance Route
-    path(f"{v1}/lov/", include("analytics.urls")),
+    # Analytics URL
+    path(f"{v1}/dashboards/", include("analytics.urls")),
 ]
