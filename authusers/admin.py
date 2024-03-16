@@ -27,6 +27,8 @@ class UserAdmin(admin.ModelAdmin):
             "Personal Info",
             {
                 "fields": (
+                    "first_name",
+                    "last_name",
                     "username",
                     "email",
                     "password",

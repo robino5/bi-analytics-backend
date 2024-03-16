@@ -1,5 +1,4 @@
 from http import HTTPMethod
-from typing import List
 
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view, permission_classes
@@ -10,13 +9,26 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from authusers.models import RoleChoices, User
+from core.helper import enveloper
+from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
 from ..models import Branch, ClusterManager, Trader
 from ..orm import BranchOrm, ClusterManagerOrm, TraderOrm
+from ..serializers import BranchSerializer, ClusterManagerSerializer, TraderSerializer
+
+__all__ = [
+    "get_branches",
+    "get_all_traders",
+    "get_traders_for_branchid",
+    "get_cluster_managers",
+]
 
 
+@extend_schema(
+    responses={200: enveloper(BranchSerializer, many=True)}, tags=[OpenApiTags.LOV]
+)
 @api_view([HTTPMethod.GET])
 @permission_classes(
     [
@@ -24,6 +36,7 @@ from ..orm import BranchOrm, ClusterManagerOrm, TraderOrm
     ]
 )
 def get_branches(request: Request) -> Response:
+    """fetch all branches. results will be automatically filters according to user role."""
     request.accepted_renderer = CustomRenderer()
 
     current_user: User = request.user
@@ -33,7 +46,7 @@ def get_branches(request: Request) -> Response:
             case RoleChoices.BRANCH_MANAGER | RoleChoices.REGIONAL_MANAGER:
                 qs = session.execute(
                     select(BranchOrm)
-                    .where(BranchOrm.branch_code == current_user.userprofile.branch_id)
+                    .where(BranchOrm.branch_code == current_user.profile.branch_id)
                     .order_by(BranchOrm.branch_name)
                 ).scalars()
             case RoleChoices.CLUSTER_MANAGER:
@@ -46,7 +59,7 @@ def get_branches(request: Request) -> Response:
                 ).scalars()
             case _:
                 # management or admin
-                # any selective type of case should be explicitly handle
+                # * Any selective type of case should be explicitly handle
                 qs = session.execute(
                     select(BranchOrm).order_by(BranchOrm.branch_name)
                 ).scalars()
@@ -54,6 +67,9 @@ def get_branches(request: Request) -> Response:
     return Response(results)
 
 
+@extend_schema(
+    responses={200: enveloper(TraderSerializer, many=True)}, tags=[OpenApiTags.LOV]
+)
 @api_view([HTTPMethod.GET])
 @permission_classes(
     [
@@ -61,6 +77,7 @@ def get_branches(request: Request) -> Response:
     ]
 )
 def get_all_traders(request: Request) -> Request:
+    """fetch all traders."""
     request.accepted_renderer = CustomRenderer()
 
     with Session(engine) as session:
@@ -73,7 +90,8 @@ def get_all_traders(request: Request) -> Request:
 
 @extend_schema(
     operation_id="traders-with-branchId",
-    responses=List[Trader],
+    responses={200: enveloper(TraderSerializer, many=True)},
+    tags=[OpenApiTags.LOV],
 )
 @api_view([HTTPMethod.GET])
 @permission_classes(
@@ -81,7 +99,8 @@ def get_all_traders(request: Request) -> Request:
         IsAuthenticated,
     ]
 )
-def get_traders_for_branchcode(request: Request, id: int) -> Request:
+def get_traders_for_branchid(request: Request, id: int) -> Request:
+    """fetch all traders respective to branchId"""
     request.accepted_renderer = CustomRenderer()
 
     with Session(engine) as session:
@@ -95,7 +114,8 @@ def get_traders_for_branchcode(request: Request, id: int) -> Request:
 
 
 @extend_schema(
-    responses=List[ClusterManager],
+    responses={200: enveloper(ClusterManagerSerializer, many=True)},
+    tags=[OpenApiTags.LOV],
 )
 @api_view([HTTPMethod.GET])
 @permission_classes(
@@ -105,6 +125,7 @@ def get_traders_for_branchcode(request: Request, id: int) -> Request:
     ]
 )
 def get_cluster_managers(request: Request) -> Request:
+    """fetch all cluster managers"""
     request.accepted_renderer = CustomRenderer()
 
     with Session(engine) as session:
