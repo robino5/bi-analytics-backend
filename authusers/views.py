@@ -10,6 +10,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from core.helper import EmptySerializer, enveloper
+from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 
 from .filter import UserFilter
@@ -31,27 +32,40 @@ class UserViewSet(ModelViewSet):
     def get_queryset(self):
         return User.objects.all().order_by("-created_at")
 
-    @extend_schema(responses=enveloper(UserSerializer, many=True))
+    @extend_schema(
+        responses=enveloper(UserSerializer, many=True), tags=[OpenApiTags.Users]
+    )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @extend_schema(responses=enveloper(UserSerializer, many=False))
+    @extend_schema(
+        responses=enveloper(UserSerializer, many=False), tags=[OpenApiTags.Users]
+    )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @extend_schema(responses=enveloper(UserSerializer, many=False))
+    @extend_schema(
+        responses=enveloper(UserSerializer, many=False), tags=[OpenApiTags.Users]
+    )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @extend_schema(responses=enveloper(UserSerializer, many=False))
+    @extend_schema(
+        responses=enveloper(UserSerializer, many=False), tags=[OpenApiTags.Users]
+    )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @extend_schema(responses=enveloper(UserSerializer, many=False))
+    @extend_schema(
+        responses=enveloper(UserSerializer, many=False), tags=[OpenApiTags.Users]
+    )
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
-    @extend_schema(responses={204: enveloper(EmptySerializer, many=False)})
+    @extend_schema(
+        responses={204: enveloper(EmptySerializer, many=False)},
+        tags=[OpenApiTags.Users],
+    )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
@@ -60,6 +74,9 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
     renderer_classes = (CustomRenderer,)
 
+    @extend_schema(
+        tags=[OpenApiTags.Token],
+    )
     def post(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
 

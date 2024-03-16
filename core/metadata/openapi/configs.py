@@ -4,6 +4,8 @@ __all__ = ["OpenApiTags", "METADATA_CONFIGS"]
 class OpenApiTags:
     Authorization = "authorizations"
     Users = "user-management"
+    Token = "token-management"
+    LOV = "list-of-values"
 
 
 openapi_description = r"""

@@ -7,7 +7,7 @@ urlpatterns = [
     path("traders/", views.get_all_traders),
     path(
         "traders/<int:id>/",
-        views.get_traders_for_branchcode,
+        views.get_traders_for_branchid,
     ),
     path(
         "managers/",

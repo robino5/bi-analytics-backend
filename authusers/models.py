@@ -19,13 +19,14 @@ class User(AbstractUser, AuditLogMixin):
     )
 
     objects = BaseUserManager()
+    profile: "UserProfile" = models.QuerySet["UserProfile"]
 
     def __str__(self) -> str:
         return self.username
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     designation = models.CharField(blank=True, null=True, max_length=255)
     image = models.ImageField(blank=True, null=True, verbose_name="Profile Pic")
     branch_id = models.IntegerField(null=True, blank=True, verbose_name="Branch Id")
