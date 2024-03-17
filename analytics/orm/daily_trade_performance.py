@@ -9,7 +9,7 @@ __all__ = ["OverallSummaryOrm"]
 class OverallSummaryOrm(BaseOrm):
     __tablename__ = "BI_trd_BranchWise_Client_Cash_Margin_Details"
 
-    branch_code = mapped_column("branch_Code", Numeric(38), primary_key=True)
+    branch_code = mapped_column("branch_Code", Numeric(10), primary_key=True)
     branch_name = mapped_column("branch_Name", String(50))
     total_client = mapped_column("Total_client", Integer, nullable=False)
     total_active_client = mapped_column("Total_Active_client", Integer, nullable=False)

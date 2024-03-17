@@ -21,6 +21,18 @@ class User(AbstractUser, AuditLogMixin):
     objects = BaseUserManager()
     profile: "UserProfile" = models.QuerySet["UserProfile"]
 
+    def is_admin(self) -> bool:
+        return self.role == RoleChoices.ADMIN or self.is_superuser or self.is_staff
+
+    def is_branch_manager(self) -> bool:
+        return self.role == RoleChoices.BRANCH_MANAGER
+
+    def is_regional_manager(self) -> bool:
+        return self.role == RoleChoices.REGIONAL_MANAGER
+
+    def is_cluster_manager(self) -> bool:
+        return self.role == RoleChoices.CLUSTER_MANAGER
+
     def __str__(self) -> str:
         return self.username
 
