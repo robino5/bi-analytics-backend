@@ -14,4 +14,5 @@ urlpatterns = [
         views.get_cluster_managers,
     ),
     path("basic-summaries/", views.get_basic_summaries),
+    path("basic-summaries/<int:id>", views.get_basic_summaries_by_branchid),
 ]
