@@ -74,16 +74,15 @@ def get_basic_summaries(request: Request) -> Response:
     current_user: User = request.user
 
     with Session(engine) as session:
+        qs = SUMMARY_QUERY_STR
         if current_user.is_cluster_manager():
             branches_qs = select(ClusterManagerOrm.branch_code).where(
                 ClusterManagerOrm.manager_name == current_user.username
             )
             branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = SUMMARY_QUERY_STR.where(
-                OverallSummaryOrm.branch_code.in_(branch_codes)
-            )
-        if current_user.is_branch_manager() or current_user.is_regional_manager():
-            qs = SUMMARY_QUERY_STR.where(
+            qs = qs.where(OverallSummaryOrm.branch_code.in_(branch_codes))
+        if current_user.is_branch_manager():
+            qs = qs.where(
                 OverallSummaryOrm.branch_code == current_user.profile.branch_id
             )
 
@@ -111,10 +110,11 @@ def get_basic_summaries_by_branchid(request: Request, id: int) -> Response:
     current_user: User = request.user
 
     with Session(engine) as session:
+        qs = SUMMARY_QUERY_STR
         if current_user.is_admin() or current_user.is_cluster_manager():
-            qs = SUMMARY_QUERY_STR.where(OverallSummaryOrm.branch_code == id)
+            qs = qs.where(OverallSummaryOrm.branch_code == id)
         else:
-            qs = SUMMARY_QUERY_STR.where(
+            qs = qs.where(
                 OverallSummaryOrm.branch_code == current_user.profile.branch_id
             )
 
