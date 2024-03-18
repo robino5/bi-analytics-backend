@@ -15,4 +15,21 @@ urlpatterns = [
     ),
     path("basic-summaries/", views.get_basic_summaries),
     path("basic-summaries/<int:id>", views.get_basic_summaries_by_branchid),
+    path("daily-trade-performance/", views.get_turnover_performance_statistics),
+    path(
+        "daily-trade-performance/<int:id>",
+        views.get_turnover_performance_statistics_by_branchid,
+    ),
+    path("margin-loan-usage/", views.get_margin_loan_statistics),
+    path("margin-loan-usage/<int:id>", views.get_margin_loan_statistics_by_branchid),
+    path("sector-exposure-cashcode/", views.get_cashcode_sector_exposure),
+    path(
+        "sector-exposure-cashcode/<int:id>",
+        views.get_cashcode_sector_exposure_by_branchid,
+    ),
+    path("sector-exposure-margincode/", views.get_margincode_sector_exposure),
+    path(
+        "sector-exposure-margincode/<int:id>",
+        views.get_margincode_sector_exposure_by_branchid,
+    ),
 ]
