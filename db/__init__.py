@@ -21,6 +21,8 @@ engine = create_engine(url=connection_string, echo=settings.DEBUG)
 
 
 class BaseOrm(DeclarativeBase):
+    __table_args__ = {"extend_existing": True}
+
     def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__!s}("
