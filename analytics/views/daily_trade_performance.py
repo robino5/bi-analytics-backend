@@ -1,5 +1,6 @@
 from http import HTTPMethod
 
+from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -8,6 +9,7 @@ from sqlalchemy import desc, func, select, text
 from sqlalchemy.orm import Session
 
 from authusers.models import User
+from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
@@ -66,6 +68,7 @@ METRICS_OF_SUMMARY_QUERY = {
 }
 
 
+@extend_schema(tags=[OpenApiTags.DTP])
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
 def get_basic_summaries(request: Request) -> Response:
@@ -102,6 +105,7 @@ def get_basic_summaries(request: Request) -> Response:
     return Response(merged_dict)
 
 
+@extend_schema(tags=[OpenApiTags.DTP])
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
 def get_basic_summaries_by_branchid(request: Request, id: int) -> Response:
@@ -134,6 +138,7 @@ def get_basic_summaries_by_branchid(request: Request, id: int) -> Response:
     return Response(merged_dict)
 
 
+@extend_schema(tags=[OpenApiTags.DTP])
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
 def get_turnover_performance_statistics(request: Request) -> Response:
@@ -161,6 +166,7 @@ def get_turnover_performance_statistics(request: Request) -> Response:
     return Response(results)
 
 
+@extend_schema(tags=[OpenApiTags.DTP])
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
 def get_turnover_performance_statistics_by_branchid(
@@ -191,6 +197,7 @@ def get_turnover_performance_statistics_by_branchid(
     return Response(results)
 
 
+@extend_schema(tags=[OpenApiTags.DTP])
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
 def get_margin_loan_statistics(request: Request) -> Response:
@@ -218,6 +225,7 @@ def get_margin_loan_statistics(request: Request) -> Response:
     return Response(results)
 
 
+@extend_schema(tags=[OpenApiTags.DTP])
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
 def get_margin_loan_statistics_by_branchid(request: Request, id: int) -> Response:
@@ -246,6 +254,7 @@ def get_margin_loan_statistics_by_branchid(request: Request, id: int) -> Respons
     return Response(results)
 
 
+@extend_schema(tags=[OpenApiTags.DTP])
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
 def get_cashcode_sector_exposure(request: Request) -> Response:
@@ -271,6 +280,7 @@ def get_cashcode_sector_exposure(request: Request) -> Response:
     return Response(results)
 
 
+@extend_schema(tags=[OpenApiTags.DTP])
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
 def get_cashcode_sector_exposure_by_branchid(request: Request, id: int) -> Response:
@@ -297,6 +307,7 @@ def get_cashcode_sector_exposure_by_branchid(request: Request, id: int) -> Respo
     return Response(results)
 
 
+@extend_schema(tags=[OpenApiTags.DTP])
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
 def get_margincode_sector_exposure(request: Request) -> Response:
@@ -322,6 +333,7 @@ def get_margincode_sector_exposure(request: Request) -> Response:
     return Response(results)
 
 
+@extend_schema(tags=[OpenApiTags.DTP])
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
 def get_margincode_sector_exposure_by_branchid(request: Request, id: int) -> Response:

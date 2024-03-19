@@ -6,6 +6,8 @@ class OpenApiTags:
     Users = "user-management"
     Token = "token-management"
     LOV = "list-of-values"
+    DTP = "daily-trade-performance"
+    PM = "portfolio-management"
 
 
 openapi_description = r"""

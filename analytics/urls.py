@@ -13,6 +13,7 @@ urlpatterns = [
         "lov/managers/",
         views.get_cluster_managers,
     ),
+    # Daily Trade Performance Routes
     path("basic-summaries/", views.get_basic_summaries),
     path("basic-summaries/<int:id>", views.get_basic_summaries_by_branchid),
     path("daily-trade-performance/", views.get_turnover_performance_statistics),
@@ -32,4 +33,11 @@ urlpatterns = [
         "sector-exposure-margincode/<int:id>",
         views.get_margincode_sector_exposure_by_branchid,
     ),
+    # Portfolio Management Routes
+    path("daily-net-fundflow/", views.get_daily_net_fundflow),
+    path("daily-net-fundflow/<int:id>", views.get_daily_net_fundflow_by_branchid),
+    path("trade-vs-clients/", views.get_trade_vs_client_statistics),
+    path("trade-vs-clients/<int:id>", views.get_trade_vs_client_statistics_by_branchid),
+    path("turnover-performance/", views.get_turnover_performance),
+    path("turnover-performance/<int:id>", views.get_turnover_performance_by_branchid),
 ]
