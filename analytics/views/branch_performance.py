@@ -1,0 +1,200 @@
+from http import HTTPMethod
+
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.response import Response
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from core.metadata.openapi import OpenApiTags
+from core.renderer import CustomRenderer
+from db import engine
+
+from ..models import (
+    BranchWiseExposureStatus,
+    BranchWiseFundStatus,
+    BranchWiseMarginStatus,
+    BranchWiseTurnoverStatus,
+)
+from ..orm import (
+    BranchWiseFundStatusOrm,
+    BranchWiseMarginExposureStatusOrm,
+    BranchWiseMarginStatusOrm,
+    BranchWiseTurnoverStatusOrm,
+)
+
+__all__ = [
+    "get_bw_turnover_status",
+    "get_bw_margin_status",
+    "get_bw_fund_status",
+    "get_bw_exposure_status",
+]
+
+
+@extend_schema(
+    tags=[OpenApiTags.BP],
+    parameters=[
+        OpenApiParameter(
+            "branch_code",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific branch code",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_bw_turnover_status(request: Request) -> Response:
+    """fetch branch wise turnover status"""
+    request.accepted_renderer = CustomRenderer()
+
+    branch_code = request.query_params.get("branch_code", None)
+
+    with Session(engine) as session:
+        qs = select(
+            BranchWiseTurnoverStatusOrm.branch_code,
+            BranchWiseTurnoverStatusOrm.branch_name,
+            BranchWiseTurnoverStatusOrm.turnover_daily,
+            BranchWiseTurnoverStatusOrm.turnover_weekly,
+            BranchWiseTurnoverStatusOrm.turnover_monthly,
+            BranchWiseTurnoverStatusOrm.turnover_yearly,
+        ).order_by(BranchWiseTurnoverStatusOrm.branch_name)
+
+        if branch_code:
+            qs = qs.where(BranchWiseTurnoverStatusOrm.branch_code == branch_code)
+
+        rows = session.execute(qs)
+        results = [
+            BranchWiseTurnoverStatus.model_validate(row._asdict()).model_dump()
+            for row in rows
+        ]
+    return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.BP],
+    parameters=[
+        OpenApiParameter(
+            "branch_code",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific branch code",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_bw_margin_status(request: Request) -> Response:
+    """fetch branch wise turnover status"""
+    request.accepted_renderer = CustomRenderer()
+
+    branch_code = request.query_params.get("branch_code", None)
+
+    with Session(engine) as session:
+        qs = select(
+            BranchWiseMarginStatusOrm.branch_code,
+            BranchWiseMarginStatusOrm.branch_name,
+            BranchWiseMarginStatusOrm.loan_used,
+            BranchWiseMarginStatusOrm.turnover_daily,
+            BranchWiseMarginStatusOrm.turnover_weekly,
+            BranchWiseMarginStatusOrm.turnover_monthly,
+            BranchWiseMarginStatusOrm.turnover_yearly,
+        ).order_by(BranchWiseMarginStatusOrm.branch_name)
+
+        if branch_code:
+            qs = qs.where(BranchWiseMarginStatusOrm.branch_code == branch_code)
+
+        rows = session.execute(qs)
+        results = [
+            BranchWiseMarginStatus.model_validate(row._asdict()).model_dump()
+            for row in rows
+        ]
+    return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.BP],
+    parameters=[
+        OpenApiParameter(
+            "branch_code",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific branch code",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_bw_fund_status(request: Request) -> Response:
+    """fetch branch wise fund status"""
+    request.accepted_renderer = CustomRenderer()
+
+    branch_code = request.query_params.get("branch_code", None)
+
+    with Session(engine) as session:
+        qs = select(
+            BranchWiseFundStatusOrm.branch_code,
+            BranchWiseFundStatusOrm.branch_name,
+            BranchWiseFundStatusOrm.tpv,
+            BranchWiseFundStatusOrm.total_clients,
+            BranchWiseFundStatusOrm.fund_in,
+            BranchWiseFundStatusOrm.fund_withdrawl,
+            BranchWiseFundStatusOrm.net_fundflow,
+        ).order_by(BranchWiseFundStatusOrm.branch_name)
+
+        if branch_code:
+            qs = qs.where(BranchWiseFundStatusOrm.branch_code == branch_code)
+
+        rows = session.execute(qs)
+        results = [
+            BranchWiseFundStatus.model_validate(row._asdict()).model_dump()
+            for row in rows
+        ]
+    return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.BP],
+    parameters=[
+        OpenApiParameter(
+            "branch_code",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific branch code",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_bw_exposure_status(request: Request) -> Response:
+    """fetch branch wise fund status"""
+    request.accepted_renderer = CustomRenderer()
+
+    branch_code = request.query_params.get("branch_code", None)
+
+    with Session(engine) as session:
+        qs = select(
+            BranchWiseMarginExposureStatusOrm.branch_code,
+            BranchWiseMarginExposureStatusOrm.branch_name,
+            BranchWiseMarginExposureStatusOrm.exposure_type,
+            BranchWiseMarginExposureStatusOrm.investors_count,
+            BranchWiseMarginExposureStatusOrm.exposure_ratio,
+        ).order_by(BranchWiseMarginExposureStatusOrm.branch_name)
+
+        if branch_code:
+            qs = qs.where(BranchWiseMarginExposureStatusOrm.branch_code == branch_code)
+
+        rows = session.execute(qs)
+        # TODO: Need to group data with pandas
+        results = [
+            BranchWiseExposureStatus.model_validate(row._asdict()).model_dump()
+            for row in rows
+        ]
+    return Response(results)
