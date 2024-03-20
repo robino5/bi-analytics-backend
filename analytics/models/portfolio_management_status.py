@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel as Base
 from pydantic import ConfigDict, field_serializer
 
-__all__ = ["DailyNetFundFlow", "TradeVsClient"]
+__all__ = ["DailyNetFundFlow", "TradeVsClient", "PortfolioStatus"]
 
 
 class BaseModel(Base):
@@ -35,3 +35,8 @@ class TurnoverPerformance(BaseModel):
     weekly: float
     monthly: float
     forthnightly: float
+
+
+class PortfolioStatus(BaseModel):
+    perticular: str
+    amount: float

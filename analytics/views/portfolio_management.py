@@ -13,9 +13,11 @@ from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
-from ..models import DailyNetFundFlow, TradeVsClient
+from ..models import DailyNetFundFlow, PortfolioStatus, TradeVsClient
 from ..orm import (
+    AccountOpeningFundInOutFlowOrm,
     DailyNetFundFlowOrm,
+    PortfolioManagementStatusOrm,
     TurnoverAndClientsTradeOrm,
     TurnoverPerformanceOrm,
 )
@@ -27,6 +29,10 @@ __all__ = [
     "get_trade_vs_client_statistics_by_branchid",
     "get_turnover_performance",
     "get_turnover_performance_by_branchid",
+    "get_accounts_fundflow",
+    "get_accounts_fundflow_by_branchid",
+    "get_portfolio_status",
+    "get_portfolio_status_by_branchid",
 ]
 
 
@@ -185,3 +191,110 @@ def get_turnover_performance_by_branchid(request: Request, id: int) -> Response:
             inplace=True,
         )
     return Response(pivot_df.to_dict(orient="records"))
+
+
+@extend_schema(tags=[OpenApiTags.PM])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_accounts_fundflow(request: Request) -> Response:
+    """fetch account and fundflow overview"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        query = select(
+            AccountOpeningFundInOutFlowOrm.branch_code,
+            AccountOpeningFundInOutFlowOrm.branch_name,
+            AccountOpeningFundInOutFlowOrm.col1,
+            AccountOpeningFundInOutFlowOrm.col2,
+            AccountOpeningFundInOutFlowOrm.col3,
+        )
+        rows = session.execute(query)
+
+        df = pd.DataFrame([row._asdict() for row in rows], columns=rows.keys())
+        df["col2"] = df["col2"].str.strip()  # trim the col2, has space
+
+        pivot_df = df.pivot_table(
+            index="col2", columns="col3", values="col1", aggfunc="sum"
+        ).reset_index()  # aggregate the df
+
+        pivot_df.columns = map(str.lower, pivot_df.columns)
+
+        pivot_df.rename(columns={"col2": "name"}, inplace=True)
+    return Response(pivot_df.to_dict(orient="records"))
+
+
+@extend_schema(tags=[OpenApiTags.PM])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_accounts_fundflow_by_branchid(request: Request, id: int) -> Response:
+    """fetch account and fundflow overview"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        query = select(
+            AccountOpeningFundInOutFlowOrm.branch_code,
+            AccountOpeningFundInOutFlowOrm.branch_name,
+            AccountOpeningFundInOutFlowOrm.col1,
+            AccountOpeningFundInOutFlowOrm.col2,
+            AccountOpeningFundInOutFlowOrm.col3,
+        ).where(AccountOpeningFundInOutFlowOrm.branch_code == id)
+        rows = session.execute(query)
+
+        df = pd.DataFrame([row._asdict() for row in rows], columns=rows.keys())
+        df["col2"] = df["col2"].str.strip()  # trim the col2, has space
+
+        pivot_df = df.pivot_table(
+            index="col2", columns="col3", values="col1", aggfunc="sum"
+        ).reset_index()  # aggregate the df
+
+        pivot_df.columns = map(str.lower, pivot_df.columns)
+
+        pivot_df.rename(columns={"col2": "name"}, inplace=True)
+    return Response(pivot_df.to_dict(orient="records"))
+
+
+@extend_schema(tags=[OpenApiTags.PM])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_portfolio_status(request: Request) -> Response:
+    """fetch portfolio management status overview"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        query = (
+            select(
+                PortfolioManagementStatusOrm.perticular,
+                func.sum(PortfolioManagementStatusOrm.amount).label("amount"),
+            )
+            .group_by(PortfolioManagementStatusOrm.perticular)
+            .order_by(PortfolioManagementStatusOrm.perticular)
+        )
+        rows = session.execute(query)
+        results = [
+            PortfolioStatus.model_validate(row._asdict()).model_dump() for row in rows
+        ]
+    return Response(results)
+
+
+@extend_schema(tags=[OpenApiTags.PM])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_portfolio_status_by_branchid(request: Request, id: int) -> Response:
+    """fetch portfolio management status overview"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        query = (
+            select(
+                PortfolioManagementStatusOrm.perticular,
+                func.sum(PortfolioManagementStatusOrm.amount).label("amount"),
+            )
+            .where(PortfolioManagementStatusOrm.branch_code == id)
+            .group_by(PortfolioManagementStatusOrm.perticular)
+            .order_by(PortfolioManagementStatusOrm.perticular)
+        )
+        rows = session.execute(query)
+        results = [
+            PortfolioStatus.model_validate(row._asdict()).model_dump() for row in rows
+        ]
+    return Response(results)

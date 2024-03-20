@@ -9,6 +9,8 @@ __all__ = [
     "DailyNetFundFlowOrm",
     "TurnoverAndClientsTradeOrm",
     "TurnoverPerformanceOrm",
+    "AccountOpeningFundInOutFlowOrm",
+    "PortfolioManagementStatusOrm",
 ]
 
 
@@ -40,8 +42,27 @@ class TurnoverAndClientsTradeOrm(BaseOrm):
 class TurnoverPerformanceOrm(BaseOrm):
     __tablename__ = "BI_trd_Turnover_Performance"
 
-    branch_code = mapped_column("branch_Code", Integer, primary_key=True)
-    branch_name = mapped_column("branch_Name", String(255), nullable=False)
-    col3 = mapped_column("col3", String(50), primary_key=True)
-    col2 = mapped_column("col2", String(50), primary_key=True)
-    col1 = mapped_column("col1", Numeric(38, 2), nullable=False)
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(255), nullable=False)
+    col3: Mapped[str] = mapped_column("col3", String(50), primary_key=True)
+    col2: Mapped[str] = mapped_column("col2", String(50), primary_key=True)
+    col1: Mapped[float] = mapped_column("col1", Numeric(38, 2), nullable=False)
+
+
+class AccountOpeningFundInOutFlowOrm(BaseOrm):
+    __tablename__ = "BI_trd_Account_Opening_Fund_InOutFlow"
+
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(255), nullable=False)
+    col3: Mapped[str] = mapped_column("col3", String(50), primary_key=True)
+    col2: Mapped[str] = mapped_column("col2", String(50), primary_key=True)
+    col1: Mapped[float] = mapped_column("col1", Numeric(38, 2), nullable=False)
+
+
+class PortfolioManagementStatusOrm(BaseOrm):
+    __tablename__ = "BI_trd_Portfolio_Management_Status"
+
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(255), nullable=False)
+    perticular = mapped_column("Perticular", String(50), primary_key=True)
+    amount = mapped_column("Amount", Numeric(38, 4), nullable=False)
