@@ -7,9 +7,9 @@ __all__ = [
     "MarginLoanAllocationUsageOrm",
     "ExposureControllingManagementOrm",
     "RMWiseNetTradeOrm",
-    "RMInvestorRedZoneOrm",
-    "RMInvestorYellowZoneOrm",
-    "RMNegativeEquityClientOrm",
+    "RedZoneInvestorOrm",
+    "YellowZoneInvestorOrm",
+    "NegativeEquityInvestorOrm",
 ]
 
 
@@ -26,7 +26,7 @@ class BaseInvestor(BaseOrm):
         "investor_name", String(255), nullable=False
     )
     ledger_balance: Mapped[float] = mapped_column(
-        "Ledger_balance", Numeric(34, 0), nullable=False
+        "Ledger_balance", Numeric(34, 2), nullable=False
     )
     rm_name: Mapped[str] = mapped_column("RM_NAME", String(50), nullable=False)
 
@@ -73,13 +73,13 @@ class RMWiseNetTradeOrm(BaseOrm):
     rm_name: Mapped[str] = mapped_column("RM_NAME", String(50), nullable=False)
 
 
-class RMInvestorRedZoneOrm(BaseInvestor):
+class RedZoneInvestorOrm(BaseInvestor):
     __tablename__ = "BI_trd_RM_Investors_Red_zone"
 
 
-class RMInvestorYellowZoneOrm(BaseInvestor):
+class YellowZoneInvestorOrm(BaseInvestor):
     __tablename__ = "BI_trd_RMWise_Investors_Yellow_zone"
 
 
-class RMNegativeEquityClientOrm(BaseInvestor):
+class NegativeEquityInvestorOrm(BaseInvestor):
     __tablename__ = "BI_trd_Branch_NegativeEquity_codes"
