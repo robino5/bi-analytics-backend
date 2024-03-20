@@ -44,4 +44,13 @@ urlpatterns = [
     path("accounts-fundflow/<int:id>", views.get_accounts_fundflow_by_branchid),
     path("portfolio-status/", views.get_portfolio_status),
     path("portfolio-status/<int:id>", views.get_portfolio_status_by_branchid),
+    # Margin Loan Usage Routes
+    path("margin-loan-allocations/", views.get_margin_loan_allocations),
+    path(
+        "margin-loan-allocations/<int:id>",
+        views.get_margin_loan_allocations_by_branchid,
+    ),
+    path("exposure-list/", views.get_exposures_list),
+    path("exposure-list/<int:id>", views.get_exposures_list_by_branchid),
+    path("rmwise-net-trades/", views.get_rmwise_net_trades),
 ]

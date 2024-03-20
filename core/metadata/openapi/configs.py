@@ -8,6 +8,7 @@ class OpenApiTags:
     LOV = "list-of-values"
     DTP = "daily-trade-performance"
     PM = "portfolio-management"
+    MLU = "margin-loan-usage"
 
 
 openapi_description = r"""
