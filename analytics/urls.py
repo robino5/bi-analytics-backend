@@ -53,4 +53,10 @@ urlpatterns = [
     path("exposure-list/", views.get_exposures_list),
     path("exposure-list/<int:id>", views.get_exposures_list_by_branchid),
     path("rmwise-net-trades/", views.get_rmwise_net_trades),
+    path("zonewise-investors/", views.get_zone_marked_clients),
+    # Branch Wise Performance
+    path("branchwise-turnover-status/", views.get_bw_turnover_status),
+    path("branchwise-margin-status/", views.get_bw_margin_status),
+    path("branchwise-fund-status/", views.get_bw_fund_status),
+    path("branchwise-exposure-status/", views.get_bw_exposure_status),
 ]

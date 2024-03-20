@@ -9,6 +9,7 @@ class OpenApiTags:
     DTP = "daily-trade-performance"
     PM = "portfolio-management"
     MLU = "margin-loan-usage"
+    BP = "branch-performance"
 
 
 openapi_description = r"""
