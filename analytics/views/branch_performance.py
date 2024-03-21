@@ -1,5 +1,6 @@
 from http import HTTPMethod
 
+import pandas as pd
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.decorators import api_view, permission_classes
@@ -14,7 +15,6 @@ from core.renderer import CustomRenderer
 from db import engine
 
 from ..models import (
-    BranchWiseExposureStatus,
     BranchWiseFundStatus,
     BranchWiseMarginStatus,
     BranchWiseTurnoverStatus,
@@ -192,9 +192,11 @@ def get_bw_exposure_status(request: Request) -> Response:
             qs = qs.where(BranchWiseMarginExposureStatusOrm.branch_code == branch_code)
 
         rows = session.execute(qs)
-        # TODO: Need to group data with pandas
-        results = [
-            BranchWiseExposureStatus.model_validate(row._asdict()).model_dump()
-            for row in rows
-        ]
+        df = pd.DataFrame([row._asdict() for row in rows], columns=rows.keys())
+
+        grouped_df = df.groupby(["branch_name", "exposure_type"])
+        results = {}
+        for (branch, exposure), group in grouped_df:
+            branch_dict = results.setdefault(branch, {})
+            branch_dict[exposure] = group.to_dict(orient="records")
     return Response(results)
