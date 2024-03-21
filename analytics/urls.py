@@ -59,4 +59,17 @@ urlpatterns = [
     path("branchwise-margin-status/", views.get_bw_margin_status),
     path("branchwise-fund-status/", views.get_bw_fund_status),
     path("branchwise-exposure-status/", views.get_bw_exposure_status),
+    ################# RM Wise Dashboards URL ##########################
+    # Daily Trade Performance
+    path("rm/basic-summaries/", views.get_basic_summaries_rmwise),
+    path(
+        "rm/daily-trade-performance/", views.get_turnover_performance_statistics_rmwise
+    ),
+    path(
+        "rm/sector-exposure-cashcode/",
+        views.get_cashcode_sector_exposure_rmwise,
+    ),
+    path("rm/sector-exposure-margincode/", views.get_margincode_sector_exposure_rmwise),
+    path("rm/turnover-performance/", views.get_turnover_perfomance_rmwise),
+    path("rm/client-details/", views.get_client_detail_rmwise),
 ]
