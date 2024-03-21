@@ -15,14 +15,13 @@ from db import engine
 
 from ..models import DailyMarginLoanUsage, DailyTurnoverPerformance, SectorExposure
 from ..orm import (
-    ClusterManagerOrm,
     DailyMarginLoanUsageOrm,
     DailyTurnoverPerformanceOrm,
     OverallSummaryOrm,
     SectorExposureCashCodeOrm,
     SectorExposureMarginCodeOrm,
 )
-from .utils import parse_summary
+from .utils import inject_branchwise_filter, parse_summary
 
 __all__ = [
     "get_basic_summaries",
@@ -78,16 +77,7 @@ def get_basic_summaries(request: Request) -> Response:
 
     with Session(engine) as session:
         qs = SUMMARY_QUERY_STR
-        if current_user.is_cluster_manager():
-            branches_qs = select(ClusterManagerOrm.branch_code).where(
-                ClusterManagerOrm.manager_name == current_user.username
-            )
-            branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = qs.where(OverallSummaryOrm.branch_code.in_(branch_codes))
-        if current_user.is_branch_manager():
-            qs = qs.where(
-                OverallSummaryOrm.branch_code == current_user.profile.branch_id
-            )
+        qs = inject_branchwise_filter(qs, current_user, OverallSummaryOrm)
 
         rows = session.execute(qs).first()._asdict()
 
@@ -144,7 +134,7 @@ def get_basic_summaries_by_branchid(request: Request, id: int) -> Response:
 def get_turnover_performance_statistics(request: Request) -> Response:
     """fetch the turnover performance statistics for all"""
     request.accepted_renderer = CustomRenderer()
-    current_user: User = request.user  # noqa: F841
+    current_user: User = request.user
 
     with Session(engine) as session:
         qs = (
@@ -156,6 +146,7 @@ def get_turnover_performance_statistics(request: Request) -> Response:
             .group_by(DailyTurnoverPerformanceOrm.trading_date)
             .order_by(DailyTurnoverPerformanceOrm.trading_date)
         )
+        qs = inject_branchwise_filter(qs, current_user, DailyTurnoverPerformanceOrm)
         rows = session.execute(qs).all()
 
         results = [
@@ -174,7 +165,6 @@ def get_turnover_performance_statistics_by_branchid(
 ) -> Response:
     """fetch the turnover performance statistics for all"""
     request.accepted_renderer = CustomRenderer()
-    current_user: User = request.user  # noqa: F841
 
     with Session(engine) as session:
         qs = (
@@ -187,6 +177,7 @@ def get_turnover_performance_statistics_by_branchid(
             .group_by(DailyTurnoverPerformanceOrm.trading_date)
             .order_by(DailyTurnoverPerformanceOrm.trading_date)
         )
+
         rows = session.execute(qs).all()
 
         results = [
@@ -203,7 +194,7 @@ def get_turnover_performance_statistics_by_branchid(
 def get_margin_loan_statistics(request: Request) -> Response:
     """fetch the margin loan statistics for all"""
     request.accepted_renderer = CustomRenderer()
-    current_user: User = request.user  # noqa: F841
+    current_user: User = request.user
 
     with Session(engine) as session:
         qs = (
@@ -215,6 +206,9 @@ def get_margin_loan_statistics(request: Request) -> Response:
             .group_by(DailyMarginLoanUsageOrm.trading_date)
             .order_by(DailyMarginLoanUsageOrm.trading_date)
         )
+
+        qs = inject_branchwise_filter(qs, current_user, DailyMarginLoanUsageOrm)
+
         rows = session.execute(qs).all()
 
         results = [
@@ -271,6 +265,9 @@ def get_cashcode_sector_exposure(request: Request) -> Response:
             .group_by(SectorExposureCashCodeOrm.sector_name)
             .order_by(desc(text("value")))
         )
+
+        qs = inject_branchwise_filter(qs, current_user, SectorExposureCashCodeOrm)
+
         rows = session.execute(qs).all()
 
         results = [
@@ -324,6 +321,9 @@ def get_margincode_sector_exposure(request: Request) -> Response:
             .group_by(SectorExposureMarginCodeOrm.sector_name)
             .order_by(desc(text("value")))
         )
+
+        qs = inject_branchwise_filter(qs, current_user, SectorExposureMarginCodeOrm)
+
         rows = session.execute(qs).all()
 
         results = [

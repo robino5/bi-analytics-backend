@@ -17,12 +17,12 @@ from db import engine
 from ..models import DailyNetFundFlow, PortfolioStatus, TradeVsClient
 from ..orm import (
     AccountOpeningFundInOutFlowOrm,
-    ClusterManagerOrm,
     DailyNetFundFlowOrm,
     PortfolioManagementStatusOrm,
     TurnoverAndClientsTradeOrm,
     TurnoverPerformanceOrm,
 )
+from .utils import inject_branchwise_filter
 
 __all__ = [
     "get_daily_net_fundflow",
@@ -52,16 +52,7 @@ def get_daily_net_fundflow(request: Request) -> Response:
             func.sum(DailyNetFundFlowOrm.fundflow).label("amount"),
         ).group_by(DailyNetFundFlowOrm.trading_date)
 
-        if current_user.is_cluster_manager():
-            branches_qs = select(ClusterManagerOrm.branch_code).where(
-                ClusterManagerOrm.manager_name == current_user.username
-            )
-            branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = qs.where(DailyNetFundFlowOrm.branch_code.in_(branch_codes))
-        if current_user.is_branch_manager():
-            qs = qs.where(
-                DailyNetFundFlowOrm.branch_code == current_user.profile.branch_id
-            )
+        qs = inject_branchwise_filter(qs, current_user, DailyNetFundFlowOrm)
         rows = session.execute(qs)
         results = [
             DailyNetFundFlow.model_validate(row._asdict()).model_dump() for row in rows
@@ -108,16 +99,8 @@ def get_trade_vs_client_statistics(request: Request) -> Response:
             func.sum(TurnoverAndClientsTradeOrm.active_client).label("active_clients"),
         ).group_by(TurnoverAndClientsTradeOrm.trading_date)
 
-        if current_user.is_cluster_manager():
-            branches_qs = select(ClusterManagerOrm.branch_code).where(
-                ClusterManagerOrm.manager_name == current_user.username
-            )
-            branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = qs.where(TurnoverAndClientsTradeOrm.branch_code.in_(branch_codes))
-        if current_user.is_branch_manager():
-            qs = qs.where(
-                TurnoverAndClientsTradeOrm.branch_code == current_user.profile.branch_id
-            )
+        qs = inject_branchwise_filter(qs, current_user, TurnoverAndClientsTradeOrm)
+
         rows = session.execute(qs)
         results = [
             TradeVsClient.model_validate(row._asdict()).model_dump() for row in rows
@@ -169,16 +152,8 @@ def get_turnover_performance(request: Request) -> Response:
             TurnoverPerformanceOrm.col3,
         )
 
-        if current_user.is_cluster_manager():
-            branches_qs = select(ClusterManagerOrm.branch_code).where(
-                ClusterManagerOrm.manager_name == current_user.username
-            )
-            branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = qs.where(TurnoverPerformanceOrm.branch_code.in_(branch_codes))
-        if current_user.is_branch_manager():
-            qs = qs.where(
-                TurnoverPerformanceOrm.branch_code == current_user.profile.branch_id
-            )
+        qs = inject_branchwise_filter(qs, current_user, TurnoverPerformanceOrm)
+
         rows = session.execute(qs)
 
         df = pd.DataFrame([row._asdict() for row in rows], columns=rows.keys())
@@ -246,17 +221,8 @@ def get_accounts_fundflow(request: Request) -> Response:
             AccountOpeningFundInOutFlowOrm.col3,
         )
 
-        if current_user.is_cluster_manager():
-            branches_qs = select(ClusterManagerOrm.branch_code).where(
-                ClusterManagerOrm.manager_name == current_user.username
-            )
-            branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = qs.where(AccountOpeningFundInOutFlowOrm.branch_code.in_(branch_codes))
-        if current_user.is_branch_manager():
-            qs = qs.where(
-                AccountOpeningFundInOutFlowOrm.branch_code
-                == current_user.profile.branch_id
-            )
+        qs = inject_branchwise_filter(qs, current_user, AccountOpeningFundInOutFlowOrm)
+
         rows = session.execute(qs)
 
         df = pd.DataFrame([row._asdict() for row in rows], columns=rows.keys())
@@ -320,17 +286,7 @@ def get_portfolio_status(request: Request) -> Response:
             .order_by(PortfolioManagementStatusOrm.perticular)
         )
 
-        if current_user.is_cluster_manager():
-            branches_qs = select(ClusterManagerOrm.branch_code).where(
-                ClusterManagerOrm.manager_name == current_user.username
-            )
-            branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = qs.where(PortfolioManagementStatusOrm.branch_code.in_(branch_codes))
-        if current_user.is_branch_manager():
-            qs = qs.where(
-                PortfolioManagementStatusOrm.branch_code
-                == current_user.profile.branch_id
-            )
+        qs = inject_branchwise_filter(qs, current_user, PortfolioManagementStatusOrm)
 
         rows = session.execute(qs)
         results = [
