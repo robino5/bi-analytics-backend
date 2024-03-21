@@ -11,12 +11,14 @@ from rest_framework.response import Response
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from authusers.models import User
 from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
 from ..models import Exposure, MarginLoanUsgae, MarkedInvestor, RMWiseNetTrade
 from ..orm import (
+    ClusterManagerOrm,
     ExposureControllingManagementOrm,
     MarginLoanAllocationUsageOrm,
     NegativeEquityInvestorOrm,
@@ -45,7 +47,10 @@ InvestorOrmType = RedZoneInvestorOrm | YellowZoneInvestorOrm | NegativeEquityInv
 
 
 def get_marked_investors(
-    investor_cls: Type[InvestorOrmType], branch_code: int | None = None
+    investor_cls: Type[InvestorOrmType],
+    user: User,
+    branch_code: int | None = None,
+    session: Session = None,
 ):
     qs = select(
         investor_cls.branch_code,
@@ -58,6 +63,15 @@ def get_marked_investors(
         investor_cls.ledger_balance,
         investor_cls.rm_name,
     ).order_by(investor_cls.investor_name)
+
+    if user.is_cluster_manager():
+        branches_qs = select(ClusterManagerOrm.branch_code).where(
+            ClusterManagerOrm.manager_name == user.username
+        )
+        branch_codes = [result[0] for result in session.execute(branches_qs)]
+        qs = qs.where(investor_cls.branch_code.in_(branch_codes))
+    if user.is_branch_manager():
+        qs = qs.where(investor_cls.branch_code == user.profile.branch_id)
     if branch_code:
         qs = qs.where(investor_cls.branch_code == branch_code)
     return qs
@@ -69,6 +83,7 @@ def get_marked_investors(
 def get_margin_loan_allocations(request: Request) -> Response:
     """fetch all margin loan allocation summary"""
     request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
 
     with Session(engine) as session:
         qs = (
@@ -79,6 +94,19 @@ def get_margin_loan_allocations(request: Request) -> Response:
             .group_by(MarginLoanAllocationUsageOrm.col2)
             .order_by(MarginLoanAllocationUsageOrm.col2)
         )
+
+        if current_user.is_cluster_manager():
+            branches_qs = select(ClusterManagerOrm.branch_code).where(
+                ClusterManagerOrm.manager_name == current_user.username
+            )
+            branch_codes = [result[0] for result in session.execute(branches_qs)]
+            qs = qs.where(MarginLoanAllocationUsageOrm.branch_code.in_(branch_codes))
+        if current_user.is_branch_manager():
+            qs = qs.where(
+                MarginLoanAllocationUsageOrm.branch_code
+                == current_user.profile.branch_id
+            )
+
         rows = session.execute(qs)
         results = [
             MarginLoanUsgae.model_validate(row._asdict()).model_dump() for row in rows
@@ -116,6 +144,7 @@ def get_margin_loan_allocations_by_branchid(request: Request, id: int) -> Respon
 def get_exposures_list(request: Request) -> Response:
     """fetch all margin loan allocation summary"""
     request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
 
     with Session(engine) as session:
         qs = (
@@ -131,6 +160,20 @@ def get_exposures_list(request: Request) -> Response:
             .group_by(ExposureControllingManagementOrm.exposure_type)
             .order_by(ExposureControllingManagementOrm.exposure_type)
         )
+
+        if current_user.is_cluster_manager():
+            branches_qs = select(ClusterManagerOrm.branch_code).where(
+                ClusterManagerOrm.manager_name == current_user.username
+            )
+            branch_codes = [result[0] for result in session.execute(branches_qs)]
+            qs = qs.where(
+                ExposureControllingManagementOrm.branch_code.in_(branch_codes)
+            )
+        if current_user.is_branch_manager():
+            qs = qs.where(
+                ExposureControllingManagementOrm.branch_code
+                == current_user.profile.branch_id
+            )
         rows = session.execute(qs)
         results = [Exposure.model_validate(row._asdict()).model_dump() for row in rows]
     return Response(results)
@@ -169,6 +212,7 @@ def get_exposures_list_by_branchid(request: Request, id: int) -> Response:
 def get_rmwise_net_trades(request: Request) -> Response:
     """fetch all RM list with net trades"""
     request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
 
     with Session(engine) as session:
         qs = select(
@@ -180,6 +224,18 @@ def get_rmwise_net_trades(request: Request) -> Response:
             RMWiseNetTradeOrm.net_buysell,
             RMWiseNetTradeOrm.rm_name,
         ).order_by(RMWiseNetTradeOrm.branch_name)
+
+        if current_user.is_cluster_manager():
+            branches_qs = select(ClusterManagerOrm.branch_code).where(
+                ClusterManagerOrm.manager_name == current_user.username
+            )
+            branch_codes = [result[0] for result in session.execute(branches_qs)]
+            qs = qs.where(RMWiseNetTradeOrm.branch_code.in_(branch_codes))
+        if current_user.is_branch_manager():
+            qs = qs.where(
+                RMWiseNetTradeOrm.branch_code == current_user.profile.branch_id
+            )
+
         rows = session.execute(qs)
         results = [
             RMWiseNetTrade.model_validate(row._asdict()).model_dump() for row in rows
@@ -213,6 +269,7 @@ def get_rmwise_net_trades(request: Request) -> Response:
 def get_zone_marked_clients(request: Request) -> Response:
     """fetch all RM list with net trades"""
     request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
 
     mark = request.query_params.get("investor_type")
     branch_code = request.query_params.get("branch_code")
@@ -220,11 +277,17 @@ def get_zone_marked_clients(request: Request) -> Response:
     with Session(engine) as session:
         match mark:
             case MarkedInvestorEnum.RED:
-                qs = get_marked_investors(RedZoneInvestorOrm, branch_code)
+                qs = get_marked_investors(
+                    RedZoneInvestorOrm, current_user, branch_code, session
+                )
             case MarkedInvestorEnum.YELLOW:
-                qs = get_marked_investors(YellowZoneInvestorOrm, branch_code)
+                qs = get_marked_investors(
+                    YellowZoneInvestorOrm, current_user, branch_code, session
+                )
             case _:
-                qs = get_marked_investors(NegativeEquityInvestorOrm, branch_code)
+                qs = get_marked_investors(
+                    NegativeEquityInvestorOrm, current_user, branch_code, session
+                )
 
         rows = session.execute(qs)
         results = [
