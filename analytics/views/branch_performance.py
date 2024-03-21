@@ -1,5 +1,6 @@
 from http import HTTPMethod
 
+import pandas as pd
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.decorators import api_view, permission_classes
@@ -9,12 +10,12 @@ from rest_framework.response import Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from authusers.models import User
 from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
 from ..models import (
-    BranchWiseExposureStatus,
     BranchWiseFundStatus,
     BranchWiseMarginStatus,
     BranchWiseTurnoverStatus,
@@ -24,6 +25,7 @@ from ..orm import (
     BranchWiseMarginExposureStatusOrm,
     BranchWiseMarginStatusOrm,
     BranchWiseTurnoverStatusOrm,
+    ClusterManagerOrm,
 )
 
 __all__ = [
@@ -51,6 +53,7 @@ __all__ = [
 def get_bw_turnover_status(request: Request) -> Response:
     """fetch branch wise turnover status"""
     request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
 
     branch_code = request.query_params.get("branch_code", None)
 
@@ -63,6 +66,18 @@ def get_bw_turnover_status(request: Request) -> Response:
             BranchWiseTurnoverStatusOrm.turnover_monthly,
             BranchWiseTurnoverStatusOrm.turnover_yearly,
         ).order_by(BranchWiseTurnoverStatusOrm.branch_name)
+
+        if current_user.is_cluster_manager():
+            branches_qs = select(ClusterManagerOrm.branch_code).where(
+                ClusterManagerOrm.manager_name == current_user.username
+            )
+            branch_codes = [result[0] for result in session.execute(branches_qs)]
+            qs = qs.where(BranchWiseTurnoverStatusOrm.branch_code.in_(branch_codes))
+        if current_user.is_branch_manager():
+            qs = qs.where(
+                BranchWiseTurnoverStatusOrm.branch_code
+                == current_user.profile.branch_id
+            )
 
         if branch_code:
             qs = qs.where(BranchWiseTurnoverStatusOrm.branch_code == branch_code)
@@ -92,6 +107,7 @@ def get_bw_turnover_status(request: Request) -> Response:
 def get_bw_margin_status(request: Request) -> Response:
     """fetch branch wise turnover status"""
     request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
 
     branch_code = request.query_params.get("branch_code", None)
 
@@ -105,6 +121,17 @@ def get_bw_margin_status(request: Request) -> Response:
             BranchWiseMarginStatusOrm.turnover_monthly,
             BranchWiseMarginStatusOrm.turnover_yearly,
         ).order_by(BranchWiseMarginStatusOrm.branch_name)
+
+        if current_user.is_cluster_manager():
+            branches_qs = select(ClusterManagerOrm.branch_code).where(
+                ClusterManagerOrm.manager_name == current_user.username
+            )
+            branch_codes = [result[0] for result in session.execute(branches_qs)]
+            qs = qs.where(BranchWiseMarginStatusOrm.branch_code.in_(branch_codes))
+        if current_user.is_branch_manager():
+            qs = qs.where(
+                BranchWiseMarginStatusOrm.branch_code == current_user.profile.branch_id
+            )
 
         if branch_code:
             qs = qs.where(BranchWiseMarginStatusOrm.branch_code == branch_code)
@@ -134,7 +161,7 @@ def get_bw_margin_status(request: Request) -> Response:
 def get_bw_fund_status(request: Request) -> Response:
     """fetch branch wise fund status"""
     request.accepted_renderer = CustomRenderer()
-
+    current_user: User = request.user
     branch_code = request.query_params.get("branch_code", None)
 
     with Session(engine) as session:
@@ -147,6 +174,17 @@ def get_bw_fund_status(request: Request) -> Response:
             BranchWiseFundStatusOrm.fund_withdrawl,
             BranchWiseFundStatusOrm.net_fundflow,
         ).order_by(BranchWiseFundStatusOrm.branch_name)
+
+        if current_user.is_cluster_manager():
+            branches_qs = select(ClusterManagerOrm.branch_code).where(
+                ClusterManagerOrm.manager_name == current_user.username
+            )
+            branch_codes = [result[0] for result in session.execute(branches_qs)]
+            qs = qs.where(BranchWiseFundStatusOrm.branch_code.in_(branch_codes))
+        if current_user.is_branch_manager():
+            qs = qs.where(
+                BranchWiseFundStatusOrm.branch_code == current_user.profile.branch_id
+            )
 
         if branch_code:
             qs = qs.where(BranchWiseFundStatusOrm.branch_code == branch_code)
@@ -176,6 +214,7 @@ def get_bw_fund_status(request: Request) -> Response:
 def get_bw_exposure_status(request: Request) -> Response:
     """fetch branch wise fund status"""
     request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
 
     branch_code = request.query_params.get("branch_code", None)
 
@@ -188,13 +227,29 @@ def get_bw_exposure_status(request: Request) -> Response:
             BranchWiseMarginExposureStatusOrm.exposure_ratio,
         ).order_by(BranchWiseMarginExposureStatusOrm.branch_name)
 
+        if current_user.is_cluster_manager():
+            branches_qs = select(ClusterManagerOrm.branch_code).where(
+                ClusterManagerOrm.manager_name == current_user.username
+            )
+            branch_codes = [result[0] for result in session.execute(branches_qs)]
+            qs = qs.where(
+                BranchWiseMarginExposureStatusOrm.branch_code.in_(branch_codes)
+            )
+        if current_user.is_branch_manager():
+            qs = qs.where(
+                BranchWiseMarginExposureStatusOrm.branch_code
+                == current_user.profile.branch_id
+            )
+
         if branch_code:
             qs = qs.where(BranchWiseMarginExposureStatusOrm.branch_code == branch_code)
 
         rows = session.execute(qs)
-        # TODO: Need to group data with pandas
-        results = [
-            BranchWiseExposureStatus.model_validate(row._asdict()).model_dump()
-            for row in rows
-        ]
+        df = pd.DataFrame([row._asdict() for row in rows], columns=rows.keys())
+
+        grouped_df = df.groupby(["branch_name", "exposure_type"])
+        results = {}
+        for (branch, exposure), group in grouped_df:
+            branch_dict = results.setdefault(branch, {})
+            branch_dict[exposure] = group.to_dict(orient="records")
     return Response(results)
