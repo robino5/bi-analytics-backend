@@ -25,8 +25,8 @@ from ..orm import (
     BranchWiseMarginExposureStatusOrm,
     BranchWiseMarginStatusOrm,
     BranchWiseTurnoverStatusOrm,
-    ClusterManagerOrm,
 )
+from .utils import inject_branchwise_filter
 
 __all__ = [
     "get_bw_turnover_status",
@@ -67,17 +67,7 @@ def get_bw_turnover_status(request: Request) -> Response:
             BranchWiseTurnoverStatusOrm.turnover_yearly,
         ).order_by(BranchWiseTurnoverStatusOrm.branch_name)
 
-        if current_user.is_cluster_manager():
-            branches_qs = select(ClusterManagerOrm.branch_code).where(
-                ClusterManagerOrm.manager_name == current_user.username
-            )
-            branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = qs.where(BranchWiseTurnoverStatusOrm.branch_code.in_(branch_codes))
-        if current_user.is_branch_manager():
-            qs = qs.where(
-                BranchWiseTurnoverStatusOrm.branch_code
-                == current_user.profile.branch_id
-            )
+        qs = inject_branchwise_filter(qs, current_user, BranchWiseTurnoverStatusOrm)
 
         if branch_code:
             qs = qs.where(BranchWiseTurnoverStatusOrm.branch_code == branch_code)
@@ -122,16 +112,7 @@ def get_bw_margin_status(request: Request) -> Response:
             BranchWiseMarginStatusOrm.turnover_yearly,
         ).order_by(BranchWiseMarginStatusOrm.branch_name)
 
-        if current_user.is_cluster_manager():
-            branches_qs = select(ClusterManagerOrm.branch_code).where(
-                ClusterManagerOrm.manager_name == current_user.username
-            )
-            branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = qs.where(BranchWiseMarginStatusOrm.branch_code.in_(branch_codes))
-        if current_user.is_branch_manager():
-            qs = qs.where(
-                BranchWiseMarginStatusOrm.branch_code == current_user.profile.branch_id
-            )
+        qs = inject_branchwise_filter(qs, current_user, BranchWiseMarginStatusOrm)
 
         if branch_code:
             qs = qs.where(BranchWiseMarginStatusOrm.branch_code == branch_code)
@@ -175,16 +156,7 @@ def get_bw_fund_status(request: Request) -> Response:
             BranchWiseFundStatusOrm.net_fundflow,
         ).order_by(BranchWiseFundStatusOrm.branch_name)
 
-        if current_user.is_cluster_manager():
-            branches_qs = select(ClusterManagerOrm.branch_code).where(
-                ClusterManagerOrm.manager_name == current_user.username
-            )
-            branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = qs.where(BranchWiseFundStatusOrm.branch_code.in_(branch_codes))
-        if current_user.is_branch_manager():
-            qs = qs.where(
-                BranchWiseFundStatusOrm.branch_code == current_user.profile.branch_id
-            )
+        qs = inject_branchwise_filter(qs, current_user, BranchWiseFundStatusOrm)
 
         if branch_code:
             qs = qs.where(BranchWiseFundStatusOrm.branch_code == branch_code)
@@ -227,19 +199,9 @@ def get_bw_exposure_status(request: Request) -> Response:
             BranchWiseMarginExposureStatusOrm.exposure_ratio,
         ).order_by(BranchWiseMarginExposureStatusOrm.branch_name)
 
-        if current_user.is_cluster_manager():
-            branches_qs = select(ClusterManagerOrm.branch_code).where(
-                ClusterManagerOrm.manager_name == current_user.username
-            )
-            branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = qs.where(
-                BranchWiseMarginExposureStatusOrm.branch_code.in_(branch_codes)
-            )
-        if current_user.is_branch_manager():
-            qs = qs.where(
-                BranchWiseMarginExposureStatusOrm.branch_code
-                == current_user.profile.branch_id
-            )
+        qs = inject_branchwise_filter(
+            qs, current_user, BranchWiseMarginExposureStatusOrm
+        )
 
         if branch_code:
             qs = qs.where(BranchWiseMarginExposureStatusOrm.branch_code == branch_code)

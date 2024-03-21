@@ -18,7 +18,6 @@ from db import engine
 
 from ..models import Exposure, MarginLoanUsgae, MarkedInvestor, RMWiseNetTrade
 from ..orm import (
-    ClusterManagerOrm,
     ExposureControllingManagementOrm,
     MarginLoanAllocationUsageOrm,
     NegativeEquityInvestorOrm,
@@ -26,6 +25,7 @@ from ..orm import (
     RMWiseNetTradeOrm,
     YellowZoneInvestorOrm,
 )
+from .utils import inject_branchwise_filter
 
 __all__ = [
     "get_margin_loan_allocations",
@@ -50,7 +50,6 @@ def get_marked_investors(
     investor_cls: Type[InvestorOrmType],
     user: User,
     branch_code: int | None = None,
-    session: Session = None,
 ):
     qs = select(
         investor_cls.branch_code,
@@ -64,16 +63,10 @@ def get_marked_investors(
         investor_cls.rm_name,
     ).order_by(investor_cls.investor_name)
 
-    if user.is_cluster_manager():
-        branches_qs = select(ClusterManagerOrm.branch_code).where(
-            ClusterManagerOrm.manager_name == user.username
-        )
-        branch_codes = [result[0] for result in session.execute(branches_qs)]
-        qs = qs.where(investor_cls.branch_code.in_(branch_codes))
-    if user.is_branch_manager():
-        qs = qs.where(investor_cls.branch_code == user.profile.branch_id)
+    qs = inject_branchwise_filter(qs, user, investor_cls)
     if branch_code:
         qs = qs.where(investor_cls.branch_code == branch_code)
+
     return qs
 
 
@@ -95,17 +88,7 @@ def get_margin_loan_allocations(request: Request) -> Response:
             .order_by(MarginLoanAllocationUsageOrm.col2)
         )
 
-        if current_user.is_cluster_manager():
-            branches_qs = select(ClusterManagerOrm.branch_code).where(
-                ClusterManagerOrm.manager_name == current_user.username
-            )
-            branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = qs.where(MarginLoanAllocationUsageOrm.branch_code.in_(branch_codes))
-        if current_user.is_branch_manager():
-            qs = qs.where(
-                MarginLoanAllocationUsageOrm.branch_code
-                == current_user.profile.branch_id
-            )
+        qs = inject_branchwise_filter(qs, current_user, MarginLoanAllocationUsageOrm)
 
         rows = session.execute(qs)
         results = [
@@ -161,19 +144,10 @@ def get_exposures_list(request: Request) -> Response:
             .order_by(ExposureControllingManagementOrm.exposure_type)
         )
 
-        if current_user.is_cluster_manager():
-            branches_qs = select(ClusterManagerOrm.branch_code).where(
-                ClusterManagerOrm.manager_name == current_user.username
-            )
-            branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = qs.where(
-                ExposureControllingManagementOrm.branch_code.in_(branch_codes)
-            )
-        if current_user.is_branch_manager():
-            qs = qs.where(
-                ExposureControllingManagementOrm.branch_code
-                == current_user.profile.branch_id
-            )
+        qs = inject_branchwise_filter(
+            qs, current_user, ExposureControllingManagementOrm
+        )
+
         rows = session.execute(qs)
         results = [Exposure.model_validate(row._asdict()).model_dump() for row in rows]
     return Response(results)
@@ -225,16 +199,7 @@ def get_rmwise_net_trades(request: Request) -> Response:
             RMWiseNetTradeOrm.rm_name,
         ).order_by(RMWiseNetTradeOrm.branch_name)
 
-        if current_user.is_cluster_manager():
-            branches_qs = select(ClusterManagerOrm.branch_code).where(
-                ClusterManagerOrm.manager_name == current_user.username
-            )
-            branch_codes = [result[0] for result in session.execute(branches_qs)]
-            qs = qs.where(RMWiseNetTradeOrm.branch_code.in_(branch_codes))
-        if current_user.is_branch_manager():
-            qs = qs.where(
-                RMWiseNetTradeOrm.branch_code == current_user.profile.branch_id
-            )
+        qs = inject_branchwise_filter(qs, current_user, RMWiseNetTradeOrm)
 
         rows = session.execute(qs)
         results = [
