@@ -11,6 +11,9 @@ class OpenApiTags:
     MLU = "margin-loan-usage"
     BP = "branch-performance"
 
+    RMWISE_DTP = "rmwise-daily-trade-performance"
+    RMWISE_PERFORMANCE = "rmwise-performance"
+
 
 openapi_description = r"""
 ## 🟢 BI Analytics
