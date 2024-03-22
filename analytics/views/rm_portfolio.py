@@ -68,18 +68,18 @@ def get_marked_investors(
     tags=[OpenApiTags.RMWISE_PERFORMANCE],
     parameters=[
         OpenApiParameter(
-            "branch_code",
+            "branch",
             OpenApiTypes.INT,
             OpenApiParameter.QUERY,
             required=True,
             description="Branch Code Of the RM",
         ),
         OpenApiParameter(
-            "username",
+            "trader",
             OpenApiTypes.STR,
             OpenApiParameter.QUERY,
             required=True,
-            description="Username of the RM",
+            description="Trader Id of the RM",
         ),
     ],
 )
@@ -90,8 +90,8 @@ def get_fund_collection_rmwise(request: Request) -> Response:
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
 
-    has_branch = request.query_params.get("branch_code", None)
-    has_trader = request.query_params.get("username", None)
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
 
     with Session(engine) as session:
         qs = select(
@@ -129,18 +129,18 @@ def get_fund_collection_rmwise(request: Request) -> Response:
     tags=[OpenApiTags.RMWISE_PERFORMANCE],
     parameters=[
         OpenApiParameter(
-            "branch_code",
+            "branch",
             OpenApiTypes.INT,
             OpenApiParameter.QUERY,
             required=True,
             description="Branch Code Of the RM",
         ),
         OpenApiParameter(
-            "username",
+            "trader",
             OpenApiTypes.STR,
             OpenApiParameter.QUERY,
             required=True,
-            description="Username of the RM",
+            description="Trader Id of the RM",
         ),
     ],
 )
@@ -151,8 +151,8 @@ def get_portfolio_management_rmwise(request: Request) -> Response:
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
 
-    has_branch = request.query_params.get("branch_code", None)
-    has_trader = request.query_params.get("username", None)
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
 
     with Session(engine) as session:
         qs = select(
@@ -183,18 +183,18 @@ def get_portfolio_management_rmwise(request: Request) -> Response:
     tags=[OpenApiTags.RMWISE_PERFORMANCE],
     parameters=[
         OpenApiParameter(
-            "branch_code",
+            "branch",
             OpenApiTypes.INT,
             OpenApiParameter.QUERY,
             required=True,
             description="Branch Code Of the RM",
         ),
         OpenApiParameter(
-            "username",
+            "trader",
             OpenApiTypes.STR,
             OpenApiParameter.QUERY,
             required=True,
-            description="Username of the RM",
+            description="Trader Id of the RM",
         ),
     ],
 )
@@ -205,8 +205,8 @@ def get_daily_net_fund_flow_rmwise(request: Request) -> Response:
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
 
-    has_branch = request.query_params.get("branch_code", None)
-    has_trader = request.query_params.get("username", None)
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
 
     with Session(engine) as session:
         qs = select(
