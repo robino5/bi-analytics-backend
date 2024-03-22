@@ -40,7 +40,7 @@ __all__ = [
     tags=[OpenApiTags.BP],
     parameters=[
         OpenApiParameter(
-            "branch_code",
+            "branch",
             OpenApiTypes.INT,
             OpenApiParameter.QUERY,
             required=False,
@@ -55,7 +55,7 @@ def get_bw_turnover_status(request: Request) -> Response:
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
 
-    branch_code = request.query_params.get("branch_code", None)
+    has_branch = request.query_params.get("branch", None)
 
     with Session(engine) as session:
         qs = select(
@@ -69,8 +69,8 @@ def get_bw_turnover_status(request: Request) -> Response:
 
         qs = inject_branchwise_filter(qs, current_user, BranchWiseTurnoverStatusOrm)
 
-        if branch_code:
-            qs = qs.where(BranchWiseTurnoverStatusOrm.branch_code == branch_code)
+        if has_branch:
+            qs = qs.where(BranchWiseTurnoverStatusOrm.branch_code == has_branch)
 
         rows = session.execute(qs)
         results = [
@@ -84,7 +84,7 @@ def get_bw_turnover_status(request: Request) -> Response:
     tags=[OpenApiTags.BP],
     parameters=[
         OpenApiParameter(
-            "branch_code",
+            "branch",
             OpenApiTypes.INT,
             OpenApiParameter.QUERY,
             required=False,
@@ -99,7 +99,7 @@ def get_bw_margin_status(request: Request) -> Response:
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
 
-    branch_code = request.query_params.get("branch_code", None)
+    has_branch = request.query_params.get("branch", None)
 
     with Session(engine) as session:
         qs = select(
@@ -114,8 +114,8 @@ def get_bw_margin_status(request: Request) -> Response:
 
         qs = inject_branchwise_filter(qs, current_user, BranchWiseMarginStatusOrm)
 
-        if branch_code:
-            qs = qs.where(BranchWiseMarginStatusOrm.branch_code == branch_code)
+        if has_branch:
+            qs = qs.where(BranchWiseMarginStatusOrm.branch_code == has_branch)
 
         rows = session.execute(qs)
         results = [
@@ -129,7 +129,7 @@ def get_bw_margin_status(request: Request) -> Response:
     tags=[OpenApiTags.BP],
     parameters=[
         OpenApiParameter(
-            "branch_code",
+            "branch",
             OpenApiTypes.INT,
             OpenApiParameter.QUERY,
             required=False,
@@ -143,7 +143,7 @@ def get_bw_fund_status(request: Request) -> Response:
     """fetch branch wise fund status"""
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
-    branch_code = request.query_params.get("branch_code", None)
+    has_branch = request.query_params.get("branch", None)
 
     with Session(engine) as session:
         qs = select(
@@ -158,8 +158,8 @@ def get_bw_fund_status(request: Request) -> Response:
 
         qs = inject_branchwise_filter(qs, current_user, BranchWiseFundStatusOrm)
 
-        if branch_code:
-            qs = qs.where(BranchWiseFundStatusOrm.branch_code == branch_code)
+        if has_branch:
+            qs = qs.where(BranchWiseFundStatusOrm.branch_code == has_branch)
 
         rows = session.execute(qs)
         results = [
@@ -173,7 +173,7 @@ def get_bw_fund_status(request: Request) -> Response:
     tags=[OpenApiTags.BP],
     parameters=[
         OpenApiParameter(
-            "branch_code",
+            "branch",
             OpenApiTypes.INT,
             OpenApiParameter.QUERY,
             required=False,
@@ -188,7 +188,7 @@ def get_bw_exposure_status(request: Request) -> Response:
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
 
-    branch_code = request.query_params.get("branch_code", None)
+    has_branch = request.query_params.get("branch", None)
 
     with Session(engine) as session:
         qs = select(
@@ -203,8 +203,8 @@ def get_bw_exposure_status(request: Request) -> Response:
             qs, current_user, BranchWiseMarginExposureStatusOrm
         )
 
-        if branch_code:
-            qs = qs.where(BranchWiseMarginExposureStatusOrm.branch_code == branch_code)
+        if has_branch:
+            qs = qs.where(BranchWiseMarginExposureStatusOrm.branch_code == has_branch)
 
         rows = session.execute(qs)
         df = pd.DataFrame([row._asdict() for row in rows], columns=rows.keys())

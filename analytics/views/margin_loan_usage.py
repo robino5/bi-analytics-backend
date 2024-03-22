@@ -221,7 +221,7 @@ def get_rmwise_net_trades(request: Request) -> Response:
             allow_blank=False,
         ),
         OpenApiParameter(
-            "branch_code",
+            "branch",
             OpenApiTypes.INT,
             OpenApiParameter.QUERY,
             required=False,
@@ -237,21 +237,21 @@ def get_zone_marked_clients(request: Request) -> Response:
     current_user: User = request.user
 
     mark = request.query_params.get("investor_type")
-    branch_code = request.query_params.get("branch_code")
+    has_branch = request.query_params.get("branch")
 
     with Session(engine) as session:
         match mark:
             case MarkedInvestorEnum.RED:
                 qs = get_marked_investors(
-                    RedZoneInvestorOrm, current_user, branch_code, session
+                    RedZoneInvestorOrm, current_user, has_branch, session
                 )
             case MarkedInvestorEnum.YELLOW:
                 qs = get_marked_investors(
-                    YellowZoneInvestorOrm, current_user, branch_code, session
+                    YellowZoneInvestorOrm, current_user, has_branch, session
                 )
             case _:
                 qs = get_marked_investors(
-                    NegativeEquityInvestorOrm, current_user, branch_code, session
+                    NegativeEquityInvestorOrm, current_user, has_branch, session
                 )
 
         rows = session.execute(qs)
