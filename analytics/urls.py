@@ -72,4 +72,9 @@ urlpatterns = [
     path("rm/sector-exposure-margincode/", views.get_margincode_sector_exposure_rmwise),
     path("rm/turnover-performance/", views.get_turnover_perfomance_rmwise),
     path("rm/client-details/", views.get_client_detail_rmwise),
+    # RM portfolio
+    path("rm/fund-collections/", views.get_fund_collection_rmwise),
+    path("rm/portfolio-management-status/", views.get_portfolio_management_rmwise),
+    path("rm/daily-net-fund-flow/", views.get_daily_net_fund_flow_rmwise),
+    path("rm/marked-clients/", views.get_zone_marked_clients_rmwise),
 ]
