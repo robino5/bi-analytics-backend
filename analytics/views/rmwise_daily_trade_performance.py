@@ -104,7 +104,7 @@ def get_basic_summaries_rmwise(request: Request) -> Response:
             qs = qs.where(
                 RMWiseOverallSummaryOrm.branch_code == has_branch,
             )
-        if has_trader:
+        if has_trader and has_trader != "all":
             qs = qs.where(
                 RMWiseOverallSummaryOrm.rm_id == has_trader,
             )
@@ -174,7 +174,7 @@ def get_turnover_performance_statistics_rmwise(request: Request) -> Response:
             qs = qs.where(
                 RMWiseDailyTurnoverPerformanceOrm.branch_code == has_branch,
             )
-        if has_trader:
+        if has_trader and has_trader != "all":
             qs = qs.where(
                 RMWiseDailyTurnoverPerformanceOrm.rm_id == has_trader,
             )
@@ -232,11 +232,11 @@ def get_cashcode_sector_exposure_rmwise(request: Request) -> Response:
 
         if has_branch:
             qs = qs.where(
-                RMWiseDailyTurnoverPerformanceOrm.branch_code == has_branch,
+                RMWiseSectorExposureCashCodeOrm.branch_code == has_branch,
             )
-        if has_trader:
+        if has_trader and has_trader != "all":
             qs = qs.where(
-                RMWiseDailyTurnoverPerformanceOrm.rm_id == has_trader,
+                RMWiseSectorExposureCashCodeOrm.rm_id == has_trader,
             )
         rows = session.execute(qs)
 
@@ -290,11 +290,11 @@ def get_margincode_sector_exposure_rmwise(request: Request) -> Response:
 
         if has_branch:
             qs = qs.where(
-                RMWiseDailyTurnoverPerformanceOrm.branch_code == has_branch,
+                RMWiseSectorExposureMarginCodeOrm.branch_code == has_branch,
             )
-        if has_trader:
+        if has_trader and has_trader != "all":
             qs = qs.where(
-                RMWiseDailyTurnoverPerformanceOrm.rm_id == has_trader,
+                RMWiseSectorExposureMarginCodeOrm.rm_id == has_trader,
             )
         rows = session.execute(qs)
 
