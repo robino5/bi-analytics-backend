@@ -71,18 +71,18 @@ METRICS_OF_SUMMARY_QUERY = {
     tags=[OpenApiTags.RMWISE_DTP],
     parameters=[
         OpenApiParameter(
-            "branch_code",
+            "branch",
             OpenApiTypes.INT,
             OpenApiParameter.QUERY,
             required=True,
             description="Branch Code Of the RM",
         ),
         OpenApiParameter(
-            "username",
+            "trader",
             OpenApiTypes.STR,
             OpenApiParameter.QUERY,
             required=False,
-            description="Username of the RM",
+            description="Trader Id of the RM",
         ),
     ],
 )
@@ -93,20 +93,20 @@ def get_basic_summaries_rmwise(request: Request) -> Response:
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
 
-    branch_query = request.query_params.get("branch_code", None)
-    rm_id = request.query_params.get("username", None)
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
 
     with Session(engine) as session:
         qs = SUMMARY_QUERY_STR
         qs = inject_branchwise_filter(qs, current_user, RMWiseOverallSummaryOrm)
 
-        if branch_query:
+        if has_branch:
             qs = qs.where(
-                RMWiseOverallSummaryOrm.branch_code == branch_query,
+                RMWiseOverallSummaryOrm.branch_code == has_branch,
             )
-        if rm_id:
+        if has_trader:
             qs = qs.where(
-                RMWiseOverallSummaryOrm.rm_id == rm_id,
+                RMWiseOverallSummaryOrm.rm_id == has_trader,
             )
 
         rows = session.execute(qs).first()._asdict()
@@ -129,18 +129,18 @@ def get_basic_summaries_rmwise(request: Request) -> Response:
     tags=[OpenApiTags.RMWISE_DTP],
     parameters=[
         OpenApiParameter(
-            "branch_code",
+            "branch",
             OpenApiTypes.INT,
             OpenApiParameter.QUERY,
             required=True,
             description="Branch Code Of the RM",
         ),
         OpenApiParameter(
-            "username",
+            "trader",
             OpenApiTypes.STR,
             OpenApiParameter.QUERY,
             required=False,
-            description="Username of the RM",
+            description="Trader Id of the RM",
         ),
     ],
 )
@@ -151,8 +151,8 @@ def get_turnover_performance_statistics_rmwise(request: Request) -> Response:
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
 
-    branch_query = request.query_params.get("branch_code", None)
-    rm_id = request.query_params.get("username", None)
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
 
     with Session(engine) as session:
         qs = (
@@ -170,13 +170,13 @@ def get_turnover_performance_statistics_rmwise(request: Request) -> Response:
             qs, current_user, RMWiseDailyTurnoverPerformanceOrm
         )
 
-        if branch_query:
+        if has_branch:
             qs = qs.where(
-                RMWiseDailyTurnoverPerformanceOrm.branch_code == branch_query,
+                RMWiseDailyTurnoverPerformanceOrm.branch_code == has_branch,
             )
-        if rm_id:
+        if has_trader:
             qs = qs.where(
-                RMWiseDailyTurnoverPerformanceOrm.rm_id == rm_id,
+                RMWiseDailyTurnoverPerformanceOrm.rm_id == has_trader,
             )
         rows = session.execute(qs)
 
@@ -191,18 +191,18 @@ def get_turnover_performance_statistics_rmwise(request: Request) -> Response:
     tags=[OpenApiTags.RMWISE_DTP],
     parameters=[
         OpenApiParameter(
-            "branch_code",
+            "branch",
             OpenApiTypes.INT,
             OpenApiParameter.QUERY,
             required=True,
             description="Branch Code Of the RM",
         ),
         OpenApiParameter(
-            "username",
+            "trader",
             OpenApiTypes.STR,
             OpenApiParameter.QUERY,
             required=False,
-            description="Username of the RM",
+            description="Trader Id of the RM",
         ),
     ],
 )
@@ -213,8 +213,8 @@ def get_cashcode_sector_exposure_rmwise(request: Request) -> Response:
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
 
-    branch_query = request.query_params.get("branch_code", None)
-    rm_id = request.query_params.get("username", None)
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
 
     with Session(engine) as session:
         qs = (
@@ -228,13 +228,13 @@ def get_cashcode_sector_exposure_rmwise(request: Request) -> Response:
 
         qs = inject_branchwise_filter(qs, current_user, RMWiseSectorExposureCashCodeOrm)
 
-        if branch_query:
+        if has_branch:
             qs = qs.where(
-                RMWiseDailyTurnoverPerformanceOrm.branch_code == branch_query,
+                RMWiseDailyTurnoverPerformanceOrm.branch_code == has_branch,
             )
-        if rm_id:
+        if has_trader:
             qs = qs.where(
-                RMWiseDailyTurnoverPerformanceOrm.rm_id == rm_id,
+                RMWiseDailyTurnoverPerformanceOrm.rm_id == has_trader,
             )
         rows = session.execute(qs)
 
@@ -247,18 +247,18 @@ def get_cashcode_sector_exposure_rmwise(request: Request) -> Response:
     tags=[OpenApiTags.RMWISE_DTP],
     parameters=[
         OpenApiParameter(
-            "branch_code",
+            "branch",
             OpenApiTypes.INT,
             OpenApiParameter.QUERY,
             required=True,
             description="Branch Code Of the RM",
         ),
         OpenApiParameter(
-            "username",
+            "trader",
             OpenApiTypes.STR,
             OpenApiParameter.QUERY,
             required=False,
-            description="Username of the RM",
+            description="Trader Id of the RM",
         ),
     ],
 )
@@ -269,8 +269,8 @@ def get_margincode_sector_exposure_rmwise(request: Request) -> Response:
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
 
-    branch_query = request.query_params.get("branch_code", None)
-    rm_id = request.query_params.get("username", None)
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
 
     with Session(engine) as session:
         qs = (
@@ -286,13 +286,13 @@ def get_margincode_sector_exposure_rmwise(request: Request) -> Response:
             qs, current_user, RMWiseSectorExposureMarginCodeOrm
         )
 
-        if branch_query:
+        if has_branch:
             qs = qs.where(
-                RMWiseDailyTurnoverPerformanceOrm.branch_code == branch_query,
+                RMWiseDailyTurnoverPerformanceOrm.branch_code == has_branch,
             )
-        if rm_id:
+        if has_trader:
             qs = qs.where(
-                RMWiseDailyTurnoverPerformanceOrm.rm_id == rm_id,
+                RMWiseDailyTurnoverPerformanceOrm.rm_id == has_trader,
             )
         rows = session.execute(qs)
 
