@@ -22,7 +22,7 @@ from ..orm import (
     TurnoverAndClientsTradeOrm,
     TurnoverPerformanceOrm,
 )
-from .utils import inject_branchwise_filter
+from .utils import rolewise_branch_data_filter
 
 __all__ = [
     "get_daily_net_fundflow",
@@ -52,7 +52,7 @@ def get_daily_net_fundflow(request: Request) -> Response:
             func.sum(DailyNetFundFlowOrm.fundflow).label("amount"),
         ).group_by(DailyNetFundFlowOrm.trading_date)
 
-        qs = inject_branchwise_filter(qs, current_user, DailyNetFundFlowOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, DailyNetFundFlowOrm)
         rows = session.execute(qs)
         results = [
             DailyNetFundFlow.model_validate(row._asdict()).model_dump() for row in rows
@@ -99,7 +99,7 @@ def get_trade_vs_client_statistics(request: Request) -> Response:
             func.sum(TurnoverAndClientsTradeOrm.active_client).label("active_clients"),
         ).group_by(TurnoverAndClientsTradeOrm.trading_date)
 
-        qs = inject_branchwise_filter(qs, current_user, TurnoverAndClientsTradeOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, TurnoverAndClientsTradeOrm)
 
         rows = session.execute(qs)
         results = [
@@ -152,7 +152,7 @@ def get_turnover_performance(request: Request) -> Response:
             TurnoverPerformanceOrm.col3,
         )
 
-        qs = inject_branchwise_filter(qs, current_user, TurnoverPerformanceOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, TurnoverPerformanceOrm)
 
         rows = session.execute(qs)
 
@@ -221,7 +221,9 @@ def get_accounts_fundflow(request: Request) -> Response:
             AccountOpeningFundInOutFlowOrm.col3,
         )
 
-        qs = inject_branchwise_filter(qs, current_user, AccountOpeningFundInOutFlowOrm)
+        qs = rolewise_branch_data_filter(
+            qs, current_user, AccountOpeningFundInOutFlowOrm
+        )
 
         rows = session.execute(qs)
 
@@ -286,7 +288,7 @@ def get_portfolio_status(request: Request) -> Response:
             .order_by(PortfolioManagementStatusOrm.perticular)
         )
 
-        qs = inject_branchwise_filter(qs, current_user, PortfolioManagementStatusOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, PortfolioManagementStatusOrm)
 
         rows = session.execute(qs)
         results = [

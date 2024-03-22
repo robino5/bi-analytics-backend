@@ -21,7 +21,7 @@ from ..orm import (
     SectorExposureCashCodeOrm,
     SectorExposureMarginCodeOrm,
 )
-from .utils import inject_branchwise_filter, parse_summary
+from .utils import parse_summary, rolewise_branch_data_filter
 
 __all__ = [
     "get_basic_summaries",
@@ -77,7 +77,7 @@ def get_basic_summaries(request: Request) -> Response:
 
     with Session(engine) as session:
         qs = SUMMARY_QUERY_STR
-        qs = inject_branchwise_filter(qs, current_user, OverallSummaryOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, OverallSummaryOrm)
 
         rows = session.execute(qs).first()._asdict()
 
@@ -146,7 +146,7 @@ def get_turnover_performance_statistics(request: Request) -> Response:
             .group_by(DailyTurnoverPerformanceOrm.trading_date)
             .order_by(DailyTurnoverPerformanceOrm.trading_date)
         )
-        qs = inject_branchwise_filter(qs, current_user, DailyTurnoverPerformanceOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, DailyTurnoverPerformanceOrm)
         rows = session.execute(qs).all()
 
         results = [
@@ -207,7 +207,7 @@ def get_margin_loan_statistics(request: Request) -> Response:
             .order_by(DailyMarginLoanUsageOrm.trading_date)
         )
 
-        qs = inject_branchwise_filter(qs, current_user, DailyMarginLoanUsageOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, DailyMarginLoanUsageOrm)
 
         rows = session.execute(qs).all()
 
@@ -266,7 +266,7 @@ def get_cashcode_sector_exposure(request: Request) -> Response:
             .order_by(desc(text("value")))
         )
 
-        qs = inject_branchwise_filter(qs, current_user, SectorExposureCashCodeOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, SectorExposureCashCodeOrm)
 
         rows = session.execute(qs).all()
 
@@ -322,7 +322,7 @@ def get_margincode_sector_exposure(request: Request) -> Response:
             .order_by(desc(text("value")))
         )
 
-        qs = inject_branchwise_filter(qs, current_user, SectorExposureMarginCodeOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, SectorExposureMarginCodeOrm)
 
         rows = session.execute(qs).all()
 
