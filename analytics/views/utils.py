@@ -35,7 +35,7 @@ def parse_summary(data: Dict[str, Any], key: str) -> dict:
     return {key: {category: data[category] for category in _categories[key]}}
 
 
-def inject_branchwise_filter(
+def rolewise_branch_data_filter(
     queryset: Select,
     user: User,
     orm_class: Type[BaseOrm],

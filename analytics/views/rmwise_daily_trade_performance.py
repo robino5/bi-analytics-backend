@@ -21,7 +21,7 @@ from ..orm import (
     RMWiseSectorExposureCashCodeOrm,
     RMWiseSectorExposureMarginCodeOrm,
 )
-from .utils import inject_branchwise_filter, parse_summary
+from .utils import parse_summary, rolewise_branch_data_filter
 
 __all__ = [
     "get_basic_summaries_rmwise",
@@ -98,7 +98,7 @@ def get_basic_summaries_rmwise(request: Request) -> Response:
 
     with Session(engine) as session:
         qs = SUMMARY_QUERY_STR
-        qs = inject_branchwise_filter(qs, current_user, RMWiseOverallSummaryOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, RMWiseOverallSummaryOrm)
 
         if has_branch:
             qs = qs.where(
@@ -166,7 +166,7 @@ def get_turnover_performance_statistics_rmwise(request: Request) -> Response:
             .group_by(RMWiseDailyTurnoverPerformanceOrm.trading_date)
             .order_by(RMWiseDailyTurnoverPerformanceOrm.trading_date)
         )
-        qs = inject_branchwise_filter(
+        qs = rolewise_branch_data_filter(
             qs, current_user, RMWiseDailyTurnoverPerformanceOrm
         )
 
@@ -226,7 +226,9 @@ def get_cashcode_sector_exposure_rmwise(request: Request) -> Response:
             .order_by(desc(text("value")))
         )
 
-        qs = inject_branchwise_filter(qs, current_user, RMWiseSectorExposureCashCodeOrm)
+        qs = rolewise_branch_data_filter(
+            qs, current_user, RMWiseSectorExposureCashCodeOrm
+        )
 
         if has_branch:
             qs = qs.where(
@@ -282,7 +284,7 @@ def get_margincode_sector_exposure_rmwise(request: Request) -> Response:
             .order_by(desc(text("value")))
         )
 
-        qs = inject_branchwise_filter(
+        qs = rolewise_branch_data_filter(
             qs, current_user, RMWiseSectorExposureMarginCodeOrm
         )
 

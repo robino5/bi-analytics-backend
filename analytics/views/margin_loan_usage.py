@@ -25,7 +25,7 @@ from ..orm import (
     RMWiseNetTradeOrm,
     YellowZoneInvestorOrm,
 )
-from .utils import inject_branchwise_filter
+from .utils import rolewise_branch_data_filter
 
 __all__ = [
     "get_margin_loan_allocations",
@@ -63,7 +63,7 @@ def get_marked_investors(
         investor_cls.rm_name,
     ).order_by(investor_cls.investor_name)
 
-    qs = inject_branchwise_filter(qs, user, investor_cls)
+    qs = rolewise_branch_data_filter(qs, user, investor_cls)
     if branch_code:
         qs = qs.where(investor_cls.branch_code == branch_code)
 
@@ -88,7 +88,7 @@ def get_margin_loan_allocations(request: Request) -> Response:
             .order_by(MarginLoanAllocationUsageOrm.col2)
         )
 
-        qs = inject_branchwise_filter(qs, current_user, MarginLoanAllocationUsageOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, MarginLoanAllocationUsageOrm)
 
         rows = session.execute(qs)
         results = [
@@ -144,7 +144,7 @@ def get_exposures_list(request: Request) -> Response:
             .order_by(ExposureControllingManagementOrm.exposure_type)
         )
 
-        qs = inject_branchwise_filter(
+        qs = rolewise_branch_data_filter(
             qs, current_user, ExposureControllingManagementOrm
         )
 
@@ -199,7 +199,7 @@ def get_rmwise_net_trades(request: Request) -> Response:
             RMWiseNetTradeOrm.rm_name,
         ).order_by(RMWiseNetTradeOrm.branch_name)
 
-        qs = inject_branchwise_filter(qs, current_user, RMWiseNetTradeOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, RMWiseNetTradeOrm)
 
         rows = session.execute(qs)
         results = [

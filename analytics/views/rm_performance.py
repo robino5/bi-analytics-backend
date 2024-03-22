@@ -17,7 +17,7 @@ from db import engine
 
 from ..models import RMWiseClientDetail
 from ..orm import RMWiseClientDetailOrm, RMWiseTurnoverPerformanceOrm
-from .utils import inject_branchwise_filter
+from .utils import rolewise_branch_data_filter
 
 __all__ = ["get_turnover_perfomance_rmwise", "get_client_detail_rmwise"]
 
@@ -60,7 +60,7 @@ def get_turnover_perfomance_rmwise(request: Request) -> Response:
             RMWiseTurnoverPerformanceOrm.col3,
         )
 
-        qs = inject_branchwise_filter(qs, current_user, RMWiseTurnoverPerformanceOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, RMWiseTurnoverPerformanceOrm)
 
         if has_branch:
             qs = qs.where(
@@ -116,7 +116,7 @@ def get_client_detail_rmwise(request: Request) -> Response:
 
     with Session(engine) as session:
         qs = select(RMWiseClientDetailOrm).order_by(RMWiseClientDetailOrm.trader_id)
-        qs = inject_branchwise_filter(qs, current_user, RMWiseClientDetailOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, RMWiseClientDetailOrm)
 
         if has_branch:
             qs = qs.where(

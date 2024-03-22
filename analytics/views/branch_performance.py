@@ -26,7 +26,7 @@ from ..orm import (
     BranchWiseMarginStatusOrm,
     BranchWiseTurnoverStatusOrm,
 )
-from .utils import inject_branchwise_filter
+from .utils import rolewise_branch_data_filter
 
 __all__ = [
     "get_bw_turnover_status",
@@ -67,7 +67,7 @@ def get_bw_turnover_status(request: Request) -> Response:
             BranchWiseTurnoverStatusOrm.turnover_yearly,
         ).order_by(BranchWiseTurnoverStatusOrm.branch_name)
 
-        qs = inject_branchwise_filter(qs, current_user, BranchWiseTurnoverStatusOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, BranchWiseTurnoverStatusOrm)
 
         if has_branch:
             qs = qs.where(BranchWiseTurnoverStatusOrm.branch_code == has_branch)
@@ -112,7 +112,7 @@ def get_bw_margin_status(request: Request) -> Response:
             BranchWiseMarginStatusOrm.turnover_yearly,
         ).order_by(BranchWiseMarginStatusOrm.branch_name)
 
-        qs = inject_branchwise_filter(qs, current_user, BranchWiseMarginStatusOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, BranchWiseMarginStatusOrm)
 
         if has_branch:
             qs = qs.where(BranchWiseMarginStatusOrm.branch_code == has_branch)
@@ -156,7 +156,7 @@ def get_bw_fund_status(request: Request) -> Response:
             BranchWiseFundStatusOrm.net_fundflow,
         ).order_by(BranchWiseFundStatusOrm.branch_name)
 
-        qs = inject_branchwise_filter(qs, current_user, BranchWiseFundStatusOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, BranchWiseFundStatusOrm)
 
         if has_branch:
             qs = qs.where(BranchWiseFundStatusOrm.branch_code == has_branch)
@@ -199,7 +199,7 @@ def get_bw_exposure_status(request: Request) -> Response:
             BranchWiseMarginExposureStatusOrm.exposure_ratio,
         ).order_by(BranchWiseMarginExposureStatusOrm.branch_name)
 
-        qs = inject_branchwise_filter(
+        qs = rolewise_branch_data_filter(
             qs, current_user, BranchWiseMarginExposureStatusOrm
         )
 

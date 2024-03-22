@@ -25,7 +25,7 @@ from ..orm import (
     RMWiseRedZoneTraderORM,
     RMWiseYellowZoneTraderORM,
 )
-from .utils import inject_branchwise_filter
+from .utils import rolewise_branch_data_filter
 
 __all__ = [
     "get_fund_collection_rmwise",
@@ -100,7 +100,7 @@ def get_fund_collection_rmwise(request: Request) -> Response:
             RMWiseFundCollectionOrm.col3,
         )
 
-        qs = inject_branchwise_filter(qs, current_user, RMWiseFundCollectionOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, RMWiseFundCollectionOrm)
 
         if has_branch:
             qs = qs.where(
@@ -160,7 +160,7 @@ def get_portfolio_management_rmwise(request: Request) -> Response:
             RMWisePortfolioMangementORM.amount,
         )
 
-        qs = inject_branchwise_filter(qs, current_user, RMWisePortfolioMangementORM)
+        qs = rolewise_branch_data_filter(qs, current_user, RMWisePortfolioMangementORM)
 
         if has_branch:
             qs = qs.where(
@@ -214,7 +214,7 @@ def get_daily_net_fund_flow_rmwise(request: Request) -> Response:
             func.sum(RMWiseDailyNetFundFlowORM.fundflow).label("amount"),
         ).group_by(RMWiseDailyNetFundFlowORM.trading_date)
 
-        qs = inject_branchwise_filter(qs, current_user, RMWiseDailyNetFundFlowORM)
+        qs = rolewise_branch_data_filter(qs, current_user, RMWiseDailyNetFundFlowORM)
 
         if has_branch:
             qs = qs.where(
