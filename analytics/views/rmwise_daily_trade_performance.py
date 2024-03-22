@@ -178,11 +178,10 @@ def get_turnover_performance_statistics_rmwise(request: Request) -> Response:
             qs = qs.where(
                 RMWiseDailyTurnoverPerformanceOrm.rm_id == rm_id,
             )
-        rows = session.execute(qs).all()
+        rows = session.execute(qs)
 
         results = [
-            DailyTurnoverPerformance.model_validate(row._asdict()).model_dump()
-            for row in rows
+            DailyTurnoverPerformance.model_validate(row).model_dump() for row in rows
         ]
 
     return Response(results)
@@ -237,11 +236,9 @@ def get_cashcode_sector_exposure_rmwise(request: Request) -> Response:
             qs = qs.where(
                 RMWiseDailyTurnoverPerformanceOrm.rm_id == rm_id,
             )
-        rows = session.execute(qs).all()
+        rows = session.execute(qs)
 
-        results = [
-            SectorExposure.model_validate(row._asdict()).model_dump() for row in rows
-        ]
+        results = [SectorExposure.model_validate(row).model_dump() for row in rows]
 
     return Response(results)
 
@@ -297,10 +294,8 @@ def get_margincode_sector_exposure_rmwise(request: Request) -> Response:
             qs = qs.where(
                 RMWiseDailyTurnoverPerformanceOrm.rm_id == rm_id,
             )
-        rows = session.execute(qs).all()
+        rows = session.execute(qs)
 
-        results = [
-            SectorExposure.model_validate(row._asdict()).model_dump() for row in rows
-        ]
+        results = [SectorExposure.model_validate(row).model_dump() for row in rows]
 
     return Response(results)
