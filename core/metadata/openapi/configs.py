@@ -13,6 +13,7 @@ class OpenApiTags:
 
     RMWISE_DTP = "rmwise-daily-trade-performance"
     RMWISE_PERFORMANCE = "rmwise-performance"
+    RMWISE_PORTFOLIO = "rmwise-portfolio"
 
 
 openapi_description = r"""

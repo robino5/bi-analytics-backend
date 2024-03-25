@@ -65,7 +65,7 @@ def get_marked_investors(
 
 
 @extend_schema(
-    tags=[OpenApiTags.RMWISE_PERFORMANCE],
+    tags=[OpenApiTags.RMWISE_PORTFOLIO],
     parameters=[
         OpenApiParameter(
             "branch",
@@ -126,7 +126,7 @@ def get_fund_collection_rmwise(request: Request) -> Response:
 
 
 @extend_schema(
-    tags=[OpenApiTags.RMWISE_PERFORMANCE],
+    tags=[OpenApiTags.RMWISE_PORTFOLIO],
     parameters=[
         OpenApiParameter(
             "branch",
@@ -180,7 +180,7 @@ def get_portfolio_management_rmwise(request: Request) -> Response:
 
 
 @extend_schema(
-    tags=[OpenApiTags.RMWISE_PERFORMANCE],
+    tags=[OpenApiTags.RMWISE_PORTFOLIO],
     parameters=[
         OpenApiParameter(
             "branch",
@@ -237,7 +237,7 @@ class MarkedInvestorEnum(StrEnum):
 
 
 @extend_schema(
-    tags=[OpenApiTags.RMWISE_PERFORMANCE],
+    tags=[OpenApiTags.RMWISE_PORTFOLIO],
     parameters=[
         OpenApiParameter(
             "category",
