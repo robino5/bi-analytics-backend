@@ -1,5 +1,4 @@
 from decouple import config
-from django.conf import settings
 from sqlalchemy import URL, create_engine
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import DeclarativeBase
@@ -17,7 +16,7 @@ connection_string = URL.create(
     },
 )
 
-engine = create_engine(url=connection_string, echo=settings.DEBUG)
+engine = create_engine(url=connection_string, echo=False)
 
 
 class BaseOrm(DeclarativeBase):
