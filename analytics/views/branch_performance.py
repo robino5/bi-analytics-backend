@@ -210,8 +210,23 @@ def get_bw_exposure_status(request: Request) -> Response:
         df = pd.DataFrame([row._asdict() for row in rows], columns=rows.keys())
 
         grouped_df = df.groupby(["branch_name", "exposure_type"])
+
+        def _set_key_name(exposure_type: str) -> str:
+            exp = exposure_type.lower()
+            if "green" in exp:
+                return "green"
+            if "yellow" in exp:
+                return "yellow"
+            if "red" in exp:
+                return "red"
+
         results = {}
         for (branch, exposure), group in grouped_df:
             branch_dict = results.setdefault(branch, {})
-            branch_dict[exposure] = group.to_dict(orient="records")
-    return Response(results)
+            branch_dict[_set_key_name(exposure)] = group.to_dict(orient="records")[0]
+
+        data = []
+        for key, value in results.items():
+            prep_dict = {"branch_name": key, "exposures": value}
+            data.append(prep_dict)
+    return Response(data)
