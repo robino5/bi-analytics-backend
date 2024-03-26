@@ -33,6 +33,7 @@ __all__ = [
     "get_exposures_list",
     "get_exposures_list_by_branchid",
     "get_rmwise_net_trades",
+    "get_rmwise_net_trades_by_branch_id",
     "get_zone_marked_clients",
 ]
 
@@ -208,6 +209,38 @@ def get_rmwise_net_trades(request: Request) -> Response:
     return Response(results)
 
 
+@extend_schema(tags=[OpenApiTags.MLU])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_rmwise_net_trades_by_branch_id(request: Request, id: int) -> Response:
+    """fetch all RM list with net trades"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+
+    with Session(engine) as session:
+        qs = (
+            select(
+                RMWiseNetTradeOrm.branch_code,
+                RMWiseNetTradeOrm.branch_name,
+                RMWiseNetTradeOrm.investor_code,
+                RMWiseNetTradeOrm.opening_balance,
+                RMWiseNetTradeOrm.ending_balance,
+                RMWiseNetTradeOrm.net_buysell,
+                RMWiseNetTradeOrm.rm_name,
+            )
+            .where(RMWiseNetTradeOrm.branch_code == id)
+            .order_by(RMWiseNetTradeOrm.branch_name)
+        )
+
+        qs = rolewise_branch_data_filter(qs, current_user, RMWiseNetTradeOrm)
+
+        rows = session.execute(qs)
+        results = [
+            RMWiseNetTrade.model_validate(row._asdict()).model_dump() for row in rows
+        ]
+    return Response(results)
+
+
 @extend_schema(
     tags=[OpenApiTags.MLU],
     parameters=[
@@ -242,16 +275,14 @@ def get_zone_marked_clients(request: Request) -> Response:
     with Session(engine) as session:
         match mark:
             case MarkedInvestorEnum.RED:
-                qs = get_marked_investors(
-                    RedZoneInvestorOrm, current_user, has_branch, session
-                )
+                qs = get_marked_investors(RedZoneInvestorOrm, current_user, has_branch)
             case MarkedInvestorEnum.YELLOW:
                 qs = get_marked_investors(
-                    YellowZoneInvestorOrm, current_user, has_branch, session
+                    YellowZoneInvestorOrm, current_user, has_branch
                 )
             case _:
                 qs = get_marked_investors(
-                    NegativeEquityInvestorOrm, current_user, has_branch, session
+                    NegativeEquityInvestorOrm, current_user, has_branch
                 )
 
         rows = session.execute(qs)
