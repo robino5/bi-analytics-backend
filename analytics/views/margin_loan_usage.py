@@ -242,16 +242,14 @@ def get_zone_marked_clients(request: Request) -> Response:
     with Session(engine) as session:
         match mark:
             case MarkedInvestorEnum.RED:
-                qs = get_marked_investors(
-                    RedZoneInvestorOrm, current_user, has_branch, session
-                )
+                qs = get_marked_investors(RedZoneInvestorOrm, current_user, has_branch)
             case MarkedInvestorEnum.YELLOW:
                 qs = get_marked_investors(
-                    YellowZoneInvestorOrm, current_user, has_branch, session
+                    YellowZoneInvestorOrm, current_user, has_branch
                 )
             case _:
                 qs = get_marked_investors(
-                    NegativeEquityInvestorOrm, current_user, has_branch, session
+                    NegativeEquityInvestorOrm, current_user, has_branch
                 )
 
         rows = session.execute(qs)
