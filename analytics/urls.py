@@ -79,7 +79,7 @@ urlpatterns = [
     path("rm/daily-net-fund-flow/", views.get_daily_net_fund_flow_rmwise),
     path("rm/marked-clients/", views.get_zone_marked_clients_rmwise),
     # Active Trading Codes Route
-    path("active-trading-codes/", views.get_active_trading_summary),
-    path("daywise-active-trading/", views.get_active_trading_summary_daywise),
-    path("monthwise-active-trading-client/", views.get_active_trading_monthwise_client),
+    path("active-trading-today/", views.get_active_trading_summary),
+    path("active-trading-daywise/", views.get_active_trading_summary_daywise),
+    path("active-trading-monthwise/", views.get_active_trading_monthwise_client),
 ]
