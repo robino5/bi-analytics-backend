@@ -9,8 +9,8 @@ from rest_framework.response import Response
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from authusers.models import User
 from core.metadata.openapi import OpenApiTags
+from core.permissions import ExtendedIsAdminUser
 from core.renderer import CustomRenderer
 from db import engine
 
@@ -32,14 +32,10 @@ __all__ = [
 
 @extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
 @api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, ExtendedIsAdminUser])
 def get_active_trading_summary(request: Request) -> Response:
     """fetch branch wise turnover status"""
     request.accepted_renderer = CustomRenderer()
-    current_user: User = request.user
-
-    if not current_user.is_admin:
-        raise PermissionError("Not Authorized")
 
     with Session(engine) as session:
         qs = session.execute(
@@ -55,14 +51,10 @@ def get_active_trading_summary(request: Request) -> Response:
 
 @extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
 @api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, ExtendedIsAdminUser])
 def get_active_trading_summary_daywise(request: Request) -> Response:
     """fetch branch wise turnover status"""
     request.accepted_renderer = CustomRenderer()
-    current_user: User = request.user
-
-    if not current_user.is_admin:
-        raise PermissionError("Not Authorized")
 
     with Session(engine) as session:
         qs = session.execute(
@@ -78,14 +70,10 @@ def get_active_trading_summary_daywise(request: Request) -> Response:
 
 @extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
 @api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, ExtendedIsAdminUser])
 def get_active_trading_monthwise_client(request: Request) -> Response:
     """fetch branch wise turnover status"""
     request.accepted_renderer = CustomRenderer()
-    current_user: User = request.user
-
-    if not current_user.is_admin:
-        raise PermissionError("Not Authorized")
 
     with Session(engine) as session:
         qs = session.execute(
