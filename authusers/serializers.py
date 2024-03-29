@@ -1,12 +1,19 @@
 from rest_framework.serializers import CharField, ModelSerializer, SerializerMethodField
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import User
+from .models import User, UserProfile
+
+
+class ProfileSerializer(ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = "__all__"
 
 
 class UserSerializer(ModelSerializer):
     name = SerializerMethodField()
     password = CharField(write_only=True, allow_null=True, required=False)
+    profile = ProfileSerializer(read_only=True)
 
     class Meta:
         model = User

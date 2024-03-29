@@ -8,6 +8,7 @@ from .managers import BaseUserManager
 
 class RoleChoices(models.TextChoices):
     ADMIN = "ADMIN", "Admin"
+    MANAGEMENT = "MANAGEMENT", "Management"
     BRANCH_MANAGER = "BRANCH_MANAGER", "Branch Manager"
     REGIONAL_MANAGER = "REGIONAL_MANAGER", "Regional Manager"
     CLUSTER_MANAGER = "CLUSTER_MANAGER", "Cluster Manager"
@@ -32,6 +33,9 @@ class User(AbstractUser, AuditLogMixin):
 
     def is_cluster_manager(self) -> bool:
         return self.role == RoleChoices.CLUSTER_MANAGER
+
+    def is_management(self) -> bool:
+        return self.role == RoleChoices.MANAGEMENT
 
     def __str__(self) -> str:
         return self.username

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from .models import User, UserProfile
 
@@ -9,8 +10,8 @@ class ProfileInline(admin.StackedInline):
 
 
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    admin.site.site_header = "⚙️ BI Analytics"
+class UserAdmin(BaseUserAdmin):
+    admin.site.site_header = "📊 BI Analytics"
     admin.site.site_title = "BI Analytics - LBSL"
     # Define the fields to be displayed in the user list in the admin panel
     list_display = (
@@ -24,7 +25,7 @@ class UserAdmin(admin.ModelAdmin):
     # panel
     fieldsets = (
         (
-            "Personal Info",
+            "🙎‍♂️ Personal Info",
             {
                 "fields": (
                     "first_name",
@@ -36,7 +37,7 @@ class UserAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Permissions",
+            "🔐 Permissions",
             {
                 "fields": (
                     "is_active",
@@ -75,6 +76,6 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ("username", "first_name", "last_name", "email")
     # Define the ordering of the users in the admin panel
     ordering = ("-created_at",)
-    readonly_fields = ("created_at", "updated_at")
+    readonly_fields = ("created_at", "updated_at", "created_by", "updated_by")
     search_fields = ("username", "first_name", "last_name", "email")
     inlines = (ProfileInline,)
