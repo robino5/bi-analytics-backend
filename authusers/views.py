@@ -1,6 +1,10 @@
+from http import HTTPMethod
+
 from django_filters import rest_framework as filters
-from drf_spectacular.utils import extend_schema
-from rest_framework import status
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
+from rest_framework import exceptions, status
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -11,6 +15,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from core.helper import EmptySerializer, enveloper
 from core.metadata.openapi import OpenApiTags
+from core.permissions import ExtendedIsAdminUser
 from core.renderer import CustomRenderer
 
 from .filter import UserFilter
@@ -21,12 +26,18 @@ from .serializers import (
 )
 
 
+class UserNotFoundException(exceptions.APIException):
+    default_detail = "User Not Found !"
+    status_code = status.HTTP_404_NOT_FOUND
+    default_code = "not_found"
+
+
 class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     renderer_classes = [CustomRenderer]
     filter_backends = [filters.DjangoFilterBackend]
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ExtendedIsAdminUser]
     filterset_class = UserFilter
 
     def get_queryset(self):
@@ -68,6 +79,26 @@ class UserViewSet(ModelViewSet):
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="id",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.PATH,
+                required=True,
+            )
+        ],
+        responses=enveloper(EmptySerializer, many=False),
+        tags=[OpenApiTags.Users],
+    )
+    @action(methods=[HTTPMethod.DELETE], detail=True, url_path="by-username")
+    def destroy_with_username(self, request, pk: str):
+        try:
+            User.objects.get(username=pk).delete()
+        except User.DoesNotExist as exc:
+            raise UserNotFoundException from exc
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
