@@ -1,4 +1,4 @@
-from rest_framework.serializers import CharField, ModelSerializer, SerializerMethodField
+from rest_framework.serializers import CharField, ModelSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import User, UserProfile
@@ -11,7 +11,6 @@ class ProfileSerializer(ModelSerializer):
 
 
 class UserSerializer(ModelSerializer):
-    name = SerializerMethodField()
     password = CharField(write_only=True, allow_null=True, required=False)
     profile = ProfileSerializer(read_only=True)
 
@@ -23,8 +22,18 @@ class UserSerializer(ModelSerializer):
             "last_login",
         )
 
-    def get_name(self, instance: User) -> str:
-        return instance.get_full_name()
+    def create(self, validated_data):
+        user: User = super().create(validated_data)
+        passwd = validated_data.get("password")
+        if passwd:
+            user.set_password(passwd)
+            user.save()
+        return user
+
+    def to_representation(self, instance: User):
+        data = super().to_representation(instance)
+        data["name"] = instance.get_full_name()
+        return data
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):

@@ -15,6 +15,7 @@ class UserAdmin(BaseUserAdmin):
     admin.site.site_title = "BI Analytics - LBSL"
     # Define the fields to be displayed in the user list in the admin panel
     list_display = (
+        "name",
         "username",
         "email",
         "is_staff",
@@ -73,9 +74,12 @@ class UserAdmin(BaseUserAdmin):
         ),
     )
     # Define the search fields to be used in the admin panel's search bar
-    search_fields = ("username", "first_name", "last_name", "email")
+    search_fields = ("name", "username", "first_name", "last_name", "email")
     # Define the ordering of the users in the admin panel
     ordering = ("-created_at",)
     readonly_fields = ("created_at", "updated_at", "created_by", "updated_by")
     search_fields = ("username", "first_name", "last_name", "email")
     inlines = (ProfileInline,)
+
+    def name(self, instance: User, **kwargs):
+        return instance.get_full_name()
