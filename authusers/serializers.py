@@ -12,7 +12,6 @@ class ProfileSerializer(ModelSerializer):
 
 class UserSerializer(ModelSerializer):
     password = CharField(write_only=True, allow_null=True, required=False)
-    profile = ProfileSerializer(read_only=True)
 
     class Meta:
         model = User
@@ -33,6 +32,7 @@ class UserSerializer(ModelSerializer):
     def to_representation(self, instance: User):
         data = super().to_representation(instance)
         data["name"] = instance.get_full_name()
+        data["profile"] = ProfileSerializer(instance=instance.profile).data
         return data
 
 

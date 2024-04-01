@@ -22,6 +22,7 @@ from .filter import UserFilter
 from .models import User
 from .serializers import (
     MyTokenObtainPairSerializer,
+    ProfileSerializer,
     UserSerializer,
 )
 
@@ -30,6 +31,12 @@ class UserNotFoundException(exceptions.APIException):
     default_detail = "User Not Found !"
     status_code = status.HTTP_404_NOT_FOUND
     default_code = "not_found"
+
+
+class InvalidPayloadException(exceptions.APIException):
+    default_code = "validation_error"
+    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+    default_detail = "Validation Error"
 
 
 CUSTOM_ID_USER_PARAMETERS = [
@@ -103,7 +110,9 @@ class UserViewSet(ModelViewSet):
         tags=[OpenApiTags.Users],
     )
     @action(
-        methods=[HTTPMethod.GET, HTTPMethod.DELETE], detail=True, url_path="by-username"
+        methods=[HTTPMethod.GET, HTTPMethod.PATCH, HTTPMethod.DELETE],
+        detail=True,
+        url_path="by-username",
     )
     def actions_by_username(self, request: Request, pk: str):
         try:
@@ -114,6 +123,28 @@ class UserViewSet(ModelViewSet):
         if request.method == HTTPMethod.DELETE:
             instance.delete()
             return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+        if request.method == HTTPMethod.PATCH:
+            profile = request.data.pop("profile", None)
+            request.data.pop("username", None)  # remove username edit
+            request.data.pop("password", None)  # remove password edit
+            try:
+                if profile:
+                    _serialized_profile = ProfileSerializer(
+                        instance=instance.profile, data=profile, partial=True
+                    )
+                    _serialized_profile.is_valid(raise_exception=True)
+                    _serialized_profile.save()
+                _serialized_user = self.serializer_class(
+                    instance=instance, data=request.data, partial=True
+                )
+
+                _serialized_user.is_valid(raise_exception=True)
+                _serialized_user.save()
+            except exceptions.ValidationError as exc:
+                raise InvalidPayloadException from exc
+
+            return Response(_serialized_user.data)
 
         return Response(self.serializer_class(instance=instance).data)
 
