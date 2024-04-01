@@ -60,6 +60,11 @@ class UserViewSet(ModelViewSet):
     def get_queryset(self):
         return User.objects.all().order_by("-created_at")
 
+    def get_permissions(self):
+        if self.action in (["actions_by_username"]):
+            self.permission_classes = [IsAuthenticated]
+        return [permission() for permission in self.permission_classes]
+
     @extend_schema(
         responses=enveloper(UserSerializer, many=True), tags=[OpenApiTags.Users]
     )
