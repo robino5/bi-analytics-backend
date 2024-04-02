@@ -13,6 +13,7 @@ class ProfileInline(admin.StackedInline):
 class UserAdmin(BaseUserAdmin):
     admin.site.site_header = "📊 BI Analytics"
     admin.site.site_title = "BI Analytics - LBSL"
+    list_display_links = ("name", "username")
     # Define the fields to be displayed in the user list in the admin panel
     list_display = (
         "name",
