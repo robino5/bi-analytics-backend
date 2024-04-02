@@ -44,7 +44,9 @@ class User(AbstractUser, AuditLogMixin):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     designation = models.CharField(blank=True, null=True, max_length=255)
-    image = models.ImageField(blank=True, null=True, verbose_name="Profile Pic")
+    image = models.ImageField(
+        blank=True, null=True, verbose_name="Profile Pic", upload_to="profile_images/"
+    )
     branch_id = models.IntegerField(null=True, blank=True, verbose_name="Branch Id")
     branch_name = models.CharField(
         null=True, blank=True, max_length=255, verbose_name="Branch Name"

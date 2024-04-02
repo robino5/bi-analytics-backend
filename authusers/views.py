@@ -1,6 +1,10 @@
 from http import HTTPMethod
 
 from django_filters import rest_framework as filters
+from djangorestframework_camel_case.parser import (
+    CamelCaseJSONParser,
+    CamelCaseMultiPartParser,
+)
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import exceptions, status
@@ -8,7 +12,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -19,7 +23,7 @@ from core.permissions import ExtendedIsAdminUser
 from core.renderer import CustomRenderer
 
 from .filter import UserFilter
-from .models import User
+from .models import User, UserProfile
 from .serializers import (
     MyTokenObtainPairSerializer,
     ProfileSerializer,
@@ -37,6 +41,12 @@ class InvalidPayloadException(exceptions.APIException):
     default_code = "validation_error"
     status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
     default_detail = "Validation Error"
+
+
+class PermissionDeniedException(exceptions.APIException):
+    default_code = "permission_error"
+    status_code = status.HTTP_403_FORBIDDEN
+    default_detail = "You're not authorized to perform this action."
 
 
 CUSTOM_ID_USER_PARAMETERS = [
@@ -120,19 +130,30 @@ class UserViewSet(ModelViewSet):
         url_path="by-username",
     )
     def actions_by_username(self, request: Request, pk: str):
+        current_user: User = request.user
+
+        if not current_user.is_admin() and current_user.username != pk:
+            raise PermissionDeniedException()
+
         try:
             instance = User.objects.get(username=pk)
         except User.DoesNotExist as exc:
             raise UserNotFoundException from exc
 
         if request.method == HTTPMethod.DELETE:
+            if not current_user.is_admin():
+                raise PermissionDeniedException()
+
             instance.delete()
             return Response(None, status=status.HTTP_204_NO_CONTENT)
 
         if request.method == HTTPMethod.PATCH:
+            if not current_user.is_admin():
+                request.data.pop("role", None)
+                request.data.pop("is_active", None)
+
             profile = request.data.pop("profile", None)
             request.data.pop("username", None)  # remove username edit
-            request.data.pop("password", None)  # remove password edit
             try:
                 if profile:
                     _serialized_profile = ProfileSerializer(
@@ -152,6 +173,38 @@ class UserViewSet(ModelViewSet):
             return Response(_serialized_user.data)
 
         return Response(self.serializer_class(instance=instance).data)
+
+
+class ProfileViewSet(ViewSet):
+    serializer_class = ProfileSerializer
+    parser_classes = [CamelCaseMultiPartParser, CamelCaseJSONParser]
+    renderer_classes = [CustomRenderer]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=CUSTOM_ID_USER_PARAMETERS,
+        responses=enveloper(UserSerializer, many=False),
+    )
+    def partial_update(self, request: Request, pk: str):
+        try:
+            instance = User.objects.get(username=pk)
+        except User.DoesNotExist as exc:
+            raise UserNotFoundException() from exc
+
+        profile = instance.profile
+
+        _serialized_profile = self.serializer_class(
+            instance=profile, data=request.data, partial=True
+        )
+
+        if _serialized_profile.is_valid():
+            _serialized_profile.save()
+            return Response(UserSerializer(instance=instance).data)
+        return Response(_serialized_profile.errors)
+
+    def get_queryset(self):
+        return UserProfile.objects.all().order_by("-pk")
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
