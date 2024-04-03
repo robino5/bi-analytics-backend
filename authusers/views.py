@@ -149,6 +149,9 @@ class UserViewSet(ModelViewSet):
 
         if request.method == HTTPMethod.DELETE:
             if not current_user.is_admin():
+                logging.warning(
+                    f"'!!!' {request.user!r} is violating ACL. Trying to delete for User<{pk!r}> profile. '!!!'"
+                )
                 raise PermissionDeniedException()
 
             instance.delete()
@@ -176,10 +179,13 @@ class UserViewSet(ModelViewSet):
                 _serialized_user.validated_data["updated_by"] = request.user
                 _serialized_user.save()
             except exceptions.ValidationError as exc:
+                logging.exception(exc)
                 raise InvalidPayloadException from exc
 
+            logging.info(f"profile 'partial_update' successful for {instance!r}")
             return Response(_serialized_user.data)
 
+        logging.info(f"profile 'get' successful for {instance!r}")
         return Response(self.serializer_class(instance=instance).data)
 
 
