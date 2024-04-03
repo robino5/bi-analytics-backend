@@ -121,14 +121,7 @@ class UserViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
     @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="id",
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.PATH,
-                required=True,
-            )
-        ],
+        parameters=CUSTOM_ID_USER_PARAMETERS,
         responses=enveloper(EmptySerializer, many=False),
         tags=[OpenApiTags.Users],
     )
