@@ -30,28 +30,28 @@ class RMWiseOverallSummaryOrm(BaseOrm):
         "Margin_active_client", Integer, nullable=False
     )
     cash_balance: Mapped[float] = mapped_column(
-        "Cash_balance", Numeric(38, 2), nullable=True
+        "Cash_balance", Numeric(1), nullable=True
     )
     cash_stock_balance: Mapped[float] = mapped_column(
-        "Cash_Stock_balance", Numeric(38, 2), nullable=False
+        "Cash_Stock_balance", Numeric(1), nullable=False
     )
     cash_daily_turnover: Mapped[float] = mapped_column(
-        "Cash_Daily_TurnOver", Numeric(38, 2), nullable=False
+        "Cash_Daily_TurnOver", Numeric(1), nullable=False
     )
     margin_balance: Mapped[float] = mapped_column(
-        "Margin_balance", Numeric(38, 2), nullable=True
+        "Margin_balance", Numeric(1), nullable=True
     )
     margin_stock_balance: Mapped[float] = mapped_column(
-        "Margin_Stock_balance", Numeric(38, 2), nullable=False
+        "Margin_Stock_balance", Numeric(1), nullable=False
     )
     margin_daily_turnover: Mapped[float] = mapped_column(
-        "Margin_Daily_TurnOver", Numeric(38, 2), nullable=False
+        "Margin_Daily_TurnOver", Numeric(1), nullable=False
     )
     daily_turnover: Mapped[float] = mapped_column(
-        "Daily_TurnOver", Numeric(38, 2), nullable=False
+        "Daily_TurnOver", Numeric(1), nullable=False
     )
     net_buy_sell: Mapped[float] = mapped_column(
-        "Net_buy_sell", Numeric(38, 2), nullable=False
+        "Net_buy_sell", Numeric(1), nullable=False
     )
 
 
@@ -62,8 +62,8 @@ class RMWiseDailyTurnoverPerformanceOrm(BaseOrm):
     rm_name: Mapped[str] = mapped_column("RM_Name", String(255))
     branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
     trading_date: Mapped[datetime] = mapped_column("trd_Dt", DateTime)
-    generated: Mapped[float] = mapped_column("Daily_Turnover_generated", Numeric(38, 2))
-    target: Mapped[float] = mapped_column("Daily_Turnover_target", Numeric(38, 2))
+    generated: Mapped[float] = mapped_column("Daily_Turnover_generated", Numeric(1))
+    target: Mapped[float] = mapped_column("Daily_Turnover_target", Numeric(1))
 
 
 class RMWiseSectorExposureCashCodeOrm(BaseOrm):
@@ -73,7 +73,7 @@ class RMWiseSectorExposureCashCodeOrm(BaseOrm):
     rm_name: Mapped[str] = mapped_column("RM_Name", String(255))
     branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
     total_qty: Mapped[float] = mapped_column(
-        "Cash_total_qty", Numeric(38, 2), nullable=False
+        "Cash_total_qty", Numeric(1), nullable=False
     )
     sector_name: Mapped[str] = mapped_column(
         "Sector_name", String(50), nullable=False, primary_key=True
@@ -87,7 +87,7 @@ class RMWiseSectorExposureMarginCodeOrm(BaseOrm):
     rm_name: Mapped[str] = mapped_column("RM_Name", String(255))
     branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
     total_qty: Mapped[float] = mapped_column(
-        "Cash_total_qty", Numeric(38, 2), nullable=False
+        "Cash_total_qty", Numeric(1), nullable=False
     )
     sector_name: Mapped[str] = mapped_column(
         "Sector_name", String(50), nullable=False, primary_key=True

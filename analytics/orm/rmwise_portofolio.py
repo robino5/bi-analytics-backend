@@ -22,7 +22,7 @@ class RMWiseFundCollectionOrm(BaseOrm):
     trader_name: Mapped[str] = mapped_column(String(50))
     col3: Mapped[str] = mapped_column("col3", String(50), primary_key=True)
     col2: Mapped[str] = mapped_column("col2", String(50), primary_key=True)
-    col1: Mapped[float] = mapped_column("col1", Numeric(34, 2))
+    col1: Mapped[float] = mapped_column("col1", Numeric(2))
 
 
 class RMWisePortfolioMangementORM(BaseOrm):
@@ -34,7 +34,7 @@ class RMWisePortfolioMangementORM(BaseOrm):
     particular_type: Mapped[str] = mapped_column(
         "Perticular", String(50), primary_key=True
     )
-    amount: Mapped[float] = mapped_column("Amount", Numeric(34, 2))
+    amount: Mapped[float] = mapped_column("Amount", Numeric(2))
 
 
 class RMWiseDailyNetFundFlowORM(BaseOrm):
@@ -43,7 +43,7 @@ class RMWiseDailyNetFundFlowORM(BaseOrm):
     branch_code: Mapped[int] = mapped_column("Branch_Code", Integer, primary_key=True)
     trader_id: Mapped[str] = mapped_column(String(50), primary_key=True)
     trader_name: Mapped[str] = mapped_column(String(50))
-    fundflow: Mapped[float] = mapped_column("Net_fund_Flow", Numeric(34, 2))
+    fundflow: Mapped[float] = mapped_column("Net_fund_Flow", Numeric(2))
     trading_date: Mapped[datetime] = mapped_column(
         "trans_dt", DateTime, primary_key=True
     )
@@ -56,7 +56,7 @@ class ZoneWiseTraderAbastractOrm(BaseOrm):
     branch_code: Mapped[int] = mapped_column("Branch_Code", Integer, primary_key=True)
     investor_code: Mapped[str] = mapped_column(String(255), primary_key=True)
     investor_name: Mapped[str] = mapped_column(String(255))
-    ledger_balance: Mapped[float] = mapped_column("Ledger_balance", Numeric(34, 2))
+    ledger_balance: Mapped[float] = mapped_column("Ledger_balance", Numeric(2))
     rm_name: Mapped[str] = mapped_column("RM_NAME", String(255), primary_key=True)
 
 
