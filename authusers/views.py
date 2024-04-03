@@ -1,4 +1,6 @@
+import json
 from http import HTTPMethod
+from logging import getLogger
 
 from django_filters import rest_framework as filters
 from djangorestframework_camel_case.parser import (
@@ -29,6 +31,8 @@ from .serializers import (
     ProfileSerializer,
     UserSerializer,
 )
+
+logging = getLogger("authusers.views")
 
 
 class UserNotFoundException(exceptions.APIException):
@@ -64,6 +68,7 @@ class UserViewSet(ModelViewSet):
     renderer_classes = [CustomRenderer]
     filter_backends = [filters.DjangoFilterBackend]
     authentication_classes = [JWTAuthentication]
+    pagination_class = None
     permission_classes = [IsAuthenticated, ExtendedIsAdminUser]
     filterset_class = UserFilter
 
@@ -90,19 +95,22 @@ class UserViewSet(ModelViewSet):
     @extend_schema(
         responses=enveloper(UserSerializer, many=False), tags=[OpenApiTags.Users]
     )
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs):
+        request.data["created_by"] = request.user.pk
         return super().create(request, *args, **kwargs)
 
     @extend_schema(
         responses=enveloper(UserSerializer, many=False), tags=[OpenApiTags.Users]
     )
     def update(self, request, *args, **kwargs):
+        request.data["updated_by"] = request.user.pk
         return super().update(request, *args, **kwargs)
 
     @extend_schema(
         responses=enveloper(UserSerializer, many=False), tags=[OpenApiTags.Users]
     )
     def partial_update(self, request, *args, **kwargs):
+        request.data["updated_by"] = request.user.pk
         return super().partial_update(request, *args, **kwargs)
 
     @extend_schema(
@@ -133,11 +141,17 @@ class UserViewSet(ModelViewSet):
         current_user: User = request.user
 
         if not current_user.is_admin() and current_user.username != pk:
+            logging.warning(
+                f"'!!!' {request.user!r} is violating ACL. Trying to take action for User<{pk!r}> profile. '!!!'"
+            )
             raise PermissionDeniedException()
 
         try:
             instance = User.objects.get(username=pk)
         except User.DoesNotExist as exc:
+            logging.warning(
+                f"'!!!' {request.user!r} tried to edit User<{pk!r}> profile which doesn't exists in system. '!!!'"
+            )
             raise UserNotFoundException from exc
 
         if request.method == HTTPMethod.DELETE:
@@ -166,6 +180,7 @@ class UserViewSet(ModelViewSet):
                 )
 
                 _serialized_user.is_valid(raise_exception=True)
+                _serialized_user.validated_data["updated_by"] = request.user
                 _serialized_user.save()
             except exceptions.ValidationError as exc:
                 raise InvalidPayloadException from exc
@@ -182,14 +197,27 @@ class ProfileViewSet(ViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return UserProfile.objects.all().order_by("-pk")
+
     @extend_schema(
         parameters=CUSTOM_ID_USER_PARAMETERS,
         responses=enveloper(UserSerializer, many=False),
     )
     def partial_update(self, request: Request, pk: str):
+        current_user: User = request.user
+
+        if not current_user.is_admin() and current_user.username != pk:
+            logging.warning(
+                f"'!!!' {request.user!r} is violating ACL. Trying to 'partial_update' User<{pk!r}> profile. '!!!'"
+            )
+            raise PermissionDeniedException()
         try:
             instance = User.objects.get(username=pk)
         except User.DoesNotExist as exc:
+            logging.warning(
+                f"'!!!' {request.user!r} tried to 'partial_update' User<{pk!r}> profile, which doesn't exists in system. '!!!'"
+            )
             raise UserNotFoundException() from exc
 
         profile = instance.profile
@@ -198,13 +226,16 @@ class ProfileViewSet(ViewSet):
             instance=profile, data=request.data, partial=True
         )
 
-        if _serialized_profile.is_valid():
-            _serialized_profile.save()
-            return Response(UserSerializer(instance=instance).data)
-        return Response(_serialized_profile.errors)
+        if not _serialized_profile.is_valid():
+            logging.error(
+                msg=f"'partial_update' failed for {instance!r} due to 'validation_error'. Errors:{json.dumps(_serialized_profile.errors)}",
+            )
+            return Response(_serialized_profile.errors)
 
-    def get_queryset(self):
-        return UserProfile.objects.all().order_by("-pk")
+        instance.updated_by = request.user
+        _serialized_profile.save()
+        logging.info(f"'partial_update' finished for {instance!r}")
+        return Response(UserSerializer(instance=instance).data)
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
