@@ -102,13 +102,15 @@ def get_all_traders(request: Request) -> Request:
 def get_traders_for_branchid(request: Request, id: int) -> Request:
     """fetch all traders respective to branchId"""
     request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
 
     with Session(engine) as session:
-        qs = session.execute(
-            select(TraderOrm)
-            .where(TraderOrm.branch_code == id)
-            .order_by(TraderOrm.branch_name)
-        ).scalars()
+        query = select(TraderOrm).order_by(TraderOrm.branch_name)
+        if current_user.role == RoleChoices.REGIONAL_MANAGER:
+            query = query.where(TraderOrm.trader_id == current_user.username)
+        else:
+            query = query.where(TraderOrm.branch_code == id)
+        qs = session.execute(query).scalars()
         results = [Trader.model_validate(trader).model_dump() for trader in qs]
         return Response(results)
 
