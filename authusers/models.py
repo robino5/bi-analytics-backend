@@ -54,3 +54,15 @@ class UserProfile(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user.username.title()} Profile"
+
+
+class Trader(models.Model):
+    branch_code = models.IntegerField(primary_key=True, db_column="branch_Code")
+    branch_name = models.CharField(max_length=255, db_column="branch_Name")
+    trader_id = models.CharField(max_length=255, db_column="trader_id")
+    trader_name = models.CharField(max_length=255, db_column="trader_name")
+
+    class Meta:
+        managed = False
+        unique_together = ["branch_code", "trader_id"]
+        db_table = "BI_trd_Dealer_info"

@@ -76,7 +76,7 @@ def get_turnover_perfomance_rmwise(request: Request) -> Response:
         df["col2"] = df["col2"].str.strip()  # trim the col2, has space
 
         pivot_df = df.pivot_table(
-            index="col2", columns="col3", values="col1", aggfunc="sum"
+            index="col2", columns="col3", values="col1", aggfunc="sum", fill_value=0
         ).reset_index()  # aggregate the df
 
         pivot_df.columns = map(str.lower, pivot_df.columns)

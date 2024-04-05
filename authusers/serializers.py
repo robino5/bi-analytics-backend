@@ -1,7 +1,12 @@
-from rest_framework.serializers import CharField, ModelSerializer
+from rest_framework.serializers import (
+    CharField,
+    ListSerializer,
+    ModelSerializer,
+    Serializer,
+)
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import User, UserProfile
+from .models import Trader, User, UserProfile
 
 
 class ProfileSerializer(ModelSerializer):
@@ -45,3 +50,15 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["role"] = user.role
 
         return token
+
+
+class TraderSerializer(ModelSerializer):
+    class Meta:
+        model = Trader
+        fields = "__all__"
+
+
+class BulkUserCreateSerializer(Serializer):
+    users = ListSerializer(child=CharField())
+    role = CharField()
+    password = CharField(required=True)
