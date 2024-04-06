@@ -1,6 +1,5 @@
 import json
 from http import HTTPMethod
-from itertools import islice
 from logging import getLogger
 
 from django.contrib.auth.hashers import make_password
@@ -146,18 +145,17 @@ class UserViewSet(ModelViewSet):
 
         if not serialized.is_valid():
             raise InvalidPayloadException(serialized.errors)
-        batch_size = 100
         hashed_passwd = make_password(serialized.validated_data["password"])
         role = serialized.validated_data["role"]
         objs = (
-            User(username=username, password=hashed_passwd, role=role)
+            {"username": username, "password": hashed_passwd, "role": role}
             for username in serialized.validated_data["users"]
         )
-        while True:
-            batch = list(islice(objs, batch_size))
-            if not batch:
-                break
-            User.objects.bulk_create(batch, batch_size)
+        # TODO: this is wrong ! as this is doing each transaction roundtrip to database. But need this for now to
+        # properly work with Django Signals
+        for user in objs:
+            user = User(**user)
+            user.save()
         return Response(serialized.data, status=status.HTTP_201_CREATED)
 
     @action(
