@@ -86,7 +86,11 @@ class UserViewSet(ModelViewSet):
     @extend_schema(
         responses=enveloper(UserSerializer, many=True), tags=[OpenApiTags.Users]
     )
-    def list(self, request, *args, **kwargs):
+    def list(self, request: Request, *args, **kwargs):
+        has_username = request.query_params.get("username")
+        if has_username:
+            user = User.objects.get(username=has_username)
+            return Response(self.serializer_class(instance=user).data)
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
@@ -158,8 +162,9 @@ class UserViewSet(ModelViewSet):
             user.save()
         return Response(serialized.data, status=status.HTTP_201_CREATED)
 
+    @extend_schema(parameters=CUSTOM_ID_USER_PARAMETERS, tags=[OpenApiTags.Users])
     @action(
-        methods=[HTTPMethod.GET, HTTPMethod.PATCH, HTTPMethod.DELETE],
+        methods=[HTTPMethod.PATCH, HTTPMethod.DELETE],
         detail=True,
         url_path="by-username",
     )
@@ -190,36 +195,61 @@ class UserViewSet(ModelViewSet):
             instance.delete()
             return Response(None, status=status.HTTP_204_NO_CONTENT)
 
-        if request.method == HTTPMethod.PATCH:
-            if not current_user.is_admin():
-                request.data.pop("role", None)
-                request.data.pop("is_active", None)
+    @extend_schema(tags=[OpenApiTags.Users])
+    @action(
+        methods=[HTTPMethod.PATCH, HTTPMethod.DELETE],
+        detail=False,
+        url_path="withusername",
+    )
+    def partial_update_by_username(self, request: Request, **kwargs):
+        current_user: User = request.user
 
-            profile = request.data.pop("profile", None)
-            request.data.pop("username", None)  # remove username edit
-            try:
-                if profile:
-                    _serialized_profile = ProfileSerializer(
-                        instance=instance.profile, data=profile, partial=True
-                    )
-                    _serialized_profile.is_valid(raise_exception=True)
-                    _serialized_profile.save()
-                _serialized_user = self.serializer_class(
-                    instance=instance, data=request.data, partial=True
+        has_username = request.query_params.get("username")
+
+        if not has_username:
+            raise ValueError()
+
+        try:
+            instance = User.objects.get(username=has_username)
+        except User.DoesNotExist as exc:
+            logging.warning(
+                f"'!!!' {request.user!r} tried to edit User<{has_username!r}> profile which doesn't exists in system. '!!!'"
+            )
+            raise UserNotFoundException from exc
+
+        if not current_user.is_admin() and current_user.username != has_username:
+            logging.warning(
+                f"'!!!' {request.user!r} is violating ACL. Trying to take action for User<{has_username!r}> profile. '!!!'"
+            )
+            raise PermissionDeniedException()
+
+        if not current_user.is_admin():
+            request.data.pop("role", None)
+            request.data.pop("is_active", None)
+
+        profile = request.data.pop("profile", None)
+        request.data.pop("username", None)  # remove username edit
+        try:
+            if profile:
+                _serialized_profile = ProfileSerializer(
+                    instance=instance.profile, data=profile, partial=True
                 )
+                _serialized_profile.is_valid(raise_exception=True)
+                _serialized_profile.save()
 
-                _serialized_user.is_valid(raise_exception=True)
-                _serialized_user.validated_data["updated_by"] = request.user
-                _serialized_user.save()
-            except exceptions.ValidationError as exc:
-                logging.exception(exc)
-                raise InvalidPayloadException from exc
+            _serialized_user = self.serializer_class(
+                instance=instance, data=request.data, partial=True
+            )
 
-            logging.info(f"profile 'partial_update' successful for {instance!r}")
-            return Response(_serialized_user.data)
+            _serialized_user.is_valid(raise_exception=True)
+            _serialized_user.validated_data["updated_by"] = request.user
+            _serialized_user.save()
+        except exceptions.ValidationError as exc:
+            logging.exception(exc)
+            raise InvalidPayloadException from exc
 
-        logging.info(f"profile 'get' successful for {instance!r}")
-        return Response(self.serializer_class(instance=instance).data)
+        logging.info(f"profile 'partial_update' successful for {instance!r}")
+        return Response(_serialized_user.data)
 
 
 class ProfileViewSet(ViewSet):
