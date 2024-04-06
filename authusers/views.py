@@ -1,7 +1,9 @@
 import json
 from http import HTTPMethod
+from itertools import islice
 from logging import getLogger
 
+from django.contrib.auth.hashers import make_password
 from django_filters import rest_framework as filters
 from djangorestframework_camel_case.parser import (
     CamelCaseJSONParser,
@@ -25,10 +27,12 @@ from core.permissions import ExtendedIsAdminUser
 from core.renderer import CustomRenderer
 
 from .filter import UserFilter
-from .models import User, UserProfile
+from .models import Trader, User, UserProfile
 from .serializers import (
+    BulkUserCreateSerializer,
     MyTokenObtainPairSerializer,
     ProfileSerializer,
+    TraderSerializer,
     UserSerializer,
 )
 
@@ -121,10 +125,41 @@ class UserViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
     @extend_schema(
-        parameters=CUSTOM_ID_USER_PARAMETERS,
-        responses=enveloper(EmptySerializer, many=False),
+        responses=enveloper(TraderSerializer, many=False),
         tags=[OpenApiTags.Users],
     )
+    @action(methods=[HTTPMethod.GET], detail=False, url_path="noaccounts")
+    def find_users_without_accounts(self, request: Request):
+        query = Trader.objects.exclude(
+            trader_id__in=User.objects.values("username")
+        ).all()
+
+        return Response(TraderSerializer(query, many=True).data)
+
+    @extend_schema(
+        request=BulkUserCreateSerializer(),
+        tags=[OpenApiTags.Users],
+    )
+    @action(methods=[HTTPMethod.POST], detail=False, url_path="bulkusers")
+    def create_bulk_users(self, request: Request):
+        serialized = BulkUserCreateSerializer(data=request.data)
+
+        if not serialized.is_valid():
+            raise InvalidPayloadException(serialized.errors)
+        batch_size = 100
+        hashed_passwd = make_password(serialized.validated_data["password"])
+        role = serialized.validated_data["role"]
+        objs = (
+            User(username=username, password=hashed_passwd, role=role)
+            for username in serialized.validated_data["users"]
+        )
+        while True:
+            batch = list(islice(objs, batch_size))
+            if not batch:
+                break
+            User.objects.bulk_create(batch, batch_size)
+        return Response(serialized.data, status=status.HTTP_201_CREATED)
+
     @action(
         methods=[HTTPMethod.GET, HTTPMethod.PATCH, HTTPMethod.DELETE],
         detail=True,
