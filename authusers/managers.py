@@ -1,7 +1,4 @@
-from typing import Iterable
-
 from django.contrib.auth.models import BaseUserManager as UserManager
-from django.db.models.signals import post_save
 
 
 class BaseUserManager(UserManager):
@@ -34,18 +31,3 @@ class BaseUserManager(UserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(username, password, **extra_fields)
-
-    def bulk_create(
-        self,
-        objs: Iterable,
-        batch_size: int | None = None,
-        **kwargs,
-    ) -> list:
-        created_users = super().bulk_create(
-            objs,
-            batch_size,
-        )
-        for user in objs:
-            post_save.send(user.__class__, instance=user, created=True)
-
-        return created_users
