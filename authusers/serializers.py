@@ -1,3 +1,4 @@
+from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import (
     CharField,
     ListSerializer,
@@ -7,6 +8,8 @@ from rest_framework.serializers import (
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import Trader, User, UserProfile
+
+MIN_LENGTH_PASSWORD = 6
 
 
 class ProfileSerializer(ModelSerializer):
@@ -62,3 +65,25 @@ class BulkUserCreateSerializer(Serializer):
     users = ListSerializer(child=CharField())
     role = CharField()
     password = CharField(required=True)
+
+
+class ChangePasswordSerializer(Serializer):
+    password = CharField(allow_null=False)
+    password2 = CharField(allow_null=False)
+
+    def validate(self, data):
+        password = data.get("password")
+        password2 = data.get("password2")
+
+        # Check if passwords match
+        if password != password2:
+            raise ValidationError("Passwords do not match.")
+
+        if len(password) < MIN_LENGTH_PASSWORD:
+            raise ValidationError(
+                f"Password must be at least {MIN_LENGTH_PASSWORD} characters long."
+            )
+
+        # You can add more validations here as needed
+
+        return data
