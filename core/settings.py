@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "django_filters",
     "authusers",
     "analytics",
+    "bi_menu",
 ]
 
 MIDDLEWARE = [

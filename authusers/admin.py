@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import User, UserProfile
+from .models import Role, User, UserProfile
 
 
 class ProfileInline(admin.StackedInline):
@@ -84,3 +84,9 @@ class UserAdmin(BaseUserAdmin):
 
     def name(self, instance: User, **kwargs):
         return instance.get_full_name()
+
+
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
+    list_display = ("codename", "viewname")
+    search_fields = ("codename", "viewname")
