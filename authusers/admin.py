@@ -1,5 +1,8 @@
+from typing import Any
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.http.request import HttpRequest
 
 from .models import User, UserProfile
 
@@ -23,6 +26,7 @@ class UserAdmin(BaseUserAdmin):
         "is_superuser",
         "is_active",
     )
+    list_filter = ("role", "is_active")
     # Define the fields to be used in the user creation and editing form in the admin
     # panel
     fieldsets = (
@@ -84,3 +88,9 @@ class UserAdmin(BaseUserAdmin):
 
     def name(self, instance: User, **kwargs):
         return instance.get_full_name()
+
+    def save_model(
+        self, request: HttpRequest, obj: User, form: Any, change: Any
+    ) -> None:
+        obj.created_by = request.user
+        return super().save_model(request, obj, form, change)

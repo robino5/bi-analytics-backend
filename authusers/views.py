@@ -75,6 +75,7 @@ class UserViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     filterset_class = UserFilter
     lookup_field = "username"
+    lookup_value_regex = ".+"
 
     def get_queryset(self):
         return User.objects.all().order_by("-created_at")
@@ -83,10 +84,6 @@ class UserViewSet(ModelViewSet):
         responses=enveloper(UserSerializer, many=True), tags=[OpenApiTags.Users]
     )
     def list(self, request: Request, *args, **kwargs):
-        has_username = request.query_params.get("username")
-        if has_username:
-            user = User.objects.get(username=has_username)
-            return Response(self.serializer_class(instance=user).data)
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
@@ -112,7 +109,7 @@ class UserViewSet(ModelViewSet):
     @extend_schema(
         responses=enveloper(UserSerializer, many=False), tags=[OpenApiTags.Users]
     )
-    def partial_update(self, request, *args, **kwargs):
+    def partial_update(self, request: Request, *args, **kwargs):
         request.data["updated_by"] = request.user.pk
         return super().partial_update(request, *args, **kwargs)
 
@@ -152,6 +149,7 @@ class UserViewSet(ModelViewSet):
             raise UserNotFoundException() from exc
 
         user.set_password(serializer.validated_data.get("password2"))
+        user.updated_by = request.user
         user.save()
 
         return Response(self.serializer_class(instance=user).data)
@@ -173,7 +171,7 @@ class UserViewSet(ModelViewSet):
             for username in serialized.validated_data["users"]
         )
         # TODO: this is wrong ! as this is doing each transaction roundtrip to database. But need this for now to
-        # properly work with Django Signals
+        # properly work with Django Signals. Trying to do it with bulk_create()
         for user in objs:
             user = User(**user)
             user.save()
