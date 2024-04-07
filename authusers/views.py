@@ -28,6 +28,7 @@ from .filter import UserFilter
 from .models import Trader, User, UserProfile
 from .serializers import (
     BulkUserCreateSerializer,
+    ChangePasswordSerializer,
     MyTokenObtainPairSerializer,
     ProfileSerializer,
     TraderSerializer,
@@ -133,6 +134,27 @@ class UserViewSet(ModelViewSet):
         ).all()
 
         return Response(TraderSerializer(query, many=True).data)
+
+    @extend_schema(
+        request=ChangePasswordSerializer,
+        tags=[OpenApiTags.Users],
+    )
+    @action(methods=[HTTPMethod.PATCH], detail=True, url_path="change-password")
+    def change_password(self, request: Request, username: str, **kwargs):
+        serializer = ChangePasswordSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            raise InvalidPayloadException(detail=serializer.errors)
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist as exc:
+            raise UserNotFoundException() from exc
+
+        user.set_password(serializer.validated_data.get("password2"))
+        user.save()
+
+        return Response(self.serializer_class(instance=user).data)
 
     @extend_schema(
         request=BulkUserCreateSerializer(),
