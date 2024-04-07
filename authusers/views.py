@@ -22,7 +22,6 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from core.helper import EmptySerializer, enveloper
 from core.metadata.openapi import OpenApiTags
-from core.permissions import ExtendedIsAdminUser
 from core.renderer import CustomRenderer
 
 from .filter import UserFilter
@@ -72,16 +71,12 @@ class UserViewSet(ModelViewSet):
     filter_backends = [filters.DjangoFilterBackend]
     authentication_classes = [JWTAuthentication]
     pagination_class = None
-    permission_classes = [IsAuthenticated, ExtendedIsAdminUser]
+    permission_classes = [IsAuthenticated]
     filterset_class = UserFilter
+    lookup_field = "username"
 
     def get_queryset(self):
         return User.objects.all().order_by("-created_at")
-
-    def get_permissions(self):
-        if self.action in (["actions_by_username"]):
-            self.permission_classes = [IsAuthenticated]
-        return [permission() for permission in self.permission_classes]
 
     @extend_schema(
         responses=enveloper(UserSerializer, many=True), tags=[OpenApiTags.Users]
@@ -143,7 +138,7 @@ class UserViewSet(ModelViewSet):
         request=BulkUserCreateSerializer(),
         tags=[OpenApiTags.Users],
     )
-    @action(methods=[HTTPMethod.POST], detail=False, url_path="bulkusers")
+    @action(methods=[HTTPMethod.POST], detail=False, url_path="bulk")
     def create_bulk_users(self, request: Request):
         serialized = BulkUserCreateSerializer(data=request.data)
 
@@ -161,95 +156,6 @@ class UserViewSet(ModelViewSet):
             user = User(**user)
             user.save()
         return Response(serialized.data, status=status.HTTP_201_CREATED)
-
-    @extend_schema(parameters=CUSTOM_ID_USER_PARAMETERS, tags=[OpenApiTags.Users])
-    @action(
-        methods=[HTTPMethod.PATCH, HTTPMethod.DELETE],
-        detail=True,
-        url_path="by-username",
-    )
-    def actions_by_username(self, request: Request, pk: str):
-        current_user: User = request.user
-
-        if not current_user.is_admin() and current_user.username != pk:
-            logging.warning(
-                f"'!!!' {request.user!r} is violating ACL. Trying to take action for User<{pk!r}> profile. '!!!'"
-            )
-            raise PermissionDeniedException()
-
-        try:
-            instance = User.objects.get(username=pk)
-        except User.DoesNotExist as exc:
-            logging.warning(
-                f"'!!!' {request.user!r} tried to edit User<{pk!r}> profile which doesn't exists in system. '!!!'"
-            )
-            raise UserNotFoundException from exc
-
-        if request.method == HTTPMethod.DELETE:
-            if not current_user.is_admin():
-                logging.warning(
-                    f"'!!!' {request.user!r} is violating ACL. Trying to delete for User<{pk!r}> profile. '!!!'"
-                )
-                raise PermissionDeniedException()
-
-            instance.delete()
-            return Response(None, status=status.HTTP_204_NO_CONTENT)
-
-    @extend_schema(tags=[OpenApiTags.Users])
-    @action(
-        methods=[HTTPMethod.PATCH, HTTPMethod.DELETE],
-        detail=False,
-        url_path="withusername",
-    )
-    def partial_update_by_username(self, request: Request, **kwargs):
-        current_user: User = request.user
-
-        has_username = request.query_params.get("username")
-
-        if not has_username:
-            raise ValueError()
-
-        try:
-            instance = User.objects.get(username=has_username)
-        except User.DoesNotExist as exc:
-            logging.warning(
-                f"'!!!' {request.user!r} tried to edit User<{has_username!r}> profile which doesn't exists in system. '!!!'"
-            )
-            raise UserNotFoundException from exc
-
-        if not current_user.is_admin() and current_user.username != has_username:
-            logging.warning(
-                f"'!!!' {request.user!r} is violating ACL. Trying to take action for User<{has_username!r}> profile. '!!!'"
-            )
-            raise PermissionDeniedException()
-
-        if not current_user.is_admin():
-            request.data.pop("role", None)
-            request.data.pop("is_active", None)
-
-        profile = request.data.pop("profile", None)
-        request.data.pop("username", None)  # remove username edit
-        try:
-            if profile:
-                _serialized_profile = ProfileSerializer(
-                    instance=instance.profile, data=profile, partial=True
-                )
-                _serialized_profile.is_valid(raise_exception=True)
-                _serialized_profile.save()
-
-            _serialized_user = self.serializer_class(
-                instance=instance, data=request.data, partial=True
-            )
-
-            _serialized_user.is_valid(raise_exception=True)
-            _serialized_user.validated_data["updated_by"] = request.user
-            _serialized_user.save()
-        except exceptions.ValidationError as exc:
-            logging.exception(exc)
-            raise InvalidPayloadException from exc
-
-        logging.info(f"profile 'partial_update' successful for {instance!r}")
-        return Response(_serialized_user.data)
 
 
 class ProfileViewSet(ViewSet):
