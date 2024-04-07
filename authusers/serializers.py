@@ -84,6 +84,4 @@ class ChangePasswordSerializer(Serializer):
                 f"Password must be at least {MIN_LENGTH_PASSWORD} characters long."
             )
 
-        # You can add more validations here as needed
-
         return data
