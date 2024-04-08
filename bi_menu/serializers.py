@@ -5,7 +5,7 @@ from .models import Menu
 
 class MenuSerializer(ModelSerializer):
     roles = SerializerMethodField()
-    submenus = SerializerMethodField(method_name="fetch_submenu")
+    submenus = SerializerMethodField()
 
     class Meta:
         model = Menu
@@ -14,7 +14,7 @@ class MenuSerializer(ModelSerializer):
     def get_roles(self, instance: Menu):
         return list(instance.roles.values_list("codename", flat=True))
 
-    def fetch_submenu(self, obj: Menu):
-        submenus = obj.submenus.all()
+    def get_submenus(self, obj: Menu):
+        submenus = obj.submenus.prefetch_related("submenus").all()
         serialized = self.__class__(submenus, many=True)
         return serialized.data

@@ -134,6 +134,7 @@ STATIC_ROOT = BASE_DIR / "static"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "authusers.User"
+HEADER_AUTH_KEY = "Authorization"
 
 # disable end slash for django project
 APPEND_SLASH = False
