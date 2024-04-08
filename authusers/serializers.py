@@ -7,7 +7,7 @@ from rest_framework.serializers import (
 )
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import Trader, User, UserProfile
+from .models import Role, Trader, User, UserProfile
 
 MIN_LENGTH_PASSWORD = 6
 
@@ -87,3 +87,9 @@ class ChangePasswordSerializer(Serializer):
         # You can add more validations here as needed
 
         return data
+
+
+class RoleSerializer(ModelSerializer):
+    class Meta:
+        model = Role
+        exclude = ("created_by", "updated_by", "created_at", "updated_at")

@@ -14,6 +14,8 @@ v1 = "api/v1"
 urlpatterns = [
     path("admin/", admin.site.urls),
     path(f"{v1}/auth/", include("authusers.urls")),
+    # Menu URL
+    path(f"{v1}/menus/", include("bi_menu.urls")),
     # Open API & Swagger UI
     path(
         "api/openapi",

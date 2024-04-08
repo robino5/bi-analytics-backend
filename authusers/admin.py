@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
@@ -90,3 +92,12 @@ class UserAdmin(BaseUserAdmin):
 class RoleAdmin(admin.ModelAdmin):
     list_display = ("codename", "viewname")
     search_fields = ("codename", "viewname")
+
+    readonly_fields = ("created_at", "created_by", "updated_at", "updated_by")
+
+    def save_model(self, request: Any, obj: Any, form: Any, change: Any) -> None:
+        if not change:
+            obj.created_by = request.user
+        else:
+            obj.updated_by = request.user
+        return super().save_model(request, obj, form, change)
