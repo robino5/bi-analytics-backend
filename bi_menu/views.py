@@ -17,8 +17,13 @@ class MenuViewSet(ViewSet):
     pagination_class = None
     permission_classes = [IsAuthenticated]
 
+    def _get_root_menus(self):
+        return Menu.objects.filter(
+            parent_menu__isnull=True, path__isnull=True
+        ).order_by("order")
+
     def get_queryset(self):
-        return Menu.objects.order_by("-created_at")
+        return self._get_root_menus()
 
     def list(self, request: Request, *args, **kwargs):
         ret = self.serializer_class(self.get_queryset(), many=True)
