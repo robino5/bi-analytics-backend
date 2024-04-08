@@ -13,10 +13,12 @@ class Menu(AuditLogMixin):
         Role, related_name="menus", verbose_name="Access Role"
     )
     parent_menu = models.ForeignKey(
-        "self", on_delete=models.CASCADE, null=True, blank=True
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="submenus"
     )
     order = models.IntegerField()
     is_active = models.BooleanField(default=True)
+
+    submenus = models.QuerySet["Menu"]
 
     class Meta:
         db_table = "bi_menus"
