@@ -36,8 +36,8 @@ class MenuViewSet(ViewSet):
     @method_decorator(cache_page(CACHING_TIME))
     @method_decorator(vary_on_headers(settings.HEADER_AUTH_KEY))
     def list(self, request: Request, *args, **kwargs):
-        ret = self.serializer_class(self.get_queryset(), many=True)
-        return Response(ret.data)
+        serialized = self.serializer_class(self.get_queryset(), many=True)
+        return Response(serialized.data)
 
     class Meta:
         model = Menu
