@@ -66,3 +66,15 @@ class Trader(models.Model):
         managed = False
         unique_together = ["branch_code", "trader_id"]
         db_table = "BI_trd_Dealer_info"
+
+
+class Role(AuditLogMixin):
+    codename = models.CharField(max_length=255, unique=True, verbose_name="Code Name")
+    viewname = models.CharField(max_length=255, verbose_name="View Name")
+
+    class Meta:
+        db_table = "bi_access_role_levels"
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return self.viewname

@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.http.request import HttpRequest
 
-from .models import User, UserProfile
+from .models import Role, User, UserProfile
 
 
 class ProfileInline(admin.StackedInline):
@@ -89,8 +89,16 @@ class UserAdmin(BaseUserAdmin):
     def name(self, instance: User, **kwargs):
         return instance.get_full_name()
 
-    def save_model(
-        self, request: HttpRequest, obj: User, form: Any, change: Any
-    ) -> None:
-        obj.created_by = request.user
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
+    list_display = ("codename", "viewname")
+    search_fields = ("codename", "viewname")
+
+    readonly_fields = ("created_at", "created_by", "updated_at", "updated_by")
+
+    def save_model(self, request: Any, obj: Any, form: Any, change: Any) -> None:
+        if not change:
+            obj.created_by = request.user
+        else:
+            obj.updated_by = request.user
         return super().save_model(request, obj, form, change)
