@@ -44,8 +44,6 @@ METADATA_CONFIGS = {
         "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields",
         "drf_spectacular.hooks.postprocess_schema_enums",
     ],
-    "SERVERS": [
-        {"url": "http://127.0.0.1:8000", "description": "LOCAL DEV"},
-    ],
     "COMPONENT_SPLIT_REQUEST": True,
+    "DISABLE_ERRORS_AND_WARNINGS": True,
 }
