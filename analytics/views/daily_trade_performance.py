@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from http import HTTPMethod
 
 from drf_spectacular.utils import extend_schema
@@ -135,6 +136,8 @@ def get_turnover_performance_statistics(request: Request) -> Response:
     """fetch the turnover performance statistics for all"""
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
+    # defining a threshold-date as sometimes database returning very old data
+    threshold_date = datetime.now() - timedelta(days=120)
 
     with Session(engine) as session:
         qs = (
@@ -143,6 +146,7 @@ def get_turnover_performance_statistics(request: Request) -> Response:
                 func.sum(DailyTurnoverPerformanceOrm.generated).label("generated"),
                 func.sum(DailyTurnoverPerformanceOrm.target).label("target"),
             )
+            .where(DailyTurnoverPerformanceOrm.trading_date >= threshold_date)
             .group_by(DailyTurnoverPerformanceOrm.trading_date)
             .order_by(DailyTurnoverPerformanceOrm.trading_date)
         )

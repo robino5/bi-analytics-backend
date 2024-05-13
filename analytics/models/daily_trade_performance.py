@@ -12,8 +12,8 @@ class BaseModel(Base):
 
 class DailyTurnoverPerformance(BaseModel):
     label: datetime
-    generated: float
-    target: float
+    generated: float | None
+    target: float | None
 
     @field_serializer("label")
     def serialize_label(self, dt: datetime, _info):
