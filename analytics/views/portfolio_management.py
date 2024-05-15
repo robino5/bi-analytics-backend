@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from http import HTTPMethod
 
 import pandas as pd
@@ -45,12 +46,17 @@ def get_daily_net_fundflow(request: Request) -> Response:
     """fetch basic branch summary"""
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
+    threshold_date = datetime.now() - timedelta(days=120)
 
     with Session(engine) as session:
-        qs = select(
-            DailyNetFundFlowOrm.trading_date.label("trading_date"),
-            func.sum(DailyNetFundFlowOrm.fundflow).label("amount"),
-        ).group_by(DailyNetFundFlowOrm.trading_date)
+        qs = (
+            select(
+                DailyNetFundFlowOrm.trading_date.label("trading_date"),
+                func.sum(DailyNetFundFlowOrm.fundflow).label("amount"),
+            )
+            .where(DailyNetFundFlowOrm.trading_date >= threshold_date)
+            .group_by(DailyNetFundFlowOrm.trading_date)
+        )
 
         qs = rolewise_branch_data_filter(qs, current_user, DailyNetFundFlowOrm)
         rows = session.execute(qs)
@@ -91,13 +97,20 @@ def get_trade_vs_client_statistics(request: Request) -> Response:
     """fetch basic branch summary"""
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
+    threshold_date = datetime.now() - timedelta(days=120)
 
     with Session(engine) as session:
-        qs = select(
-            TurnoverAndClientsTradeOrm.trading_date.label("trading_date"),
-            func.sum(TurnoverAndClientsTradeOrm.turnover).label("turnover"),
-            func.sum(TurnoverAndClientsTradeOrm.active_client).label("active_clients"),
-        ).group_by(TurnoverAndClientsTradeOrm.trading_date)
+        qs = (
+            select(
+                TurnoverAndClientsTradeOrm.trading_date.label("trading_date"),
+                func.sum(TurnoverAndClientsTradeOrm.turnover).label("turnover"),
+                func.sum(TurnoverAndClientsTradeOrm.active_client).label(
+                    "active_clients"
+                ),
+            )
+            .where(TurnoverAndClientsTradeOrm.trading_date >= threshold_date)
+            .group_by(TurnoverAndClientsTradeOrm.trading_date)
+        )
 
         qs = rolewise_branch_data_filter(qs, current_user, TurnoverAndClientsTradeOrm)
 
