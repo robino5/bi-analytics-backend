@@ -15,6 +15,7 @@ class OpenApiTags:
     RMWISE_PERFORMANCE = "rmwise-performance"
     RMWISE_PORTFOLIO = "rmwise-portfolio"
     ACTIVE_TRADING_CODE = "active-trading-codes"
+    BUSINESS_TRADE_MANAGEMENT = "business-and-trade-management"
 
 
 openapi_description = r"""
