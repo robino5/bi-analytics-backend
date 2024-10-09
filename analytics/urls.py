@@ -83,6 +83,14 @@ urlpatterns = [
     path("active-trading-daywise/", views.get_active_trading_summary_daywise),
     path("active-trading-monthwise/", views.get_active_trading_monthwise_client),
     # Business And Trade Management
-    path("board-turnover/", views.get_board_turnovers),
-    path("board-turnovers-breakdown/", views.get_board_turnovers_breakdown)
+    path("admin/board-turnover/", views.get_board_turnovers),
+    path("admin/board-turnovers-breakdown/", views.get_board_turnovers_breakdown),
+    path("admin/market-share-details/", views.get_market_share_details),
+    path("admin/atb-market-share-details/", views.get_atb_markte_share_details),
+    path("admin/companywise-saleable-stock/", views.get_company_wise_saleable_stock),
+    path("admin/investorwise-saleable-stock/", views.get_investor_wise_saleable_stock),
+    path(
+        "admin/companywise-saleable-stock-percentage/",
+        views.get_company_wise_saleable_stock_percentage,
+    ),
 ]
