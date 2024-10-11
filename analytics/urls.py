@@ -93,4 +93,37 @@ urlpatterns = [
         "admin/companywise-saleable-stock-percentage/",
         views.get_company_wise_saleable_stock_percentage,
     ),
+    # Admin Customer Management
+    path(
+        "admin/customer-management/client-segmentations/",
+        views.get_client_segmentation_summary,
+    ),
+    path(
+        "admin/customer-management/branchwise-client-ratio/",
+        views.get_branchwise_client_numbers_ratio,
+    ),
+    path(
+        "admin/customer-management/branchwise-non-performers/",
+        views.get_non_performers_client_ratio,
+    ),
+    path(
+        "admin/customer-management/turnover-segmentation/",
+        views.get_admin_client_segmentation_turnover,
+    ),
+    path(
+        "admin/customer-management/tpv-segmentation/",
+        views.get_admin_client_segmentation_tpv,
+    ),
+    path(
+        "admin/customer-management/equity-segmentation/",
+        views.get_admin_client_segmentation_equity,
+    ),
+    path(
+        "admin/customer-management/ledger-segmentation/",
+        views.get_admin_client_segmentation_ledger,
+    ),
+    path(
+        "admin/customer-management/market-share-segmentation/",
+        views.get_admin_market_share,
+    ),
 ]

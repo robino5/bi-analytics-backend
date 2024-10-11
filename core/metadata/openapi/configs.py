@@ -16,6 +16,7 @@ class OpenApiTags:
     RMWISE_PORTFOLIO = "rmwise-portfolio"
     ACTIVE_TRADING_CODE = "active-trading-codes"
     BUSINESS_TRADE_MANAGEMENT = "business-and-trade-management"
+    ADMIN_CUSTOMER_MANAGEMENT = "customer-management"
 
 
 openapi_description = r"""
