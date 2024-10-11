@@ -19,6 +19,7 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -fr {} +
+	find . -name '.DS_Store' -exec rm -rf {} +
 
 clean-test: ## remove test and coverage artifacts
 	rm -fr .tox/
