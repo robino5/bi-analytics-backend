@@ -131,7 +131,7 @@ class CompanyWiseSaleableStockOrm(BaseOrm):
 class InvestorWiseSaleableStockOrm(BaseOrm):
     __tablename__ = "BI_trd_Admin_Client_saleable_Stock"
 
-    compnay_name: Mapped[str] = mapped_column(
+    company_name: Mapped[str] = mapped_column(
         "company Name", String(255), primary_key=True
     )
     branch_name: Mapped[str] = mapped_column("Client branch", String(255))
@@ -146,7 +146,7 @@ class InvestorWiseSaleableStockOrm(BaseOrm):
 class CompanyWiseSaleableStockPercentageOrm(BaseOrm):
     __tablename__ = "BI_trd_Admin_Client_saleable_Stock_percentages"
 
-    compnay_name: Mapped[str] = mapped_column(
+    company_name: Mapped[str] = mapped_column(
         "company_F_Name", String(255), primary_key=True
     )
     branch_name: Mapped[str] = mapped_column("Branch_name", String(255), primary_key=True)
