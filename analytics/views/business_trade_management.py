@@ -34,6 +34,18 @@ from ..orm import (
 )
 
 
+class StockPagination(PageNumberPagination):
+    page_size = 50  # Customize the page size
+    page_size_query_param = "page_size"  # Allow clients to control page size
+    max_page_size = 100  # Max limit to prevent very large queries
+
+
+def _sanitaize_query_param(query: str) -> str | None:
+    if query != "''" and query != '""' and query != "" and query:
+        return query
+    return None
+
+
 @extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated, ExtendedIsAdminUser])
@@ -108,36 +120,62 @@ def get_atb_markte_share_details(request: Request) -> Response:
         return Response(ATBMarketShareSME.model_validate(qs).model_dump())
 
 
-@extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
+@extend_schema(
+    tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT],
+    parameters=[
+        OpenApiParameter(
+            name="company", description="Company", required=False, type=str
+        ),
+        OpenApiParameter(
+            name="page", description="Page number", required=False, type=int
+        ),
+        OpenApiParameter(
+            name="page_size",
+            description="Number of results per page",
+            required=False,
+            type=int,
+        ),
+    ],
+)
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated, ExtendedIsAdminUser])
 def get_company_wise_saleable_stock(request: Request) -> Response:
     """fetch company wise saleable stock"""
     request.accepted_renderer = CustomRenderer()
+    paginator = StockPagination()
+
+    company_q = _sanitaize_query_param(request.query_params.get("company"))
 
     with Session(engine) as session:
-        qs = session.execute(
-            select(CompanyWiseSaleableStockOrm).order_by(
-                CompanyWiseSaleableStockOrm.stock_available.desc()
-            )
-        ).scalars()
+        query = select(CompanyWiseSaleableStockOrm).order_by(
+            CompanyWiseSaleableStockOrm.stock_available.desc()
+        )
 
+        if company_q:
+            query = query.where(
+                CompanyWiseSaleableStockOrm.company_name.ilike(f"%{company_q}%")
+            )
+
+        qs = session.execute(query).scalars().all()
+
+        paginated_queryset = paginator.paginate_queryset(qs, request)
         results = [
-            CompanyWiseSaleableStock.model_validate(row).model_dump() for row in qs
+            CompanyWiseSaleableStock.model_validate(row).model_dump()
+            for row in paginated_queryset
         ]
 
-        return Response(results)
-
-
-class InvestorStockPagination(PageNumberPagination):
-    page_size = 50  # Customize the page size
-    page_size_query_param = "page_size"  # Allow clients to control page size
-    max_page_size = 100  # Max limit to prevent very large queries
+        return paginator.get_paginated_response(results)
 
 
 @extend_schema(
     tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT],
     parameters=[
+        OpenApiParameter(
+            name="company", description="Company", required=False, type=str
+        ),
+        OpenApiParameter(
+            name="investor", description="Investor Code", required=False, type=str
+        ),
         OpenApiParameter(
             name="page", description="Page number", required=False, type=int
         ),
@@ -154,18 +192,26 @@ class InvestorStockPagination(PageNumberPagination):
 def get_investor_wise_saleable_stock(request: Request) -> Response:
     """fetch investor wise saleable stock"""
     request.accepted_renderer = CustomRenderer()
-    paginator = InvestorStockPagination()
+    paginator = StockPagination()
+
+    company_q = _sanitaize_query_param(request.query_params.get("company"))
+    investor_q = _sanitaize_query_param(request.query_params.get("investor"))
 
     with Session(engine) as session:
-        qs = (
-            session.execute(
-                select(InvestorWiseSaleableStockOrm).order_by(
-                    InvestorWiseSaleableStockOrm.stock_available.desc()
-                )
-            )
-            .scalars()
-            .all()
+        query = select(InvestorWiseSaleableStockOrm).order_by(
+            InvestorWiseSaleableStockOrm.stock_available.desc()
         )
+        if company_q:
+            query = query.where(
+                InvestorWiseSaleableStockOrm.company_name.ilike(f"%{company_q}%")
+            )
+        if investor_q:
+            query = query.where(
+                InvestorWiseSaleableStockOrm.investor_code.ilike(f"{investor_q}")
+            )
+
+        qs = session.execute(query).scalars().all()
+
         paginated_results = paginator.paginate_queryset(qs, request)
         results = [
             InvestorWiseSaleableStock.model_validate(row).model_dump()
@@ -177,6 +223,9 @@ def get_investor_wise_saleable_stock(request: Request) -> Response:
 @extend_schema(
     tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT],
     parameters=[
+        OpenApiParameter(
+            name="company", description="Company", required=False, type=str
+        ),
         OpenApiParameter(
             name="page", description="Page number", required=False, type=int
         ),
@@ -193,18 +242,23 @@ def get_investor_wise_saleable_stock(request: Request) -> Response:
 def get_company_wise_saleable_stock_percentage(request: Request) -> Response:
     """fetch company wise saleable stock percentage"""
     request.accepted_renderer = CustomRenderer()
-    paginator = InvestorStockPagination()
+    paginator = StockPagination()
+
+    company_q = _sanitaize_query_param(request.query_params.get("company"))
 
     with Session(engine) as session:
-        qs = (
-            session.execute(
-                select(CompanyWiseSaleableStockPercentageOrm).order_by(
-                    CompanyWiseSaleableStockPercentageOrm.stock_available.desc()
+        query = select(CompanyWiseSaleableStockPercentageOrm).order_by(
+            CompanyWiseSaleableStockPercentageOrm.stock_available.desc()
+        )
+
+        if company_q:
+            query = query.where(
+                CompanyWiseSaleableStockPercentageOrm.company_name.ilike(
+                    f"%{company_q}%"
                 )
             )
-            .scalars()
-            .all()
-        )
+
+        qs = session.execute(query).scalars().all()
         paginated_results = paginator.paginate_queryset(qs, request)
         results = [
             CompanyWiseSaleableStockPercentage.model_validate(row).model_dump()
