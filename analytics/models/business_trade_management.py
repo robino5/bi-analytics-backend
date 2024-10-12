@@ -84,7 +84,7 @@ class CompanyWiseSaleableStock(BaseModel):
 
 
 class InvestorWiseSaleableStock(BaseModel):
-    compnay_name: str
+    company_name: str
     branch_name: str
     investor_code: str
     client_name: str
@@ -93,7 +93,7 @@ class InvestorWiseSaleableStock(BaseModel):
 
 
 class CompanyWiseSaleableStockPercentage(BaseModel):
-    compnay_name: str
+    company_name: str
     branch_name: str
     stock_available: int
     stock_available_percentage: float

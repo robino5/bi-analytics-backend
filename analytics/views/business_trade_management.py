@@ -55,7 +55,7 @@ def get_board_turnovers(request: Request) -> Response:
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated, ExtendedIsAdminUser])
 def get_board_turnovers_breakdown(request: Request) -> Response:
-    """fetch branch turnovers"""
+    """fetch branch turnovers breakdowns"""
     request.accepted_renderer = CustomRenderer()
 
     with Session(engine) as session:
@@ -112,7 +112,7 @@ def get_atb_markte_share_details(request: Request) -> Response:
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated, ExtendedIsAdminUser])
 def get_company_wise_saleable_stock(request: Request) -> Response:
-    """fetch lbsl atb market share details"""
+    """fetch company wise saleable stock"""
     request.accepted_renderer = CustomRenderer()
 
     with Session(engine) as session:
@@ -152,25 +152,26 @@ class InvestorStockPagination(PageNumberPagination):
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated, ExtendedIsAdminUser])
 def get_investor_wise_saleable_stock(request: Request) -> Response:
-    """fetch lbsl atb market share details"""
+    """fetch investor wise saleable stock"""
     request.accepted_renderer = CustomRenderer()
     paginator = InvestorStockPagination()
 
     with Session(engine) as session:
-        qs = session.execute(
-            select(InvestorWiseSaleableStockOrm).order_by(
-                InvestorWiseSaleableStockOrm.stock_available.desc()
+        qs = (
+            session.execute(
+                select(InvestorWiseSaleableStockOrm).order_by(
+                    InvestorWiseSaleableStockOrm.stock_available.desc()
+                )
             )
-        ).scalars()
-
+            .scalars()
+            .all()
+        )
+        paginated_results = paginator.paginate_queryset(qs, request)
         results = [
-            InvestorWiseSaleableStock.model_validate(row).model_dump() for row in qs
+            InvestorWiseSaleableStock.model_validate(row).model_dump()
+            for row in paginated_results
         ]
-
-        paginated_results = paginator.paginate_queryset(results, request)
-
-        return Response(paginated_results)
-
+        return paginator.get_paginated_response(results)
 
 
 @extend_schema(
@@ -190,21 +191,23 @@ def get_investor_wise_saleable_stock(request: Request) -> Response:
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated, ExtendedIsAdminUser])
 def get_company_wise_saleable_stock_percentage(request: Request) -> Response:
-    """fetch lbsl atb market share details"""
+    """fetch company wise saleable stock percentage"""
     request.accepted_renderer = CustomRenderer()
     paginator = InvestorStockPagination()
 
     with Session(engine) as session:
-        qs = session.execute(
-            select(CompanyWiseSaleableStockPercentageOrm).order_by(
-                CompanyWiseSaleableStockPercentageOrm.stock_available.desc()
+        qs = (
+            session.execute(
+                select(CompanyWiseSaleableStockPercentageOrm).order_by(
+                    CompanyWiseSaleableStockPercentageOrm.stock_available.desc()
+                )
             )
-        ).scalars()
-
+            .scalars()
+            .all()
+        )
+        paginated_results = paginator.paginate_queryset(qs, request)
         results = [
-            CompanyWiseSaleableStockPercentage.model_validate(row).model_dump() for row in qs
+            CompanyWiseSaleableStockPercentage.model_validate(row).model_dump()
+            for row in paginated_results
         ]
-
-        paginated_results = paginator.paginate_queryset(results, request)
-
-        return Response(paginated_results)
+        return paginator.get_paginated_response(results)
