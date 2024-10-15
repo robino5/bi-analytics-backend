@@ -1,4 +1,5 @@
 from http import HTTPMethod
+from urllib.parse import urlencode
 
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.decorators import api_view, permission_classes
@@ -6,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from core.metadata.openapi import OpenApiTags
@@ -192,10 +193,13 @@ def get_company_wise_saleable_stock(request: Request) -> Response:
 def get_investor_wise_saleable_stock(request: Request) -> Response:
     """fetch investor wise saleable stock"""
     request.accepted_renderer = CustomRenderer()
-    paginator = StockPagination()
 
     company_q = _sanitaize_query_param(request.query_params.get("company"))
     investor_q = _sanitaize_query_param(request.query_params.get("investor"))
+    # Get pagination info from request
+    page_number = request.query_params.get("page", 1)
+    page_size = request.query_params.get("page_size", 10)
+    offset = (int(page_number) - 1) * int(page_size)
 
     with Session(engine) as session:
         query = select(InvestorWiseSaleableStockOrm).order_by(
@@ -210,15 +214,39 @@ def get_investor_wise_saleable_stock(request: Request) -> Response:
             query = query.where(
                 InvestorWiseSaleableStockOrm.investor_code.ilike(f"{investor_q}")
             )
+        # Count total rows for pagination metadata
+        total_count = session.execute(select(func.count()).select_from(query.subquery())).scalar()
+        # Apply pagination at the SQLAlchemy level
+        query = query.offset(offset).limit(page_size)
 
         qs = session.execute(query).scalars().all()
 
-        paginated_results = paginator.paginate_queryset(qs, request)
         results = [
             InvestorWiseSaleableStock.model_validate(row).model_dump()
-            for row in paginated_results
+            for row in qs
         ]
-        return paginator.get_paginated_response(results)
+        # Construct next and previous URLs
+        def build_page_url(page):
+            # Keep existing query parameters but modify the "page"
+            query_params = request.query_params.copy()
+            query_params["page"] = page
+            return request.build_absolute_uri(f"?{urlencode(query_params)}")
+
+        next_url = build_page_url(int(page_number) + 1) if offset + page_size < total_count else None
+        previous_url = build_page_url(int(page_number) - 1) if int(page_number) > 1 else None
+
+        # Construct custom paginated response
+        response_data = {
+            "count": total_count,
+            "total_pages": (total_count // page_size) + (1 if total_count % page_size > 0 else 0),
+            "next": next_url,
+            "previous": previous_url,
+            "current_page": int(page_number),
+            "page_size": page_size,
+            "results": results,
+        }
+
+        return Response(response_data)
 
 
 @extend_schema(
