@@ -1,7 +1,8 @@
 from datetime import datetime
 
-from pydantic import BaseModel as Base
-from pydantic import ConfigDict, field_serializer
+from pydantic import field_serializer
+
+from .base import BaseModel
 
 __all__ = [
     "ActiveTradingSummary",
@@ -10,10 +11,6 @@ __all__ = [
     "TradeActiveTrading",
     "TurnoverActiveTrading",
 ]
-
-
-class BaseModel(Base):
-    model_config = ConfigDict(from_attributes=True)
 
 
 class ActiveTradingSummary(BaseModel):
