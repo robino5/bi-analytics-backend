@@ -1,26 +1,14 @@
-from datetime import datetime
-
-from pydantic import field_serializer
-
-from .base import BaseModel
+from .base import BaseModel, TradingDateModel
 
 __all__ = ["DailyTurnoverPerformance", "DailyMarginLoanUsage", "SectorExposure"]
 
 
-class CommonLabelModel(BaseModel):
-    label: datetime
-
-    @field_serializer("label")
-    def serialize_label(self, dt: datetime, _info):
-        return dt.strftime("%d-%b-%Y")
-
-
-class DailyTurnoverPerformance(CommonLabelModel):
+class DailyTurnoverPerformance(TradingDateModel):
     generated: float | None
     target: float | None
 
 
-class DailyMarginLoanUsage(CommonLabelModel):
+class DailyMarginLoanUsage(TradingDateModel):
     total_allocated: float
     daily_usage: float
 

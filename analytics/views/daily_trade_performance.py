@@ -142,7 +142,7 @@ def get_turnover_performance_statistics(request: Request) -> Response:
     with Session(engine) as session:
         qs = (
             select(
-                DailyTurnoverPerformanceOrm.trading_date.label("label"),
+                DailyTurnoverPerformanceOrm.trading_date.label("trading_date"),
                 func.sum(DailyTurnoverPerformanceOrm.generated).label("generated"),
                 func.sum(DailyTurnoverPerformanceOrm.target).label("target"),
             )
@@ -173,7 +173,7 @@ def get_turnover_performance_statistics_by_branchid(
     with Session(engine) as session:
         qs = (
             select(
-                DailyTurnoverPerformanceOrm.trading_date.label("label"),
+                DailyTurnoverPerformanceOrm.trading_date.label("trading_date"),
                 func.sum(DailyTurnoverPerformanceOrm.generated).label("generated"),
                 func.sum(DailyTurnoverPerformanceOrm.target).label("target"),
             )
@@ -203,7 +203,7 @@ def get_margin_loan_statistics(request: Request) -> Response:
     with Session(engine) as session:
         qs = (
             select(
-                DailyMarginLoanUsageOrm.trading_date.label("label"),
+                DailyMarginLoanUsageOrm.trading_date.label("trading_date"),
                 func.sum(DailyMarginLoanUsageOrm.loan_amount).label("total_allocated"),
                 func.sum(DailyMarginLoanUsageOrm.daily_turnover).label("daily_usage"),
             )
@@ -234,7 +234,7 @@ def get_margin_loan_statistics_by_branchid(request: Request, id: int) -> Respons
     with Session(engine) as session:
         qs = (
             select(
-                DailyMarginLoanUsageOrm.trading_date.label("label"),
+                DailyMarginLoanUsageOrm.trading_date.label("trading_date"),
                 func.sum(DailyMarginLoanUsageOrm.loan_amount).label("total_allocated"),
                 func.sum(DailyMarginLoanUsageOrm.daily_turnover).label("daily_usage"),
             )
