@@ -55,7 +55,7 @@ def get_board_turnovers(request: Request) -> Response:
 
     with Session(engine) as session:
         qs = session.execute(
-            select(BoardTurnOverOrm).order_by(BoardTurnOverOrm.board)
+            select(BoardTurnOverOrm).order_by(BoardTurnOverOrm.turnover.asc())
         ).scalars()
 
         results = [BoardTurnOver.model_validate(row).model_dump() for row in qs]
@@ -72,7 +72,7 @@ def get_board_turnovers_breakdown(request: Request) -> Response:
 
     with Session(engine) as session:
         qs = session.execute(
-            select(BoardTurnOverBreakdownOrm).order_by(BoardTurnOverBreakdownOrm.board)
+            select(BoardTurnOverBreakdownOrm).order_by(BoardTurnOverBreakdownOrm.turnover.asc())
         ).scalars()
 
         results = [
@@ -148,7 +148,7 @@ def get_company_wise_saleable_stock(request: Request) -> Response:
 
     with Session(engine) as session:
         query = select(CompanyWiseSaleableStockOrm).order_by(
-            CompanyWiseSaleableStockOrm.stock_available.desc()
+            CompanyWiseSaleableStockOrm.company_name.asc()
         )
 
         if company_q:
@@ -199,7 +199,8 @@ def get_investor_wise_saleable_stock(request: Request) -> Response:
 
     with Session(engine) as session:
         query = select(InvestorWiseSaleableStockOrm).order_by(
-            InvestorWiseSaleableStockOrm.stock_available.desc()
+            InvestorWiseSaleableStockOrm.company_name.asc(),
+            InvestorWiseSaleableStockOrm.branch_name.asc(),
         )
         if company_q:
             query = query.where(
@@ -248,7 +249,8 @@ def get_company_wise_saleable_stock_percentage(request: Request) -> Response:
 
     with Session(engine) as session:
         query = select(CompanyWiseSaleableStockPercentageOrm).order_by(
-            CompanyWiseSaleableStockPercentageOrm.stock_available.desc()
+            CompanyWiseSaleableStockPercentageOrm.company_name.asc(),
+            CompanyWiseSaleableStockPercentageOrm.branch_name.asc()
         )
 
         if company_q:
