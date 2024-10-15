@@ -232,13 +232,13 @@ def get_investor_wise_saleable_stock(request: Request) -> Response:
             query_params["page"] = page
             return request.build_absolute_uri(f"?{urlencode(query_params)}")
 
-        next_url = build_page_url(int(page_number) + 1) if offset + page_size < total_count else None
+        next_url = build_page_url(int(page_number) + 1) if offset + int(page_size) < total_count else None
         previous_url = build_page_url(int(page_number) - 1) if int(page_number) > 1 else None
 
         # Construct custom paginated response
         response_data = {
             "count": total_count,
-            "total_pages": (total_count // page_size) + (1 if total_count % page_size > 0 else 0),
+            "total_pages": (total_count // int(page_size)) + (1 if total_count % int(page_size) > 0 else 0),
             "next": next_url,
             "previous": previous_url,
             "current_page": int(page_number),
