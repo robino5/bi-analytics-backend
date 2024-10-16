@@ -1,4 +1,4 @@
-from .base import BaseModel
+from .base import BranchInfoBaseModel
 
 __all__ = [
     "BranchWiseTurnoverStatus",
@@ -8,26 +8,22 @@ __all__ = [
 ]
 
 
-class CommonAttributeStatus(BaseModel):
-    branch_code: int
-    branch_name: str
+class TurnoverCommonAttrModel(BranchInfoBaseModel):
     turnover_daily: float
     turnover_weekly: float
     turnover_monthly: float
     turnover_yearly: float
 
 
-class BranchWiseTurnoverStatus(CommonAttributeStatus):
+class BranchWiseTurnoverStatus(TurnoverCommonAttrModel):
     pass
 
 
-class BranchWiseMarginStatus(CommonAttributeStatus):
+class BranchWiseMarginStatus(TurnoverCommonAttrModel):
     loan_used: float
 
 
-class BranchWiseFundStatus(BaseModel):
-    branch_code: int
-    branch_name: str
+class BranchWiseFundStatus(BranchInfoBaseModel):
     tpv: float
     total_clients: int
     fund_in: float
@@ -35,9 +31,7 @@ class BranchWiseFundStatus(BaseModel):
     net_fundflow: float
 
 
-class BranchWiseExposureStatus(BaseModel):
-    branch_code: int
-    branch_name: str
+class BranchWiseExposureStatus(BranchInfoBaseModel):
     exposure_type: str
     investors_count: int
     exposure_ratio: float

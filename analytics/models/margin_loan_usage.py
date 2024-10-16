@@ -1,4 +1,4 @@
-from .base import BaseModel
+from .base import BaseModel, BranchInfoBaseModel
 
 __all__ = ["MarginLoanUsgae", "Exposure", "RMWiseNetTrade", "MarkedInvestor"]
 
@@ -14,9 +14,7 @@ class Exposure(BaseModel):
     loan_amount: float
 
 
-class RMWiseNetTrade(BaseModel):
-    branch_code: int
-    branch_name: str
+class RMWiseNetTrade(BranchInfoBaseModel):
     investor_code: str
     opening_balance: float
     ending_balance: float
