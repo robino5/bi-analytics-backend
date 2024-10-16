@@ -1,5 +1,4 @@
-from pydantic import BaseModel as Base
-from pydantic import ConfigDict
+from .base import BaseModel
 
 __all__ = [
     "ClientSegmentationSummary",
@@ -13,13 +12,10 @@ __all__ = [
 ]
 
 
-class BaseModel(Base):
-    model_config = ConfigDict(from_attributes=True)
-
-
 class ClientSegmentationSummary(BaseModel):
     customer_category: str
     total_clients: int
+
 
 class BranchWiseClientNumbers(BaseModel):
     branch_name: str
@@ -31,9 +27,11 @@ class BranchWiseClientNumbers(BaseModel):
 class NonPerformerClient(BranchWiseClientNumbers):
     pass
 
+
 class AdminBMClientSegmentationTurnover(BaseModel):
     customer_category: str
     turnover: float
+
 
 class AdminBMClientSegmentationTPV(BaseModel):
     customer_category: str
@@ -42,7 +40,6 @@ class AdminBMClientSegmentationTPV(BaseModel):
     tpv_total: float
     tpv_free_qty_percentage: float
     tpv_lock_qty_percentage: float
-
 
 
 class AdminBMClientSegmentationEquity(BaseModel):

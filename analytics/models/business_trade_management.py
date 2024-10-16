@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel as Base
-from pydantic import ConfigDict, field_serializer
+from .base import BaseModel, TradingDateModel
 
 __all__ = [
     "BoardTurnOver",
@@ -10,15 +9,11 @@ __all__ = [
     "ATBMarketShareSME",
     "CompanyWiseSaleableStock",
     "InvestorWiseSaleableStock",
-    "CompanyWiseSaleableStockPercentage"
+    "CompanyWiseSaleableStockPercentage",
 ]
 
 
-class BaseModel(Base):
-    model_config = ConfigDict(from_attributes=True)
-
-
-class BoardTurnOver(BaseModel):
+class BoardTurnOver(TradingDateModel):
     trading_date: datetime
     board: str
     turnover: float
@@ -26,16 +21,12 @@ class BoardTurnOver(BaseModel):
     lbsl_turnover: float
     lbsl_percentage: float
 
-    @field_serializer("trading_date")
-    def serialize_trading_date(self, dt: datetime, _info) -> str:
-        return dt.strftime("%d-%b-%Y")
-
 
 class BoardTurnOverBreakdown(BoardTurnOver):
     pass
 
 
-class MarketShareLBSL(BaseModel):
+class MarketShareLBSL(TradingDateModel):
     trading_date: datetime
     lbsl_buy_of_dse: float | None = None
     lbsl_sale_of_dse: float | None = None
@@ -53,12 +44,8 @@ class MarketShareLBSL(BaseModel):
     foreign: float | None = None
     net_income: float | None = None
 
-    @field_serializer("trading_date")
-    def serialize_trading_date(self, dt: datetime, _info) -> str:
-        return dt.strftime("%d-%b-%Y")
 
-
-class ATBMarketShareSME(BaseModel):
+class ATBMarketShareSME(TradingDateModel):
     trading_date: datetime
     dse_sme_turnover: float | None = None
     dse_atb_turnover: float | None = None
@@ -72,10 +59,6 @@ class ATBMarketShareSME(BaseModel):
     cse_block_turnover: float | None = None
     cse_sme_percent: float | None = None
     cse_atb_percent: float | None = None
-
-    @field_serializer("trading_date")
-    def serialize_trading_date(self, dt: datetime, _info) -> str:
-        return dt.strftime("%d-%b-%Y")
 
 
 class CompanyWiseSaleableStock(BaseModel):

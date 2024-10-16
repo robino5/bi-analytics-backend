@@ -1,5 +1,4 @@
-from pydantic import BaseModel as Base
-from pydantic import ConfigDict
+from .base import BaseModel
 
 __all__ = [
     "BranchWiseTurnoverStatus",
@@ -7,10 +6,6 @@ __all__ = [
     "BranchWiseFundStatus",
     "BranchWiseExposureStatus",
 ]
-
-
-class BaseModel(Base):
-    model_config = ConfigDict(from_attributes=True)
 
 
 class CommonAttributeStatus(BaseModel):

@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel as Base
-from pydantic import ConfigDict, field_serializer
+from .base import BaseModel, TradingDateModel
 
 __all__ = [
     "ActiveTradingSummary",
@@ -12,20 +11,12 @@ __all__ = [
 ]
 
 
-class BaseModel(Base):
-    model_config = ConfigDict(from_attributes=True)
-
-
-class ActiveTradingSummary(BaseModel):
+class ActiveTradingSummary(TradingDateModel):
     channel: str
     total_clients: int
     trades: int
     total_turnover: float
     trading_date: datetime
-
-    @field_serializer("trading_date")
-    def serialize_trading_date(self, dt: datetime, _info) -> str:
-        return dt.strftime("%d-%b-%Y")
 
 
 class BaseActiveTradingMonthWise(BaseModel):
