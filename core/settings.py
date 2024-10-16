@@ -258,20 +258,7 @@ LOGGING = {
         },
     },
     "loggers": {
-        "django.request": {
-            "handlers": ["mail_admins", "console"],
-            "level": "ERROR",
-            "propagate": True,
-        },
-        "root": {
-            "handlers": ["console", "production_file", "debug_file"],
-            "level": "INFO",
-        },
-        "authusers.signals": {
-            "handlers": ["console", "production_file", "debug_file"],
-            "level": "INFO",
-        },
-        "authusers.views": {
+        "": {
             "handlers": ["console", "production_file", "debug_file"],
             "level": "INFO",
         },
