@@ -19,8 +19,7 @@ class ActiveTradingSummary(TradingDateModel):
     trading_date: datetime
 
 
-class BaseActiveTradingMonthWise(BaseModel):
-    trading_date: datetime
+class BaseActiveTradingMonthWise(TradingDateModel):
     dt: float
     internet: float
 

@@ -1,4 +1,4 @@
-from .base import BaseModel
+from .base import BaseModel, BranchInfoBaseModel
 
 __all__ = [
     "ClientSegmentationSummary",
@@ -17,9 +17,7 @@ class ClientSegmentationSummary(BaseModel):
     total_clients: int
 
 
-class BranchWiseClientNumbers(BaseModel):
-    branch_name: str
-    branch_code: int
+class BranchWiseClientNumbers(BranchInfoBaseModel):
     total_clients: int
     total_client_percentage: float
 

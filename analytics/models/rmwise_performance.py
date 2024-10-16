@@ -1,11 +1,9 @@
-from .base import BaseModel
+from .base import BranchInfoBaseModel
 
 __all__ = ["RMWiseClientDetail"]
 
 
-class RMWiseClientDetail(BaseModel):
-    branch_code: int
-    branch_name: str
+class RMWiseClientDetail(BranchInfoBaseModel):
     trader_id: str
     investor_code: str
     join_holder_name: str
