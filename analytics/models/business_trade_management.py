@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from .base import BaseModel, TradingDateModel
 
 __all__ = [
@@ -14,7 +12,6 @@ __all__ = [
 
 
 class BoardTurnOver(TradingDateModel):
-    trading_date: datetime
     board: str
     turnover: float
     dse_percentage: float
@@ -27,7 +24,6 @@ class BoardTurnOverBreakdown(BoardTurnOver):
 
 
 class MarketShareLBSL(TradingDateModel):
-    trading_date: datetime
     lbsl_buy_of_dse: float | None = None
     lbsl_sale_of_dse: float | None = None
     lbsl_total_of_dse: float | None = None
@@ -46,7 +42,6 @@ class MarketShareLBSL(TradingDateModel):
 
 
 class ATBMarketShareSME(TradingDateModel):
-    trading_date: datetime
     dse_sme_turnover: float | None = None
     dse_atb_turnover: float | None = None
     dse_gsec_turnover: float | None = None
