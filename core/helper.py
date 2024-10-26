@@ -15,7 +15,7 @@ class EmptySerializer(serializers.Serializer):
     pass
 
 
-def enveloper(serializer_class: serializers.Serializer, many: bool):
+def enveloper(serializer_class: Type[serializers.BaseSerializer], many: bool):
     component_name = "Enveloped{}{}".format(
         serializer_class.__name__.replace("Serializer", ""),
         "List" if many else "",

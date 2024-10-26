@@ -157,7 +157,7 @@ def get_turnover_performance_statistics_rmwise(request: Request) -> Response:
     with Session(engine) as session:
         qs = (
             select(
-                RMWiseDailyTurnoverPerformanceOrm.trading_date.label("label"),
+                RMWiseDailyTurnoverPerformanceOrm.trading_date.label("trading_date"),
                 func.sum(RMWiseDailyTurnoverPerformanceOrm.generated).label(
                     "generated"
                 ),

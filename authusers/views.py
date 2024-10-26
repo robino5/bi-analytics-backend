@@ -12,6 +12,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import exceptions, status
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -36,6 +37,12 @@ from .serializers import (
 )
 
 logging = getLogger("authusers.views")
+
+
+class UserPagination(PageNumberPagination):
+    page_size = 50
+    max_page_size = 100
+    page_size_query_param = "page_size"
 
 
 class UserNotFoundException(exceptions.APIException):
@@ -71,14 +78,14 @@ class UserViewSet(ModelViewSet):
     renderer_classes = [CustomRenderer]
     filter_backends = [filters.DjangoFilterBackend]
     authentication_classes = [JWTAuthentication]
-    pagination_class = None
+    pagination_class = UserPagination
     permission_classes = [IsAuthenticated]
     filterset_class = UserFilter
     lookup_field = "username"
     lookup_value_regex = ".+"
 
     def get_queryset(self):
-        return User.objects.all().order_by("-created_at")
+        return User.objects.all().select_related("profile").order_by("last_login")
 
     @extend_schema(
         responses=enveloper(UserSerializer, many=True), tags=[OpenApiTags.Users]

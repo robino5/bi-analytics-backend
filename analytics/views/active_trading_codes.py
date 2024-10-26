@@ -10,7 +10,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from core.metadata.openapi import OpenApiTags
-from core.permissions import ExtendedIsAdminUser
+from core.permissions import IsManagementUser
 from core.renderer import CustomRenderer
 from db import engine
 
@@ -32,7 +32,7 @@ __all__ = [
 
 @extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
 @api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated, ExtendedIsAdminUser])
+@permission_classes([IsAuthenticated, IsManagementUser])
 def get_active_trading_summary(request: Request) -> Response:
     """fetch branch wise turnover status"""
     request.accepted_renderer = CustomRenderer()
@@ -51,7 +51,7 @@ def get_active_trading_summary(request: Request) -> Response:
 
 @extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
 @api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated, ExtendedIsAdminUser])
+@permission_classes([IsAuthenticated, IsManagementUser])
 def get_active_trading_summary_daywise(request: Request) -> Response:
     """fetch branch wise turnover status"""
     request.accepted_renderer = CustomRenderer()
@@ -70,7 +70,7 @@ def get_active_trading_summary_daywise(request: Request) -> Response:
 
 @extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
 @api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated, ExtendedIsAdminUser])
+@permission_classes([IsAuthenticated, IsManagementUser])
 def get_active_trading_monthwise_client(request: Request) -> Response:
     """fetch branch wise turnover status"""
     request.accepted_renderer = CustomRenderer()

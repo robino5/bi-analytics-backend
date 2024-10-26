@@ -52,8 +52,8 @@ class RMWiseDailyNetFundFlowORM(BaseOrm):
 class ZoneWiseTraderAbastractOrm(BaseOrm):
     __abstract__ = True
 
-    branch_name: Mapped[str] = mapped_column("Branch_Name", String(50))
-    branch_code: Mapped[int] = mapped_column("Branch_Code", Integer, primary_key=True)
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
     investor_code: Mapped[str] = mapped_column(String(255), primary_key=True)
     investor_name: Mapped[str] = mapped_column(String(255))
     ledger_balance: Mapped[float] = mapped_column("Ledger_balance", Numeric(2))

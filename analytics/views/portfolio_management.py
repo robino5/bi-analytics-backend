@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime, timedelta
 from http import HTTPMethod
 
@@ -151,7 +152,7 @@ def get_trade_vs_client_statistics_by_branchid(request: Request, id: int) -> Res
 @extend_schema(tags=[OpenApiTags.PM])
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
-def get_turnover_performance(request: Request) -> Response:
+def get_turnover_performance(request: Request, *args, **kwargs) -> Response:
     """fetch summary of turnover performance"""
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
@@ -172,6 +173,8 @@ def get_turnover_performance(request: Request) -> Response:
         df = pd.DataFrame([row._asdict() for row in rows], columns=rows.keys())
         df["col2"] = df["col2"].str.strip()  # trim the col2, has space
 
+        df = df[df["col2"] != "3.Achieved Turnover (times of target)"]
+
         pivot_df = df.pivot_table(
             index="col2", columns="col3", values="col1", aggfunc="sum"
         ).reset_index()  # aggregate the df
@@ -179,7 +182,16 @@ def get_turnover_performance(request: Request) -> Response:
         pivot_df.columns = map(str.lower, pivot_df.columns)
 
         pivot_df.rename(columns={"col2": "name"}, inplace=True)
-    return Response(pivot_df.to_dict(orient="records"))
+        data = pivot_df.to_dict(orient="records")
+
+        _target_sums = deepcopy(data[0])
+        _generated_sums = deepcopy(data[-1])
+        _target_sums.pop("name")
+        _generated_sums.pop("name")
+        data.append({"name": "3.Achieved Turnover (times of target)"})
+        for key, val in _target_sums.items():
+            data[-1][key] = f"{(_generated_sums.get(key) / val):.2f}"
+    return Response(data)
 
 
 @extend_schema(tags=[OpenApiTags.PM])
