@@ -58,8 +58,8 @@ def get_marked_investors(
     if trader:
         qs = qs.where(investor_cls.rm_name == trader)
 
-    if branch_code:
-        qs = qs.where(investor_cls.branch_code == int(branch_code))
+    # if branch_code:
+    #     qs = qs.where(investor_cls.branch_code == int(branch_code))
 
     return qs
 
@@ -285,7 +285,6 @@ def get_zone_marked_clients_rmwise(request: Request) -> Response:
                     RMWiseYellowZoneTraderORM, has_branch, has_trader
                 )
             case _:
-                # TODO: handle exception gracefully
                 raise ValueError("Invalid Type")
 
         rows = session.execute(qs)

@@ -11,7 +11,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from core.metadata.openapi import OpenApiTags
-from core.permissions import ExtendedIsAdminUser
+from core.permissions import IsManagementUser
 from core.renderer import CustomRenderer
 from db import engine
 
@@ -49,7 +49,7 @@ def _sanitaize_query_param(query: str) -> str | None:
 
 @extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
 @api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated, ExtendedIsAdminUser])
+@permission_classes([IsAuthenticated, IsManagementUser])
 def get_board_turnovers(request: Request) -> Response:
     """fetch branch turnovers"""
     request.accepted_renderer = CustomRenderer()
@@ -66,7 +66,7 @@ def get_board_turnovers(request: Request) -> Response:
 
 @extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
 @api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated, ExtendedIsAdminUser])
+@permission_classes([IsAuthenticated, IsManagementUser])
 def get_board_turnovers_breakdown(request: Request) -> Response:
     """fetch branch turnovers breakdowns"""
     request.accepted_renderer = CustomRenderer()
@@ -87,7 +87,7 @@ def get_board_turnovers_breakdown(request: Request) -> Response:
 
 @extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
 @api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated, ExtendedIsAdminUser])
+@permission_classes([IsAuthenticated, IsManagementUser])
 def get_market_share_details(request: Request) -> Response:
     """fetch lbsl market share details"""
     request.accepted_renderer = CustomRenderer()
@@ -108,7 +108,7 @@ def get_market_share_details(request: Request) -> Response:
 
 @extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
 @api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated, ExtendedIsAdminUser])
+@permission_classes([IsAuthenticated, IsManagementUser])
 def get_atb_markte_share_details(request: Request) -> Response:
     """fetch lbsl atb market share details"""
     request.accepted_renderer = CustomRenderer()
@@ -145,7 +145,7 @@ def get_atb_markte_share_details(request: Request) -> Response:
     ],
 )
 @api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated, ExtendedIsAdminUser])
+@permission_classes([IsAuthenticated, IsManagementUser])
 def get_company_wise_saleable_stock(request: Request) -> Response:
     """fetch company wise saleable stock"""
     request.accepted_renderer = CustomRenderer()
@@ -195,7 +195,7 @@ def get_company_wise_saleable_stock(request: Request) -> Response:
     ],
 )
 @api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated, ExtendedIsAdminUser])
+@permission_classes([IsAuthenticated, IsManagementUser])
 def get_investor_wise_saleable_stock(request: Request) -> Response:
     """fetch investor wise saleable stock"""
     request.accepted_renderer = CustomRenderer()
@@ -282,7 +282,7 @@ def get_investor_wise_saleable_stock(request: Request) -> Response:
     ],
 )
 @api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated, ExtendedIsAdminUser])
+@permission_classes([IsAuthenticated, IsManagementUser])
 def get_company_wise_saleable_stock_percentage(request: Request) -> Response:
     """fetch company wise saleable stock percentage"""
     request.accepted_renderer = CustomRenderer()
