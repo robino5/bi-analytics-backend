@@ -6,7 +6,8 @@ from .models import User
 
 
 class UserFilter(df.FilterSet):
-    branch_id = df.NumberFilter(field_name="profile__branch_id", lookup_expr="exact")
+    branch_id = df.BaseInFilter(field_name="profile__branch_id", lookup_expr="in")
+    role = df.BaseInFilter(field_name="role", lookup_expr="in")
     logged_in_today = df.BooleanFilter(
         method="filter_logged_in_today", label="Is Logged in Today ?"
     )
