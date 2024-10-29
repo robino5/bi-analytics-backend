@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import django_filters as df
+from django.db.models import Q
 
 from .models import User
 
@@ -12,10 +13,17 @@ class UserFilter(df.FilterSet):
         method="filter_logged_in_today", label="Is Logged in Today ?"
     )
 
-    def filter_logged_in_today(self, queryset, *args, **kwargs):
+    def filter_logged_in_today(self, queryset, _, value):
         today = datetime.today().date()
-        return queryset.filter(last_login__date=today)
+        users = None
+        if value:
+            users = queryset.filter(last_login__date=today)
+        else:
+            users = queryset.filter(
+                Q(last_login__isnull=True) | Q(last_login__date__lt=today)
+            )
+        return users
 
     class Meta:
         model = User
-        fields = ("username", "email", "is_active", "role", "branch")
+        fields = ("username", "email", "is_active", "role", "branch", "signedInToday")
