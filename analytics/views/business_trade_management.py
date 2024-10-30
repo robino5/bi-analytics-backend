@@ -121,10 +121,14 @@ def get_atb_markte_share_details(request: Request) -> Response:
                 )
             )
             .scalars()
-            .one()
+            .one_or_none()
         )
+        data = None
 
-        return Response(ATBMarketShareSME.model_validate(qs).model_dump())
+        if qs:
+            data = ATBMarketShareSME.model_validate(qs).model_dump()
+
+        return Response(data)
 
 
 @extend_schema(
