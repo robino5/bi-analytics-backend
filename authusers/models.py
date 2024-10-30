@@ -6,6 +6,18 @@ from core.mixins import AuditLogMixin
 from .managers import BaseUserManager
 
 
+class Role(AuditLogMixin):
+    codename = models.CharField(max_length=255, unique=True, verbose_name="Code Name")
+    viewname = models.CharField(max_length=255, verbose_name="View Name")
+
+    class Meta:
+        db_table = "bi_access_role_levels"
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return self.viewname
+
+
 class RoleChoices(models.TextChoices):
     ADMIN = "ADMIN", "Admin"
     MANAGEMENT = "MANAGEMENT", "Management"
@@ -17,6 +29,10 @@ class RoleChoices(models.TextChoices):
 class User(AbstractUser, AuditLogMixin):
     role = models.CharField(
         max_length=55, choices=RoleChoices.choices, default=RoleChoices.REGIONAL_MANAGER
+    )
+
+    role_fk = models.ForeignKey(
+        Role, on_delete=models.SET_NULL, related_name="role_users", null=True
     )
 
     objects = BaseUserManager()
@@ -66,15 +82,3 @@ class Trader(models.Model):
         managed = False
         unique_together = ["branch_code", "trader_id"]
         db_table = "BI_trd_Dealer_info"
-
-
-class Role(AuditLogMixin):
-    codename = models.CharField(max_length=255, unique=True, verbose_name="Code Name")
-    viewname = models.CharField(max_length=255, verbose_name="View Name")
-
-    class Meta:
-        db_table = "bi_access_role_levels"
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:
-        return self.viewname

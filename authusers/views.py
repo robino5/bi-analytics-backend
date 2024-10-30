@@ -25,7 +25,7 @@ from core.helper import EmptySerializer, enveloper
 from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 
-from .filter import UserFilter
+from .filters import UserFilter
 from .models import Trader, User, UserProfile
 from .serializers import (
     BulkUserCreateSerializer,
@@ -85,7 +85,7 @@ class UserViewSet(ModelViewSet):
     lookup_value_regex = ".+"
 
     def get_queryset(self):
-        return User.objects.all().select_related("profile").order_by("last_login")
+        return User.objects.select_related("profile").order_by("last_login")
 
     @extend_schema(
         responses=enveloper(UserSerializer, many=True), tags=[OpenApiTags.Users]
