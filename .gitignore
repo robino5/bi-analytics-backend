@@ -10,6 +10,7 @@ __pycache__/
 # C extensions
 *.so
 .DS_Store
+.zed
 
 # Distribution / packaging
 .Python
