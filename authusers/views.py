@@ -25,7 +25,7 @@ from core.helper import EmptySerializer, enveloper
 from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 
-from .filter import UserFilter
+from .filters import UserFilter
 from .models import Trader, User, UserProfile
 from .serializers import (
     BulkUserCreateSerializer,
