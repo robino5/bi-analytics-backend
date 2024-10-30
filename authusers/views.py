@@ -85,7 +85,7 @@ class UserViewSet(ModelViewSet):
     lookup_value_regex = ".+"
 
     def get_queryset(self):
-        return User.objects.all().select_related("profile").order_by("last_login")
+        return User.objects.select_related("profile").order_by("last_login")
 
     @extend_schema(
         responses=enveloper(UserSerializer, many=True), tags=[OpenApiTags.Users]

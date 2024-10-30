@@ -1,13 +1,20 @@
-from datetime import datetime
+from enum import Enum
 
 import django_filters as df
-from django.db.models import Q
+from django.db.models import Q, QuerySet
+from django.utils import timezone
 
 from .models import User
 
+
+class FilterChioces(Enum):
+    YES = "Yes"
+    NO = "No"
+
+
 FILTER_SIGNED_IN_TODAY = (
-    ("Yes", "Yes"),
-    ("No", "No"),
+    (FilterChioces.YES.value, FilterChioces.YES.value),
+    (FilterChioces.NO.value, FilterChioces.NO.value),
 )
 
 
@@ -24,21 +31,26 @@ class UserFilter(df.FilterSet):
         label="User Status",
     )
 
-    def filter_logged_in_today(self, queryset, _, value):
-        today = datetime.today().date()
-        users = None
-        if value == "Yes":
-            users = queryset.filter(last_login__date=today)
-        else:
-            users = queryset.filter(
-                Q(last_login__isnull=True) | Q(last_login__date__lt=today)
-            )
-        return users
+    def filter_logged_in_today(self, queryset: QuerySet, _, value: str) -> QuerySet:
+        """
+        Filter users based on their login status for the current day.
 
-    def filter_is_active(self, queryset, _, value):
-        if value is True:
-            return queryset.filter(is_active=True)
-        return queryset.filter(is_active=False)
+        Args:
+            queryset: The base queryset to filter
+            value: 'Yes' or 'No' indicating whether to filter for logged in users
+
+        Returns:
+            Filtered queryset based on login status
+        """
+        today = timezone.now().date()
+        if value == FilterChioces.YES.value:
+            return queryset.filter(last_login__date=today)
+        return queryset.filter(
+            Q(last_login__isnull=True) | Q(last_login__date__lt=today)
+        )
+
+    def filter_is_active(self, queryset: QuerySet, _, value: bool) -> QuerySet:
+        return queryset.filter(is_active=value)
 
     class Meta:
         model = User
