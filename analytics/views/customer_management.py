@@ -1,4 +1,5 @@
 from http import HTTPMethod
+from typing import Any, Dict, Sequence
 
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view, permission_classes
@@ -35,6 +36,13 @@ from ..orm import (
 )
 
 
+def get_sum_of_property(property: str, rows: Sequence[Dict[str, Any]]) -> int:
+    sum = 0
+    for row in rows:
+        sum += row.get(property, 0)
+    return round(sum)
+
+
 @extend_schema(tags=[OpenApiTags.ADMIN_CUSTOMER_MANAGEMENT])
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated, IsManagementUser])
@@ -53,7 +61,14 @@ def get_client_segmentation_summary(request: Request) -> Response:
             ClientSegmentationSummary.model_validate(row).model_dump() for row in qs
         ]
 
-    return Response(results)
+    response = {
+        "detail": {
+            "sum_of_clients": get_sum_of_property("total_clients", results),
+        },
+        "rows": results,
+    }
+
+    return Response(response)
 
 
 @extend_schema(tags=[OpenApiTags.ADMIN_CUSTOMER_MANAGEMENT])
@@ -74,7 +89,17 @@ def get_branchwise_client_numbers_ratio(request: Request) -> Response:
             BranchWiseClientNumbers.model_validate(row).model_dump() for row in qs
         ]
 
-    return Response(results)
+    response = {
+        "detail": {
+            "sum_of_clients": get_sum_of_property("total_clients", results),
+            "sum_of_clients_percentage": get_sum_of_property(
+                "total_client_percentage", results
+            ),
+        },
+        "rows": results,
+    }
+
+    return Response(response)
 
 
 @extend_schema(tags=[OpenApiTags.ADMIN_CUSTOMER_MANAGEMENT])
@@ -93,7 +118,17 @@ def get_non_performers_client_ratio(request: Request) -> Response:
 
         results = [NonPerformerClient.model_validate(row).model_dump() for row in qs]
 
-        return Response(results)
+    response = {
+        "detail": {
+            "sum_of_clients": get_sum_of_property("total_clients", results),
+            "sum_of_clients_percentage": get_sum_of_property(
+                "total_client_percentage", results
+            ),
+        },
+        "rows": results,
+    }
+
+    return Response(response)
 
 
 @extend_schema(tags=[OpenApiTags.ADMIN_CUSTOMER_MANAGEMENT])
@@ -113,7 +148,15 @@ def get_admin_client_segmentation_turnover(request: Request) -> Response:
             AdminBMClientSegmentationTurnover.model_validate(row).model_dump()
             for row in qs
         ]
-        return Response(results)
+
+    response = {
+        "detail": {
+            "sum_of_turnovers": get_sum_of_property("turnover", results),
+        },
+        "rows": results,
+    }
+
+    return Response(response)
 
 
 @extend_schema(tags=[OpenApiTags.ADMIN_CUSTOMER_MANAGEMENT])
@@ -134,7 +177,21 @@ def get_admin_client_segmentation_tpv(request: Request) -> Response:
             AdminBMClientSegmentationTPV.model_validate(row).model_dump() for row in qs
         ]
 
-        return Response(results)
+    response = {
+        "detail": {
+            "sum_of_free_qty": get_sum_of_property("free_qty", results),
+            "sum_of_lock_qty": get_sum_of_property("lock_qty", results),
+            "sum_of_tpv_total": get_sum_of_property("tpv_total", results),
+            "sum_of_tpv_free_qty_percentage": get_sum_of_property(
+                "tpv_free_qty_percentage", results
+            ),
+            "sum_of_tpv_lock_qty_percentage": get_sum_of_property(
+                "tpv_lock_qty_percentage", results
+            ),
+        },
+        "rows": results,
+    }
+    return Response(response)
 
 
 @extend_schema(tags=[OpenApiTags.ADMIN_CUSTOMER_MANAGEMENT])
@@ -155,8 +212,13 @@ def get_admin_client_segmentation_equity(request: Request) -> Response:
             AdminBMClientSegmentationEquity.model_validate(row).model_dump()
             for row in qs
         ]
-
-        return Response(results)
+    response = {
+        "detail": {
+            "sum_of_equity": get_sum_of_property("equity", results),
+        },
+        "rows": results,
+    }
+    return Response(response)
 
 
 @extend_schema(tags=[OpenApiTags.ADMIN_CUSTOMER_MANAGEMENT])
@@ -177,7 +239,13 @@ def get_admin_client_segmentation_ledger(request: Request) -> Response:
             AdminBMClientSegmentationLedger.model_validate(row).model_dump()
             for row in qs
         ]
-        return Response(results)
+    response = {
+        "detail": {
+            "sum_of_margin": get_sum_of_property("margin", results),
+        },
+        "rows": results,
+    }
+    return Response(response)
 
 
 @extend_schema(tags=[OpenApiTags.ADMIN_CUSTOMER_MANAGEMENT])
@@ -195,4 +263,12 @@ def get_admin_market_share(request: Request) -> Response:
         ).scalars()
 
         results = [AdminMarketShare.model_validate(row).model_dump() for row in qs]
-        return Response(results)
+
+    response = {
+        "detail": {
+            "sum_of_turnover_dse": get_sum_of_property("turnover_dse", results),
+            "sum_of_turnover_lbsl": get_sum_of_property("turnover_lbsl", results),
+        },
+        "rows": results,
+    }
+    return Response(response)
