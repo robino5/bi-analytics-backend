@@ -10,7 +10,7 @@ from djangorestframework_camel_case.parser import (
 )
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import exceptions, status
+from rest_framework import exceptions, serializers, status, views
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -258,3 +258,29 @@ class MyTokenObtainPairView(TokenObtainPairView):
             raise
 
         return Response(payload, status=status.HTTP_200_OK)
+
+
+class ChangePasswordAPIView(views.APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    renderer_classes = (CustomRenderer,)
+    queryset = User.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        try:
+            user = User.objects.get(username=kwargs.get("username"))
+            serializer = ChangePasswordSerializer(
+                data=request.data, context={"request": request}
+            )
+            serializer.is_valid(raise_exception=True)
+
+            user.set_password(serializer.validated_data.get("password"))
+            user.updated_by = request.user
+            user.save()
+            return Response(
+                data="Password Changed Successfully", status=status.HTTP_200_OK
+            )
+        except User.DoesNotExist as exc:
+            raise UserNotFoundException() from exc
+        except serializers.ValidationError as exc:
+            raise exc
