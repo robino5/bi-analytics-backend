@@ -23,20 +23,24 @@ class MenuViewSet(ViewSet):
     pagination_class = None
     permission_classes = [IsAuthenticated]
 
-    def _get_root_menus(self):
+    def _get_root_menus(self, role):
         return (
-            Menu.objects.filter(parent_menu__isnull=True, path__isnull=True)
+            Menu.objects.filter(
+                parent_menu__isnull=True, path__isnull=True, roles__codename=role
+            )
             .prefetch_related("submenus")
             .order_by("order")
         )
 
-    def get_queryset(self):
-        return self._get_root_menus()
+    def get_queryset(self, request):
+        role = request.user.role
+        return self._get_root_menus(role)
 
     @method_decorator(cache_page(CACHING_TIME))
     @method_decorator(vary_on_headers(settings.HEADER_AUTH_KEY))
     def list(self, request: Request, *args, **kwargs):
-        serialized = self.serializer_class(self.get_queryset(), many=True)
+        queryset = self.get_queryset(request)
+        serialized = self.serializer_class(queryset, many=True)
         return Response(serialized.data)
 
     class Meta:
