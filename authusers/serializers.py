@@ -69,15 +69,20 @@ class BulkUserCreateSerializer(Serializer):
 
 class ChangePasswordSerializer(Serializer):
     password = CharField(allow_null=False)
-    password2 = CharField(allow_null=False)
+    password2 = CharField(allow_null=True, required=False)
 
     def validate(self, data):
         password = data.get("password")
         password2 = data.get("password2")
+        ctx = self.context.get("request")
 
-        # Check if passwords match
-        if password != password2:
-            raise ValidationError("Passwords do not match.")
+        if not ctx.user.is_admin():
+            if not password2:
+                raise ValidationError("password2 is required field.")
+
+            # Check if passwords match
+            if password != password2:
+                raise ValidationError("Passwords do not match.")
 
         if len(password) < MIN_LENGTH_PASSWORD:
             raise ValidationError(
