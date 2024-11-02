@@ -4,7 +4,7 @@ import django_filters as df
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 
-from .models import User
+from .models import RoleChoices, User
 
 
 class FilterChioces(Enum):
@@ -55,3 +55,7 @@ class UserFilter(df.FilterSet):
     class Meta:
         model = User
         fields = ("username", "email", "active", "role", "branch", "signedInToday")
+
+
+class RoleFilterSet(df.rest_framework.FilterSet):
+    codename = df.ChoiceFilter(choices=RoleChoices.choices)
