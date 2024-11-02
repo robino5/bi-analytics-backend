@@ -1,13 +1,15 @@
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import (
     CharField,
+    ChoiceField,
     ListSerializer,
     ModelSerializer,
+    PrimaryKeyRelatedField,
     Serializer,
 )
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import Role, Trader, User, UserProfile
+from .models import Role, RoleChoices, Trader, User, UserProfile
 
 MIN_LENGTH_PASSWORD = 6
 
@@ -63,7 +65,13 @@ class TraderSerializer(ModelSerializer):
 
 class BulkUserCreateSerializer(Serializer):
     users = ListSerializer(child=CharField())
-    role = CharField()
+    role = ChoiceField(choices=RoleChoices)
+    role_fk = PrimaryKeyRelatedField(
+        required=False,
+        allow_null=True,
+        queryset=Role.objects.all(),
+        help_text="field for future release. other role field is going to be obselete.",
+    )
     password = CharField(required=True)
 
 

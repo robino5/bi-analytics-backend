@@ -25,13 +25,14 @@ from core.helper import EmptySerializer, enveloper
 from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 
-from .filters import UserFilter
-from .models import Trader, User, UserProfile
+from .filters import RoleFilterSet, UserFilter
+from .models import Role, Trader, User, UserProfile
 from .serializers import (
     BulkUserCreateSerializer,
     ChangePasswordSerializer,
     MyTokenObtainPairSerializer,
     ProfileSerializer,
+    RoleSerializer,
     TraderSerializer,
     UserSerializer,
 )
@@ -284,3 +285,22 @@ class ChangePasswordAPIView(views.APIView):
             raise UserNotFoundException() from exc
         except serializers.ValidationError as exc:
             raise exc
+
+
+class RoleListAPIView(views.APIView):
+    filter_backends = [filters.DjangoFilterBackend]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = RoleSerializer
+    filterset_class = RoleFilterSet
+    renderer_classes = [CustomRenderer]
+
+    def get_queryset(self):
+        queryset = Role.objects.all()
+        filtered_qs = self.filterset_class(self.request.GET, queryset=queryset)
+        return filtered_qs.qs
+
+    def get(self, request):
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
