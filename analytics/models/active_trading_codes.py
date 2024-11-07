@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from .base import BaseModel, TradingDateModel
 
 __all__ = [
@@ -16,7 +14,6 @@ class ActiveTradingSummary(TradingDateModel):
     total_clients: int
     trades: int
     total_turnover: float
-    trading_date: datetime
 
 
 class BaseActiveTradingMonthWise(BaseModel):
