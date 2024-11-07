@@ -13,7 +13,7 @@ class TradingDateModel(BaseModel):
 
     @field_serializer("trading_date")
     def serialize_trading_date(self, dt: datetime, _info) -> str:
-        return dt.strftime("%d-%b-%Y")
+        return dt.strftime("%d-%b-%y")
 
 
 class BranchInfoBaseModel(BaseModel):
