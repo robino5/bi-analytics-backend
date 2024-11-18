@@ -37,6 +37,10 @@ Microsoft Build Tools are required for building and compiling certain Python pac
 3. Once the installation is complete, you can close the Visual Studio Installer window.
 Congratulations! You have successfully installed Microsoft Build Tools on your Windows Server machine.
 
+# Install the Microsoft SQL Driver 17
+
+Download and install from here: [Microsoft SQL Driver 17](https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver16#version-17)
+
 # Installing Apache HTTP Server 2.4 from Apache Lounge
 This guide will help you install Apache HTTP Server 2.4 on your Windows Server machine from Apache Lounge, a popular source for precompiled Apache binaries.
 ## Step 1: Download Apache Binary
