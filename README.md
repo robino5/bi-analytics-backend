@@ -51,9 +51,14 @@ This guide will help you install Apache HTTP Server 2.4 on your Windows Server m
 ## Step 3: Configure Apache
 1. Navigate to the folder where Apache was extracted and navigate to bin folder.
 2. Run command `httpd.exe -k install` to install the apache2 service for windows.
-3. Open the "conf" folder and locate the "httpd.conf" file.
-4. Edit the "httpd.conf" file using a text editor like Notepad.
+3. Open the "conf" folder and create a new file named `httpd-backend.conf`.
+4. Edit the `httpd-backend.conf` file using a text editor like Notepad.
 5. Configure Apache according to your requirements, such as specifying server settings, listening ports, and document root directory.
+6. Add the configuration file in the root `httpd.conf` located in `C:/Apache24/conf/httpd.conf` for apache with below line
+
+```
+Include conf/extra/httpd-backend.conf
+```
 
 
 ## Step 4: Start Apache Server
