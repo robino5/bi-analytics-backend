@@ -19,6 +19,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from core.helper import EmptySerializer, enveloper
@@ -249,8 +250,15 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
             current_user = User.objects.get(username=request.data.get("username"))
             user = UserSerializer(instance=current_user)
+
+            # Decode access token to get expiry time
+            access_token_obj = AccessToken(serializer.validated_data.get("access"))
+            expires_timestamp = access_token_obj["exp"]
+            expires_datetime = expires_timestamp
+
             payload = user.data
             payload["designation"] = current_user.profile.designation
+            payload["expires"] = expires_datetime
             payload["access_token"] = serializer.validated_data.get("access")
             payload["refresh_token"] = serializer.validated_data.get("refresh")
         except TokenError as e:
