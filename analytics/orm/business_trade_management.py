@@ -126,6 +126,7 @@ class CompanyWiseSaleableStockOrm(BaseOrm):
         "company_F_Name", String(255), primary_key=True
     )
     stock_available: Mapped[int] = mapped_column("Total_Stock", Integer)
+    gsec_flag: Mapped[int] = mapped_column("GSEC_Flag", Integer)
 
 
 class InvestorWiseSaleableStockOrm(BaseOrm):

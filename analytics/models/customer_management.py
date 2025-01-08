@@ -1,4 +1,4 @@
-from .base import BaseModel, BranchInfoBaseModel
+from .base import BaseModel, BranchInfoBaseModel,TradingDateModel
 
 __all__ = [
     "ClientSegmentationSummary",
@@ -9,6 +9,8 @@ __all__ = [
     "AdminBMClientSegmentationEquity",
     "AdminBMClientSegmentationLedger",
     "AdminMarketShare",
+    "AdminGsecTurnover",
+    "AdminGsecTurnoverComparison"
 ]
 
 
@@ -56,3 +58,10 @@ class AdminMarketShare(BaseModel):
     turnover_dse: float
     turnover_lbsl: float
     trade_percentage: float
+
+class AdminGsecTurnover(TradingDateModel):
+    turnover_gsec: float
+
+class AdminGsecTurnoverComparison(TradingDateModel):
+    turnover_gsec: float
+    turnover:float

@@ -138,6 +138,9 @@ def get_atb_markte_share_details(request: Request) -> Response:
             name="company", description="Company", required=False, type=str
         ),
         OpenApiParameter(
+            name="gsec_flag", description="GSEC_Flag", required=False, type=int
+        ),
+        OpenApiParameter(
             name="page", description="Page number", required=False, type=int
         ),
         OpenApiParameter(
@@ -156,6 +159,7 @@ def get_company_wise_saleable_stock(request: Request) -> Response:
     paginator = StockPagination()
 
     company_q = _sanitaize_query_param(request.query_params.get("company"))
+    gsec_flag_q = _sanitaize_query_param(request.query_params.get("gsec_flag"))
 
     with Session(engine) as session:
         query = select(CompanyWiseSaleableStockOrm).order_by(
@@ -165,6 +169,11 @@ def get_company_wise_saleable_stock(request: Request) -> Response:
         if company_q:
             query = query.where(
                 CompanyWiseSaleableStockOrm.company_name.ilike(f"%{company_q}%")
+            )
+        
+        if gsec_flag_q: 
+            query = query.where(
+                CompanyWiseSaleableStockOrm.gsec_flag == gsec_flag_q
             )
 
         qs = session.execute(query).scalars().all()

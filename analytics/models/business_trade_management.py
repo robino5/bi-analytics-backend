@@ -59,6 +59,7 @@ class ATBMarketShareSME(TradingDateModel):
 class CompanyWiseSaleableStock(BaseModel):
     company_name: str
     stock_available: int
+    gsec_flag:int
 
 
 class InvestorWiseSaleableStock(BaseModel):
