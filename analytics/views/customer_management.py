@@ -23,6 +23,8 @@ from ..models import (
     BranchWiseClientNumbers,
     ClientSegmentationSummary,
     NonPerformerClient,
+    AdminGsecTurnover,
+    AdminGsecTurnoverComparison,
 )
 from ..orm import (
     AdminBMClientSegmentationEquityOrm,
@@ -33,6 +35,9 @@ from ..orm import (
     BranchWiseClientNumbersOrm,
     ClientSegmentationSummaryOrm,
     NonPerformerClientOrm,
+    AdminGsecTurnoverOrm,
+    AdminGsecTurnoverComparisonOrm,
+
 )
 
 
@@ -268,6 +273,56 @@ def get_admin_market_share(request: Request) -> Response:
         "detail": {
             "sum_of_turnover_dse": get_sum_of_property("turnover_dse", results),
             "sum_of_turnover_lbsl": get_sum_of_property("turnover_lbsl", results),
+        },
+        "rows": results,
+    }
+    return Response(response)
+
+
+@extend_schema(tags=[OpenApiTags.ADMIN_CUSTOMER_MANAGEMENT])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_gsec_turnover(request: Request) -> Response:
+    """fetch admin gsec turnover"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(AdminGsecTurnoverOrm).order_by(
+                AdminGsecTurnoverOrm.turnover_gsec.desc(),
+            )
+        ).scalars()
+
+        results = [AdminGsecTurnover.model_validate(row).model_dump() for row in qs]
+
+    response = {
+        "detail": {
+            "sum_of_turnover_gsec": get_sum_of_property("turnover_gsec", results),
+        },
+        "rows": results,
+    }
+    return Response(response)
+
+@extend_schema(tags=[OpenApiTags.ADMIN_CUSTOMER_MANAGEMENT])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_gsec_turnover_comparison(request: Request) -> Response:
+    """fetch admin gsec turnover comparison"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(AdminGsecTurnoverComparisonOrm).order_by(
+                AdminGsecTurnoverComparisonOrm.turnover_gsec.desc(),
+            )
+        ).scalars()
+
+        results = [AdminGsecTurnoverComparison.model_validate(row).model_dump() for row in qs]
+
+    response = {
+        "detail": {
+            "sum_of_turnover_gsec": get_sum_of_property("turnover_gsec", results),
+            "sum_of_turnover": get_sum_of_property("turnover", results),
         },
         "rows": results,
     }

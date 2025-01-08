@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Numeric, String
+from sqlalchemy import DateTime, Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db import BaseOrm
@@ -12,6 +12,8 @@ __all__ = [
     "AdminBMClientSegmentationEquityOrm",
     "AdminBMClientSegmentationLedgerOrm",
     "AdminMarketShareOrm",
+    "AdminGsecTurnoverOrm",
+    "AdminGsecTurnoverComparisonOrm",
 ]
 
 
@@ -106,3 +108,17 @@ class AdminMarketShareOrm(BaseOrm):
     turnover_dse: Mapped[float] = mapped_column("DSE FTturnOver", Numeric(34, 2))
     turnover_lbsl: Mapped[float] = mapped_column("LBSL_FT_turnOver", Numeric(34, 2))
     trade_percentage: Mapped[float] = mapped_column("Percentage_Trade", Numeric(5, 2))
+
+class AdminGsecTurnoverOrm(BaseOrm):
+    __tablename__ = "BI_trd_Admin_GSEC_TurnOver_DateWise"
+
+    turnover_gsec:Mapped[float]=mapped_column("turnover_gsec",Numeric(38,2))
+    trading_date: Mapped[DateTime] = mapped_column("trading_date", DateTime,primary_key=True)
+
+class AdminGsecTurnoverComparisonOrm(BaseOrm):
+    __tablename__ = "BI_trd_Admin_GSEC_TurnOver_Comparison_DateWise"
+
+    turnover:Mapped[float]=mapped_column("turnover",Numeric(38,2))
+    turnover_gsec:Mapped[float]=mapped_column("turnover_gsec",Numeric(38,2))
+    trading_date: Mapped[DateTime] = mapped_column("trading_date", DateTime,primary_key=True)
+

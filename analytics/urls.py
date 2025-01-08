@@ -126,4 +126,12 @@ urlpatterns = [
         "admin/customer-management/market-share-segmentation/",
         views.get_admin_market_share,
     ),
+    path(
+        "admin/customer-management/gsec-turnover/",
+        views.get_admin_gsec_turnover,
+    ),
+    path(
+        "admin/customer-management/gsec-turnover-comparison/",
+        views.get_admin_gsec_turnover_comparison,
+    ),
 ]
