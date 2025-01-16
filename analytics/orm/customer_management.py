@@ -116,9 +116,9 @@ class AdminGsecTurnoverOrm(BaseOrm):
     trading_date: Mapped[DateTime] = mapped_column("trading_date", DateTime,primary_key=True)
 
 class AdminGsecTurnoverComparisonOrm(BaseOrm):
-    __tablename__ = "BI_trd_Admin_GSEC_TurnOver_Comparison_DateWise"
+    __tablename__ = "BI_trd_Admin_GSEC_TurnOver_Comparison_YrWise"
 
     turnover:Mapped[float]=mapped_column("turnover",Numeric(38,2))
     turnover_gsec:Mapped[float]=mapped_column("turnover_gsec",Numeric(38,2))
-    trading_date: Mapped[DateTime] = mapped_column("trading_date", DateTime,primary_key=True)
+    year: Mapped[float] = mapped_column("Year_sl", Numeric(10,0),primary_key=True)
 
