@@ -9,6 +9,8 @@ __all__ = [
     "ActiveTradingCodeSummaryORM",
     "ActiveTradingCodeDayWiseSummaryORM",
     "ActiveTradingCodeMonthWiseSummaryORM",
+    "AdminOMSBranchWiseTurnoverAsOnMonthORM",
+    "AdminOMSDateWiseTurnoverORM"
 ]
 
 
@@ -40,3 +42,19 @@ class ActiveTradingCodeMonthWiseSummaryORM(BaseOrm):
     trades: Mapped[int] = mapped_column("Trades", Integer)
     total_turnover: Mapped[float] = mapped_column("Total_turnOver", Numeric(34, 2))
     month_year = mapped_column("Month_year", String(50), primary_key=True)
+
+class AdminOMSBranchWiseTurnoverAsOnMonthORM(BaseOrm):
+    __tablename__ = "BI_trd_Admin_OMS_BranchWise_Turnover_AsonMonth"
+
+    branch_Name: Mapped[str] = mapped_column("branch_Name", String(50), primary_key=True)
+    total_client: Mapped[int] = mapped_column("total_client", Integer)
+    total_turnover: Mapped[float] = mapped_column("total_turnover", Numeric(38, 5))
+
+class AdminOMSDateWiseTurnoverORM(BaseOrm):
+    __tablename__ = "BI_trd_Admin_OMS_DateWise_Turnover"
+
+    total_client: Mapped[int] = mapped_column("total_client", Integer)
+    total_turnover: Mapped[float] = mapped_column("total_turnover", Numeric(34, 2))
+    trading_date: Mapped[datetime] = mapped_column(
+        "Trade_dt", DateTime(), primary_key=True
+    )

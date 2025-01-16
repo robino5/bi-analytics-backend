@@ -10,7 +10,7 @@ __all__ = [
     "AdminBMClientSegmentationLedger",
     "AdminMarketShare",
     "AdminGsecTurnover",
-    "AdminGsecTurnoverComparison"
+    "AdminGsecTurnoverComparison",
 ]
 
 
@@ -62,6 +62,8 @@ class AdminMarketShare(BaseModel):
 class AdminGsecTurnover(TradingDateModel):
     turnover_gsec: float
 
-class AdminGsecTurnoverComparison(TradingDateModel):
+class AdminGsecTurnoverComparison(BaseModel):
     turnover_gsec: float
     turnover:float
+    year: float
+

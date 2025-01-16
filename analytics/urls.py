@@ -82,6 +82,8 @@ urlpatterns = [
     path("active-trading-today/", views.get_active_trading_summary),
     path("active-trading-daywise/", views.get_active_trading_summary_daywise),
     path("active-trading-monthwise/", views.get_active_trading_monthwise_client),
+    path("admin-oms-branchwise-turnover/", views.get_admin_oms_branch_wise_turnover_as_on_month),
+    path("admin-oms-datewise-turnover/", views.get_admin_oms_datewise_turnover),
     # Business And Trade Management
     path("admin/board-turnover/", views.get_board_turnovers),
     path("admin/board-turnovers-breakdown/", views.get_board_turnovers_breakdown),

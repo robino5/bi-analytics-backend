@@ -1,4 +1,6 @@
 from http import HTTPMethod
+from typing import Any, Dict
+from datetime import datetime
 
 import pandas as pd
 from drf_spectacular.utils import extend_schema
@@ -6,7 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from sqlalchemy import func, select
+from sqlalchemy import Sequence, func, select
 from sqlalchemy.orm import Session
 
 from core.metadata.openapi import OpenApiTags
@@ -16,18 +18,30 @@ from db import engine
 
 from ..models import (
     ActiveTradingSummary,
+    AdminOMSBranchWiseTurnoverAsOnMonth,
+    AdminOMSDateWiseTurnover
 )
 from ..orm import (
     ActiveTradingCodeDayWiseSummaryORM,
     ActiveTradingCodeMonthWiseSummaryORM,
     ActiveTradingCodeSummaryORM,
+    AdminOMSBranchWiseTurnoverAsOnMonthORM,
+    AdminOMSDateWiseTurnoverORM
 )
 
 __all__ = [
     "get_active_trading_summary",
     "get_active_trading_summary_daywise",
     "get_active_trading_monthwise_client",
+    "get_admin_oms_branch_wise_turnover_as_on_month",
+    "get_admin_oms_datewise_turnover"
 ]
+
+def get_sum_of_property(property: str, rows: Sequence[Dict[str, Any]]) -> int:
+    sum = 0
+    for row in rows:
+        sum += row.get(property, 0)
+    return round(sum)
 
 
 @extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
@@ -137,3 +151,59 @@ def get_active_trading_monthwise_client(request: Request) -> Response:
         }
 
     return Response(results)
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_oms_branch_wise_turnover_as_on_month(request: Request) -> Response:
+    """fetch admin OMS Branch wise turnover as on month status"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(AdminOMSBranchWiseTurnoverAsOnMonthORM).order_by(
+                AdminOMSBranchWiseTurnoverAsOnMonthORM.branch_Name
+            )
+        ).scalars()
+
+        results = [AdminOMSBranchWiseTurnoverAsOnMonth.model_validate(row).model_dump() for row in qs]
+
+        
+    response = {
+        "detail": {
+            "period":datetime.now().strftime("%B-%Y"),
+            "sum_of_total_client": get_sum_of_property("total_client", results),
+            "sum_of_turnover": get_sum_of_property("total_turnover", results),
+        },
+        "rows": results,
+    }
+
+    return Response(response)
+
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_oms_datewise_turnover(request: Request) -> Response:
+    """fetch admin OMS Branch wise turnover as on month status"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(AdminOMSDateWiseTurnoverORM).order_by(
+                AdminOMSDateWiseTurnoverORM.trading_date.desc()
+            )
+        ).scalars()
+
+        results = [AdminOMSDateWiseTurnover.model_validate(row).model_dump() for row in qs]
+
+        
+    response = {
+        "detail": {
+            "sum_of_total_client": get_sum_of_property("total_client", results),
+            "sum_of_turnover": get_sum_of_property("total_turnover", results),
+        },
+        "rows": results,
+    }
+    
+    return Response(response)

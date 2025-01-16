@@ -289,7 +289,7 @@ def get_admin_gsec_turnover(request: Request) -> Response:
     with Session(engine) as session:
         qs = session.execute(
             select(AdminGsecTurnoverOrm).order_by(
-                AdminGsecTurnoverOrm.turnover_gsec.desc(),
+                AdminGsecTurnoverOrm.trading_date.desc(),
             )
         ).scalars()
 
@@ -313,7 +313,7 @@ def get_admin_gsec_turnover_comparison(request: Request) -> Response:
     with Session(engine) as session:
         qs = session.execute(
             select(AdminGsecTurnoverComparisonOrm).order_by(
-                AdminGsecTurnoverComparisonOrm.turnover_gsec.desc(),
+                AdminGsecTurnoverComparisonOrm.year.desc(),
             )
         ).scalars()
 
