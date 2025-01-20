@@ -1,8 +1,8 @@
-from typing import Any, Dict, Type
-
+from typing import Any, Dict, Type,List
+import csv
 from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
-
+from django.http import HttpResponse
 from authusers.models import User
 from db import BaseOrm, engine
 
@@ -53,3 +53,25 @@ def rolewise_branch_data_filter(
             qs = queryset.where(orm_class.branch_code == user.profile.branch_id)
 
     return qs
+
+
+
+def generate_csv(data: List[dict], headers: List[str], filename: str) -> HttpResponse:
+    """
+    Generate and return a CSV response for the provided data.
+
+    :param data: List of dictionaries containing the rows for the CSV.
+    :param headers: List of strings representing the column headers for the CSV.
+    :param filename: The name of the CSV file to download.
+    :return: HttpResponse with the CSV file.
+    """
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = f'attachment; filename="{filename}.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(headers) 
+
+    for row in data:
+        writer.writerow([row.get(header, "") for header in headers])  
+
+    return response
