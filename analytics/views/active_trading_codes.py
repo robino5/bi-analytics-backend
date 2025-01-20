@@ -34,7 +34,7 @@ __all__ = [
     "get_active_trading_summary_daywise",
     "get_active_trading_monthwise_client",
     "get_admin_oms_branch_wise_turnover_as_on_month",
-    "get_admin_oms_datewise_turnover"
+    "get_admin_oms_datewise_turnover",
 ]
 
 def get_sum_of_property(property: str, rows: Sequence[Dict[str, Any]]) -> int:
@@ -172,8 +172,8 @@ def get_admin_oms_branch_wise_turnover_as_on_month(request: Request) -> Response
     response = {
         "detail": {
             "period":datetime.now().strftime("%B-%Y"),
-            "sum_of_total_client": get_sum_of_property("total_client", results),
-            "sum_of_turnover": get_sum_of_property("total_turnover", results),
+            "sum_of_total_client": get_sum_of_property("active_clients", results),
+            "sum_of_turnover": get_sum_of_property("turnover", results),
         },
         "rows": results,
     }
