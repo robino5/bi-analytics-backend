@@ -48,5 +48,5 @@ def download_admin_oms_datewise_turnover_csv(request):
         for row in results
     ]
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"datewise_turnover-internet-{current_time}"
+    filename = f"branchwise_turnover-internet-{current_time}"
     return generate_csv(remapped_results, headers, filename)
