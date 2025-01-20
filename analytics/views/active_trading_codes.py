@@ -172,8 +172,10 @@ def get_admin_oms_branch_wise_turnover_as_on_month(request: Request) -> Response
     response = {
         "detail": {
             "period":datetime.now().strftime("%B-%Y"),
-            "sum_of_total_client": get_sum_of_property("active_clients", results),
-            "sum_of_turnover": get_sum_of_property("turnover", results),
+            "sum_of_total_client_today": get_sum_of_property("active_clients_today", results),
+            "sum_of_turnover_today": get_sum_of_property("turnover_today", results),
+            "sum_of_total_client_month": get_sum_of_property("active_clients_month", results),
+            "sum_of_turnover_month": get_sum_of_property("turnover_month", results),
         },
         "rows": results,
     }

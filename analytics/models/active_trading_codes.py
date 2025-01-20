@@ -45,8 +45,10 @@ class ActiveCodeMonthWise(BaseModel):
 
 class AdminOMSBranchWiseTurnoverAsOnMonth(BaseModel):
     branch_Name: str
-    active_clients: int
-    turnover: float
+    active_clients_today: int
+    turnover_today: float
+    active_clients_month: int
+    turnover_month: float
 
 class AdminOMSDateWiseTurnover(TradingDateModel):
     active_clients: int
