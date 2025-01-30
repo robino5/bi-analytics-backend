@@ -10,6 +10,7 @@ __all__ = [
     "RMWiseDailyTurnoverPerformanceOrm",
     "RMWiseSectorExposureCashCodeOrm",
     "RMWiseSectorExposureMarginCodeOrm",
+    "RMWiseEcrmDetailsOrm"
 ]
 
 
@@ -92,3 +93,19 @@ class RMWiseSectorExposureMarginCodeOrm(BaseOrm):
     sector_name: Mapped[str] = mapped_column(
         "Sector_name", String(50), nullable=False, primary_key=True
     )
+
+
+class RMWiseEcrmDetailsOrm(BaseOrm):
+    __tablename__ = "BI_trd_RMWise_eCRM_Details"
+
+    rm_name: Mapped[str] = mapped_column("RM_NAME", String(250), primary_key=True)
+    region: Mapped[str] = mapped_column("Region", String(50))  
+    cluster: Mapped[str] = mapped_column("Cluster", String(20))  
+    branch: Mapped[str] = mapped_column("Branch", String(50))  
+    branch_code: Mapped[float] = mapped_column("Branch_code", Numeric(3, 0),primary_key=True) 
+    total_Visits: Mapped[int] = mapped_column("Total_Visits", Integer)  
+    success: Mapped[int] = mapped_column("Success", Integer) 
+    inProgress: Mapped[int] = mapped_column("InProgress", Integer)  
+    discard: Mapped[int] = mapped_column("Discard", Integer)  
+    existingClientVisit: Mapped[int] = mapped_column("ExistingClientVisit", Integer)
+

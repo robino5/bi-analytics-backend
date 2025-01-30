@@ -78,6 +78,7 @@ urlpatterns = [
     path("rm/portfolio-management-status/", views.get_portfolio_management_rmwise),
     path("rm/daily-net-fund-flow/", views.get_daily_net_fund_flow_rmwise),
     path("rm/marked-clients/", views.get_zone_marked_clients_rmwise),
+    path("rm/ecrm-details/", views.get_ecrm_details_rmwise),
     # Active Trading Codes Route
     path("active-trading-today/", views.get_active_trading_summary),
     path("active-trading-daywise/", views.get_active_trading_summary_daywise),
