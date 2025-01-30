@@ -14,12 +14,13 @@ from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
-from ..models import DailyTurnoverPerformance, SectorExposure
+from ..models import DailyTurnoverPerformance, SectorExposure,EcrmRetailsRMwise
 from ..orm import (
     RMWiseDailyTurnoverPerformanceOrm,
     RMWiseOverallSummaryOrm,
     RMWiseSectorExposureCashCodeOrm,
     RMWiseSectorExposureMarginCodeOrm,
+    RMWiseEcrmDetailsOrm
 )
 from .utils import parse_summary, rolewise_branch_data_filter
 
@@ -28,6 +29,7 @@ __all__ = [
     "get_turnover_performance_statistics_rmwise",
     "get_cashcode_sector_exposure_rmwise",
     "get_margincode_sector_exposure_rmwise",
+    "get_ecrm_details_rmwise"
 ]
 
 SUMMARY_QUERY_STR = select(
@@ -299,5 +301,65 @@ def get_margincode_sector_exposure_rmwise(request: Request) -> Response:
         rows = session.execute(qs)
 
         results = [SectorExposure.model_validate(row).model_dump() for row in rows]
+
+    return Response(results)
+
+@extend_schema(
+    tags=[OpenApiTags.RMWISE_DTP],
+    parameters=[
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Branch Code Of the RM",
+        ),
+        OpenApiParameter(
+            "trader",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Trader Id of the RM",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_ecrm_details_rmwise(request: Request) -> Response:
+    """fetch the turnover performance statistics rm wise"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
+
+    with Session(engine) as session:
+        qs = (
+            select(
+                func.sum(RMWiseEcrmDetailsOrm.total_Visits).label("total_Visits"),
+                func.sum(RMWiseEcrmDetailsOrm.success).label("success"),
+                func.sum(RMWiseEcrmDetailsOrm.inProgress).label("inProgress"),
+                func.sum(RMWiseEcrmDetailsOrm.discard).label("discard"),
+                func.sum(RMWiseEcrmDetailsOrm.existingClientVisit).label("existingClientVisit"),
+            )
+        )
+        qs = rolewise_branch_data_filter(
+            qs, current_user, RMWiseEcrmDetailsOrm
+        )
+
+        if has_branch:
+            qs = qs.where(
+                RMWiseEcrmDetailsOrm.branch_code == has_branch,
+            )
+        if has_trader:
+            qs = qs.where(
+                RMWiseEcrmDetailsOrm.rm_name == has_trader,
+            )
+        rows = session.execute(qs).first()
+
+        if rows:
+            results = EcrmRetailsRMwise.model_validate(rows).model_dump()
+        else:
+            results = {}
 
     return Response(results)
