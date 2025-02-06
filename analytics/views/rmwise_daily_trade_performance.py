@@ -14,13 +14,14 @@ from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
-from ..models import DailyTurnoverPerformance, SectorExposure,EcrmRetailsRMwise
+from ..models import DailyTurnoverPerformance, SectorExposure,EcrmRetailsRMwise,RMwiseDailyTradeData
 from ..orm import (
     RMWiseDailyTurnoverPerformanceOrm,
     RMWiseOverallSummaryOrm,
     RMWiseSectorExposureCashCodeOrm,
     RMWiseSectorExposureMarginCodeOrm,
-    RMWiseEcrmDetailsOrm
+    RMWiseEcrmDetailsOrm,
+    RMWiseDailyTradeDataOrm
 )
 from .utils import parse_summary, rolewise_branch_data_filter
 
@@ -29,7 +30,9 @@ __all__ = [
     "get_turnover_performance_statistics_rmwise",
     "get_cashcode_sector_exposure_rmwise",
     "get_margincode_sector_exposure_rmwise",
-    "get_ecrm_details_rmwise"
+    "get_ecrm_details_rmwise",
+    "get_rmwise_daily_trade_date",
+    "get_rmwise_daily_trade_date"
 ]
 
 SUMMARY_QUERY_STR = select(
@@ -363,3 +366,56 @@ def get_ecrm_details_rmwise(request: Request) -> Response:
             results = {}
 
     return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.RMWISE_DTP],
+    parameters=[
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Branch Code Of the RM",
+        ),
+        OpenApiParameter(
+            "trader",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Trader Id of the RM",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_rmwise_daily_trade_date(request: Request) -> Response:
+    """fetch the turnover performance statistics rm wise"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
+
+    with Session(engine) as session:
+        qs = (
+            select(RMWiseDailyTradeDataOrm).order_by(RMWiseDailyTradeDataOrm.rm_name)
+        )
+        qs = rolewise_branch_data_filter(
+            qs, current_user, RMWiseDailyTradeDataOrm
+        )
+
+        if has_branch:
+            qs = qs.where(
+                RMWiseDailyTradeDataOrm.branch_code == has_branch,
+            )
+        if has_trader:
+            qs = qs.where(
+                RMWiseDailyTradeDataOrm.rm_name == has_trader,
+            )
+        rows = session.execute(qs).scalars().all()
+
+        results = [RMwiseDailyTradeData.model_validate(row).model_dump() for row in rows]
+
+    return Response(results)
+

@@ -9,12 +9,18 @@ class BaseModel(Base):
 
 
 class TradingDateModel(BaseModel):
-    trading_date: datetime
+    trading_date: datetime|None
 
     @field_serializer("trading_date")
     def serialize_trading_date(self, dt: datetime, _info) -> str:
         return dt.strftime("%d-%b-%y")
+    
+class PushDateModel(BaseModel):
+    push_date: datetime | None
 
+    @field_serializer("push_date")
+    def serialize_push_date(self, dt: datetime, _info) -> str:
+        return dt.strftime("%d-%b-%y:%I:%M:%S %p").upper()
 
 class BranchInfoBaseModel(BaseModel):
     branch_code: int
