@@ -10,7 +10,8 @@ __all__ = [
     "RMWiseDailyTurnoverPerformanceOrm",
     "RMWiseSectorExposureCashCodeOrm",
     "RMWiseSectorExposureMarginCodeOrm",
-    "RMWiseEcrmDetailsOrm"
+    "RMWiseEcrmDetailsOrm",
+    "RMWiseDailyTradeDataOrm",
 ]
 
 
@@ -108,4 +109,17 @@ class RMWiseEcrmDetailsOrm(BaseOrm):
     inProgress: Mapped[int] = mapped_column("InProgress", Integer)  
     discard: Mapped[int] = mapped_column("Discard", Integer)  
     existingClientVisit: Mapped[int] = mapped_column("ExistingClientVisit", Integer)
+
+
+class RMWiseDailyTradeDataOrm(BaseOrm):
+    __tablename__ = "BI_trd_RMWise_Daily_trade_data"
+
+    push_date: Mapped[DateTime]=mapped_column("Push_date",DateTime)
+    branch_code: Mapped[float] = mapped_column("branch_code", Numeric(3, 0),primary_key=True) 
+    branch: Mapped[str] = mapped_column("branch_Name", String(50))  
+    rm_name: Mapped[str] = mapped_column("RM_Name", String(250), primary_key=True)
+    total_client_today: Mapped[int] = mapped_column("total_client_today", Integer) 
+    total_turnover_today: Mapped[float] = mapped_column("total_turnover_today", Numeric(38, 5)) 
+
+
 
