@@ -74,7 +74,7 @@ def get_board_turnovers_breakdown(request: Request) -> Response:
     with Session(engine) as session:
         qs = session.execute(
             select(BoardTurnOverBreakdownOrm).order_by(
-                BoardTurnOverBreakdownOrm.turnover.desc()
+                BoardTurnOverBreakdownOrm.push_date.desc()
             )
         ).scalars()
 

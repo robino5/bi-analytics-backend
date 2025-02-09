@@ -1,4 +1,4 @@
-from .base import BaseModel, TradingDateModel
+from .base import BaseModel, TradingDateModel,PushDateModel
 
 __all__ = [
     "BoardTurnOver",
@@ -11,7 +11,7 @@ __all__ = [
 ]
 
 
-class BoardTurnOver(TradingDateModel):
+class BoardTurnOver(PushDateModel):
     board: str
     turnover: float
     dse_percentage: float

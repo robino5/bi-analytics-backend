@@ -16,8 +16,8 @@ __all__ = [
 
 class BoardTurnOverOrm(BaseOrm):
     __tablename__ = "BI_trd_Admin_RealTime_Turnover_BoardWise"
-    trading_date: Mapped[DateTime] = mapped_column(
-        "trading_Date", DateTime, primary_key=True
+    push_date: Mapped[DateTime] = mapped_column(
+        "push_date", DateTime, primary_key=True
     )
     board: Mapped[str] = mapped_column(
         "Board", String(255), nullable=False, primary_key=True
@@ -32,8 +32,8 @@ class BoardTurnOverOrm(BaseOrm):
 
 class BoardTurnOverBreakdownOrm(BaseOrm):
     __tablename__ = "BI_trd_Admin_RealTime_Turnover_MainBoardWise_breakdown"
-    trading_date: Mapped[DateTime] = mapped_column(
-        "trading_Date", DateTime, primary_key=True
+    push_date: Mapped[DateTime] = mapped_column(
+        "push_date", DateTime, primary_key=True
     )
     board: Mapped[str] = mapped_column(
         "Main Board", String(255), nullable=False, primary_key=True
