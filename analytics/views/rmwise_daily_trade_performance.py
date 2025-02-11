@@ -399,7 +399,7 @@ def get_rmwise_daily_trade_date(request: Request) -> Response:
 
     with Session(engine) as session:
         qs = (
-            select(RMWiseDailyTradeDataOrm).order_by(RMWiseDailyTradeDataOrm.rm_name)
+            select(RMWiseDailyTradeDataOrm).order_by(RMWiseDailyTradeDataOrm.total_turnover_today.desc())
         )
         qs = rolewise_branch_data_filter(
             qs, current_user, RMWiseDailyTradeDataOrm
