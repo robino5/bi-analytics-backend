@@ -223,7 +223,7 @@ def get_admin_sector_wise_turnover(request: Request) -> Response:
     with Session(engine) as session:
         qs = session.execute(
             select(AdminSectorWiseTurnoverORM).order_by(
-                AdminSectorWiseTurnoverORM.turnover.desc()
+                AdminSectorWiseTurnoverORM.value.desc()
             )
         ).scalars()
 

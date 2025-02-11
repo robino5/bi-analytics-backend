@@ -56,7 +56,7 @@ class AdminOMSDateWiseTurnover(TradingDateModel):
     turnover: float
 
 class AdminSectorWiseTurnover(BaseModel):
-    sector_name: str
-    turnover: float
+    name: str
+    value: float
 
 
