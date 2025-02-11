@@ -7,7 +7,8 @@ __all__ = [
     "TradeActiveTrading",
     "TurnoverActiveTrading",
     "AdminOMSBranchWiseTurnoverAsOnMonth",
-    "AdminOMSDateWiseTurnover"
+    "AdminOMSDateWiseTurnover",
+    "AdminSectorWiseTurnover"
 ]
 
 
@@ -53,4 +54,9 @@ class AdminOMSBranchWiseTurnoverAsOnMonth(BaseModel):
 class AdminOMSDateWiseTurnover(TradingDateModel):
     active_clients: int
     turnover: float
+
+class AdminSectorWiseTurnover(BaseModel):
+    name: str
+    value: float
+
 

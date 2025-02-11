@@ -20,7 +20,7 @@ class PushDateModel(BaseModel):
 
     @field_serializer("push_date")
     def serialize_push_date(self, dt: datetime, _info) -> str:
-        return dt.strftime("%d-%b-%y:%I:%M:%S %p").upper()
+        return f"{dt.strftime('%d-%b-%y')} ({dt.strftime('%I:%M:%S %p')})"
 
 class BranchInfoBaseModel(BaseModel):
     branch_code: int

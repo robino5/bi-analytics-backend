@@ -19,14 +19,16 @@ from db import engine
 from ..models import (
     ActiveTradingSummary,
     AdminOMSBranchWiseTurnoverAsOnMonth,
-    AdminOMSDateWiseTurnover
+    AdminOMSDateWiseTurnover,
+    AdminSectorWiseTurnover
 )
 from ..orm import (
     ActiveTradingCodeDayWiseSummaryORM,
     ActiveTradingCodeMonthWiseSummaryORM,
     ActiveTradingCodeSummaryORM,
     AdminOMSBranchWiseTurnoverAsOnMonthORM,
-    AdminOMSDateWiseTurnoverORM
+    AdminOMSDateWiseTurnoverORM,
+    AdminSectorWiseTurnoverORM
 )
 
 __all__ = [
@@ -35,6 +37,7 @@ __all__ = [
     "get_active_trading_monthwise_client",
     "get_admin_oms_branch_wise_turnover_as_on_month",
     "get_admin_oms_datewise_turnover",
+    "get_admin_sector_wise_turnover"
 ]
 
 def get_sum_of_property(property: str, rows: Sequence[Dict[str, Any]]) -> int:
@@ -209,3 +212,21 @@ def get_admin_oms_datewise_turnover(request: Request) -> Response:
     }
     
     return Response(response)
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_sector_wise_turnover(request: Request) -> Response:
+    """fetch admin sector wise turnover """
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(AdminSectorWiseTurnoverORM).order_by(
+                AdminSectorWiseTurnoverORM.value.desc()
+            )
+        ).scalars()
+
+        results = [AdminSectorWiseTurnover.model_validate(row).model_dump() for row in qs]
+
+    return Response(results)
