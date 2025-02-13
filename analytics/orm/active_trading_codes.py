@@ -11,7 +11,8 @@ __all__ = [
     "ActiveTradingCodeMonthWiseSummaryORM",
     "AdminOMSBranchWiseTurnoverAsOnMonthORM",
     "AdminOMSDateWiseTurnoverORM",
-    "AdminSectorWiseTurnoverORM"
+    "AdminSectorWiseTurnoverORM",
+    "AdminSectorWiseTurnoverBreakdownORM"
 ]
 
 
@@ -66,5 +67,12 @@ class AdminSectorWiseTurnoverORM(BaseOrm):
     __tablename__ = "BI_trd_Admin_RealTime_Turnover_SectorWise"
 
     name: Mapped[str] = mapped_column("Sector_name", String(50),primary_key=True)
+    value: Mapped[float] = mapped_column("TurnOver", Numeric(34, 2))
+
+class AdminSectorWiseTurnoverBreakdownORM(BaseOrm):
+    __tablename__ = "BI_trd_Admin_RealTime_Turnover_SectorWise_Breakdown"
+
+    sector_name: Mapped[str] = mapped_column("Sector_name", String(50))
+    name: Mapped[str] = mapped_column("Com_s_name", String(50),primary_key=True)
     value: Mapped[float] = mapped_column("TurnOver", Numeric(34, 2))
 

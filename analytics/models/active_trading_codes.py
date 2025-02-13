@@ -8,7 +8,8 @@ __all__ = [
     "TurnoverActiveTrading",
     "AdminOMSBranchWiseTurnoverAsOnMonth",
     "AdminOMSDateWiseTurnover",
-    "AdminSectorWiseTurnover"
+    "AdminSectorWiseTurnover",
+    "AdminSectorWiseTurnoverBreakdown",
 ]
 
 
@@ -58,5 +59,11 @@ class AdminOMSDateWiseTurnover(TradingDateModel):
 class AdminSectorWiseTurnover(BaseModel):
     name: str
     value: float
+
+class AdminSectorWiseTurnoverBreakdown(BaseModel):
+    sector_name: str
+    name: str
+    value: float
+
 
 
