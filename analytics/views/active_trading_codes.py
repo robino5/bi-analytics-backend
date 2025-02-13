@@ -1,7 +1,7 @@
 from http import HTTPMethod
 from typing import Any, Dict
 from datetime import datetime
-
+from drf_spectacular.types import OpenApiTypes
 import pandas as pd
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view, permission_classes
@@ -10,6 +10,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from sqlalchemy import Sequence, func, select
 from sqlalchemy.orm import Session
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 
 from core.metadata.openapi import OpenApiTags
 from core.permissions import IsManagementUser
@@ -20,7 +21,8 @@ from ..models import (
     ActiveTradingSummary,
     AdminOMSBranchWiseTurnoverAsOnMonth,
     AdminOMSDateWiseTurnover,
-    AdminSectorWiseTurnover
+    AdminSectorWiseTurnover,
+    AdminSectorWiseTurnoverBreakdown
 )
 from ..orm import (
     ActiveTradingCodeDayWiseSummaryORM,
@@ -28,7 +30,8 @@ from ..orm import (
     ActiveTradingCodeSummaryORM,
     AdminOMSBranchWiseTurnoverAsOnMonthORM,
     AdminOMSDateWiseTurnoverORM,
-    AdminSectorWiseTurnoverORM
+    AdminSectorWiseTurnoverORM,
+    AdminSectorWiseTurnoverBreakdownORM
 )
 
 __all__ = [
@@ -37,7 +40,8 @@ __all__ = [
     "get_active_trading_monthwise_client",
     "get_admin_oms_branch_wise_turnover_as_on_month",
     "get_admin_oms_datewise_turnover",
-    "get_admin_sector_wise_turnover"
+    "get_admin_sector_wise_turnover",
+    "get_admin_sector_wise_turnover_breakdown"
 ]
 
 def get_sum_of_property(property: str, rows: Sequence[Dict[str, Any]]) -> int:
@@ -228,5 +232,44 @@ def get_admin_sector_wise_turnover(request: Request) -> Response:
         ).scalars()
 
         results = [AdminSectorWiseTurnover.model_validate(row).model_dump() for row in qs]
+
+    return Response(results)
+
+@extend_schema(
+    tags=[OpenApiTags.ACTIVE_TRADING_CODE],
+    parameters=[
+        OpenApiParameter(
+            "sector_name",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="sector name",
+        ),
+    ],
+)
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_sector_wise_turnover_breakdown(request: Request) -> Response:
+    """fetch admin sector wise turnover breakdown """
+    request.accepted_renderer = CustomRenderer()
+
+    has_sector_name= request.query_params.get("sector_name", None)
+
+    with Session(engine) as session:
+        qs = (
+            select(AdminSectorWiseTurnoverBreakdownORM).order_by(
+                AdminSectorWiseTurnoverBreakdownORM.value.desc()
+            )
+        )
+
+        if has_sector_name:
+         qs = qs.where(
+        func.upper(AdminSectorWiseTurnoverBreakdownORM.sector_name) == func.upper(has_sector_name)
+    )
+
+        qs = session.execute(qs).scalars()
+
+        results = [AdminSectorWiseTurnoverBreakdown.model_validate(row).model_dump() for row in qs]
 
     return Response(results)

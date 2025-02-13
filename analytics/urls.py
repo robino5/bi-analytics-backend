@@ -88,6 +88,7 @@ urlpatterns = [
     path("admin-oms-branchwise-turnover-csv/", views.download_admin_oms_datewise_turnover_csv),
     path("admin-oms-datewise-turnover/", views.get_admin_oms_datewise_turnover),
     path("admin-sector-wise-turnover/", views.get_admin_sector_wise_turnover),
+      path("admin-sector-wise-turnover-breakdown/", views.get_admin_sector_wise_turnover_breakdown),
     # Business And Trade Management
     path("admin/board-turnover/", views.get_board_turnovers),
     path("admin/board-turnovers-breakdown/", views.get_board_turnovers_breakdown),
