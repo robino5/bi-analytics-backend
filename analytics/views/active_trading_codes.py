@@ -22,7 +22,11 @@ from ..models import (
     AdminOMSBranchWiseTurnoverAsOnMonth,
     AdminOMSDateWiseTurnover,
     AdminSectorWiseTurnover,
-    AdminSectorWiseTurnoverBreakdown
+    AdminSectorWiseTurnoverBreakdown,
+    AdminRealTimeTurnoverTop20,
+    AdminRealTimeTurnoverComparisonSectorWise
+
+
 )
 from ..orm import (
     ActiveTradingCodeDayWiseSummaryORM,
@@ -31,7 +35,9 @@ from ..orm import (
     AdminOMSBranchWiseTurnoverAsOnMonthORM,
     AdminOMSDateWiseTurnoverORM,
     AdminSectorWiseTurnoverORM,
-    AdminSectorWiseTurnoverBreakdownORM
+    AdminSectorWiseTurnoverBreakdownORM,
+    AdminRealTimeTurnoverTop20ORM,
+    AdminRealTimeTurnoverComparisonSectorWiseORM
 )
 
 __all__ = [
@@ -41,7 +47,10 @@ __all__ = [
     "get_admin_oms_branch_wise_turnover_as_on_month",
     "get_admin_oms_datewise_turnover",
     "get_admin_sector_wise_turnover",
-    "get_admin_sector_wise_turnover_breakdown"
+    "get_admin_sector_wise_turnover_breakdown",
+    "get_admin_realtime_turnover_top_20",
+    "get_admin_realtime_turnover_comaparison_sector_wise"
+
 ]
 
 def get_sum_of_property(property: str, rows: Sequence[Dict[str, Any]]) -> int:
@@ -271,5 +280,41 @@ def get_admin_sector_wise_turnover_breakdown(request: Request) -> Response:
         qs = session.execute(qs).scalars()
 
         results = [AdminSectorWiseTurnoverBreakdown.model_validate(row).model_dump() for row in qs]
+
+    return Response(results)
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_realtime_turnover_top_20(request: Request) -> Response:
+    """fetch admin real time turnover top 20"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(AdminRealTimeTurnoverTop20ORM).order_by(
+                AdminRealTimeTurnoverTop20ORM.value.desc()
+            )
+        ).scalars()
+
+        results = [AdminRealTimeTurnoverTop20.model_validate(row).model_dump() for row in qs]
+
+    return Response(results)
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_realtime_turnover_comaparison_sector_wise(request: Request) -> Response:
+    """fetch admin real time turnover comparison sector wise"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(AdminRealTimeTurnoverComparisonSectorWiseORM).order_by(
+                AdminRealTimeTurnoverComparisonSectorWiseORM.primary_value.desc()
+            )
+        ).scalars()
+
+        results = [AdminRealTimeTurnoverComparisonSectorWise.model_validate(row).model_dump() for row in qs]
 
     return Response(results)

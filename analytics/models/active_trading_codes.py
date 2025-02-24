@@ -10,6 +10,8 @@ __all__ = [
     "AdminOMSDateWiseTurnover",
     "AdminSectorWiseTurnover",
     "AdminSectorWiseTurnoverBreakdown",
+    "AdminRealTimeTurnoverTop20",
+    "AdminRealTimeTurnoverComparisonSectorWise"
 ]
 
 
@@ -64,6 +66,21 @@ class AdminSectorWiseTurnoverBreakdown(BaseModel):
     sector_name: str
     name: str
     value: float
+
+class AdminRealTimeTurnoverTop20(BaseModel):
+    name: str
+    value: float
+
+    
+class AdminRealTimeTurnoverTop20(BaseModel):
+    name: str
+    value: float
+
+class AdminRealTimeTurnoverComparisonSectorWise(BaseModel):
+    name: str
+    primary_value: float
+    secondary_value: float
+
 
 
 
