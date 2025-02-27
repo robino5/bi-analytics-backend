@@ -24,7 +24,8 @@ from ..models import (
     AdminSectorWiseTurnover,
     AdminSectorWiseTurnoverBreakdown,
     AdminRealTimeTurnoverTop20,
-    AdminRealTimeTurnoverComparisonSectorWise
+    AdminRealTimeTurnoverComparisonSectorWise,
+    AdminRealTimeTurnoverExchangeTop20
 
 
 )
@@ -37,7 +38,8 @@ from ..orm import (
     AdminSectorWiseTurnoverORM,
     AdminSectorWiseTurnoverBreakdownORM,
     AdminRealTimeTurnoverTop20ORM,
-    AdminRealTimeTurnoverComparisonSectorWiseORM
+    AdminRealTimeTurnoverComparisonSectorWiseORM,
+    AdminRealTimeTurnoverExchangeTop20ORM
 )
 
 __all__ = [
@@ -49,7 +51,8 @@ __all__ = [
     "get_admin_sector_wise_turnover",
     "get_admin_sector_wise_turnover_breakdown",
     "get_admin_realtime_turnover_top_20",
-    "get_admin_realtime_turnover_comaparison_sector_wise"
+    "get_admin_realtime_turnover_comaparison_sector_wise",
+    "get_admin_realtime_turnover_exchange_top_20"
 
 ]
 
@@ -298,6 +301,24 @@ def get_admin_realtime_turnover_top_20(request: Request) -> Response:
         ).scalars()
 
         results = [AdminRealTimeTurnoverTop20.model_validate(row).model_dump() for row in qs]
+
+    return Response(results)
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_realtime_turnover_exchange_top_20(request: Request) -> Response:
+    """fetch admin real time turnover exchange top 20"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(AdminRealTimeTurnoverExchangeTop20ORM).order_by(
+                AdminRealTimeTurnoverExchangeTop20ORM.value.desc()
+            )
+        ).scalars()
+
+        results = [AdminRealTimeTurnoverExchangeTop20.model_validate(row).model_dump() for row in qs]
 
     return Response(results)
 

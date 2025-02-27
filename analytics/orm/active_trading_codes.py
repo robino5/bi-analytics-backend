@@ -15,6 +15,7 @@ __all__ = [
     "AdminSectorWiseTurnoverBreakdownORM",
     "AdminRealTimeTurnoverTop20ORM",
     "AdminRealTimeTurnoverComparisonSectorWiseORM",
+    "AdminRealTimeTurnoverExchangeTop20ORM",
 ]
 
 
@@ -29,9 +30,19 @@ class BaseActiveTradingOrm(BaseOrm):
         "Trade_dt", DateTime(), primary_key=True
     )
 
-
-class ActiveTradingCodeSummaryORM(BaseActiveTradingOrm):
+class ActiveTradingCodeSummaryORM(BaseOrm):
     __tablename__ = "BI_trd_Admin_OMS_Summary_data"
+
+    channel: Mapped[str] = mapped_column("channel", String(50), primary_key=True)
+    total_clients: Mapped[int] = mapped_column("Total_Clients", Integer)
+    trades: Mapped[int] = mapped_column("Trades", Integer)
+    total_turnover: Mapped[float] = mapped_column("Total_turnOver", Numeric(34, 2))
+    trading_date: Mapped[datetime] = mapped_column(
+        "Trade_dt", DateTime(), primary_key=True
+    )
+    push_date: Mapped[DateTime] = mapped_column(
+        "push_date", DateTime(), primary_key=True
+    )
 
 
 class ActiveTradingCodeDayWiseSummaryORM(BaseActiveTradingOrm):
@@ -83,6 +94,17 @@ class AdminRealTimeTurnoverTop20ORM(BaseOrm):
 
     name: Mapped[str] = mapped_column("Com_s_name", String(50),primary_key=True)
     value: Mapped[float] = mapped_column("TurnOver", Numeric(38, 6))
+    buy: Mapped[float] = mapped_column("Buy_TurnOver", Numeric(38, 6))
+    sell: Mapped[float] = mapped_column("Sell_TurnOver", Numeric(38, 6))
+
+class AdminRealTimeTurnoverExchangeTop20ORM(BaseOrm):
+    __tablename__ = "BI_trd_Admin_RealTime_Turnover_Exchange_Top_20"
+
+    name: Mapped[str] = mapped_column("Com_s_name", String(50),primary_key=True)
+    value: Mapped[float] = mapped_column("TurnOver", Numeric(38, 6))
+    push_date: Mapped[DateTime] = mapped_column(
+        "push_date", DateTime(), primary_key=True
+    )
 
 class AdminRealTimeTurnoverComparisonSectorWiseORM(BaseOrm):
     __tablename__ = "BI_trd_Admin_RealTime_Turnover_SectorWise"

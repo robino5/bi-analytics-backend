@@ -1,4 +1,7 @@
-from .base import BaseModel, TradingDateModel
+from datetime import datetime
+from typing import Optional
+from pydantic import field_serializer
+from .base import BaseModel, PushDateModel, TradingDateModel
 
 __all__ = [
     "ActiveTradingSummary",
@@ -11,7 +14,8 @@ __all__ = [
     "AdminSectorWiseTurnover",
     "AdminSectorWiseTurnoverBreakdown",
     "AdminRealTimeTurnoverTop20",
-    "AdminRealTimeTurnoverComparisonSectorWise"
+    "AdminRealTimeTurnoverComparisonSectorWise",
+    "AdminRealTimeTurnoverExchangeTop20"
 ]
 
 
@@ -20,6 +24,13 @@ class ActiveTradingSummary(TradingDateModel):
     total_clients: int
     trades: int
     total_turnover: float
+    push_date: Optional[datetime] = None  # Explicitly mark as Optional
+
+    @field_serializer("push_date")
+    def serialize_push_date(self, dt: Optional[datetime], _info) -> str:
+        if dt:
+            return f"{dt.strftime('%d-%b-%y')} ({dt.strftime('%I:%M:%S %p')})"
+        return ""  # Return empty string if push_date is None
 
 
 class BaseActiveTradingMonthWise(BaseModel):
@@ -73,6 +84,12 @@ class AdminRealTimeTurnoverTop20(BaseModel):
 
     
 class AdminRealTimeTurnoverTop20(BaseModel):
+    name: str
+    value: float
+    buy:float
+    sell:float
+
+class AdminRealTimeTurnoverExchangeTop20(PushDateModel):
     name: str
     value: float
 
