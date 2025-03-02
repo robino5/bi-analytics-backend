@@ -16,6 +16,7 @@ __all__ = [
     "AdminRealTimeTurnoverTop20ORM",
     "AdminRealTimeTurnoverComparisonSectorWiseORM",
     "AdminRealTimeTurnoverExchangeTop20ORM",
+    "AdminRealTimeTurnoverComparisonTop20SectorWiseORM"
 ]
 
 
@@ -113,3 +114,12 @@ class AdminRealTimeTurnoverComparisonSectorWiseORM(BaseOrm):
     primary_value: Mapped[float] = mapped_column("DSE_turnover", Numeric(38, 6))
     secondary_value: Mapped[float] = mapped_column("TurnOver", Numeric(38, 6))
 
+class AdminRealTimeTurnoverComparisonTop20SectorWiseORM(BaseOrm):
+    __tablename__ = "BI_trd_Admin_RealTime_Turnover_LBSL_Exchange_Top20_Comparison"
+
+    name: Mapped[str] = mapped_column("Com_s_name", String(50),primary_key=True)
+    primary_value: Mapped[float] = mapped_column("DSE_TurnOver", Numeric(38, 6))
+    secondary_value: Mapped[float] = mapped_column("LBSL_TurnOver", Numeric(38, 6))
+    push_date: Mapped[DateTime] = mapped_column(
+        "push_date", DateTime(), primary_key=True
+    )

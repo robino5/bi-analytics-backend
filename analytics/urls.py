@@ -92,6 +92,7 @@ urlpatterns = [
     path("admin-realtime-turnover-top-20/", views.get_admin_realtime_turnover_top_20),
     path("admin-realtime-turnover-exchange-top-20/", views.get_admin_realtime_turnover_exchange_top_20),
     path("admin-realtime-turnover-comparison-sector-wise/", views.get_admin_realtime_turnover_comaparison_sector_wise),
+    path("admin-realtime-turnover-comparison-top20-sector-wise/", views.get_admin_realtime_turnover_comaparison_top20_sector_wise),
     # Business And Trade Management
     path("admin/board-turnover/", views.get_board_turnovers),
     path("admin/board-turnovers-breakdown/", views.get_board_turnovers_breakdown),
