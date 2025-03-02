@@ -15,7 +15,8 @@ __all__ = [
     "AdminSectorWiseTurnoverBreakdown",
     "AdminRealTimeTurnoverTop20",
     "AdminRealTimeTurnoverComparisonSectorWise",
-    "AdminRealTimeTurnoverExchangeTop20"
+    "AdminRealTimeTurnoverExchangeTop20",
+    "AdminRealTimeTurnoverComparisonTop20SectorWise"
 ]
 
 
@@ -94,6 +95,11 @@ class AdminRealTimeTurnoverExchangeTop20(PushDateModel):
     value: float
 
 class AdminRealTimeTurnoverComparisonSectorWise(BaseModel):
+    name: str
+    primary_value: float
+    secondary_value: float
+
+class AdminRealTimeTurnoverComparisonTop20SectorWise(PushDateModel):
     name: str
     primary_value: float
     secondary_value: float
