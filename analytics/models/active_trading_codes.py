@@ -103,6 +103,7 @@ class AdminRealTimeTurnoverComparisonTop20SectorWise(PushDateModel):
     name: str
     primary_value: float
     secondary_value: float
+    secondary_percent: float
 
 
 

@@ -120,6 +120,7 @@ class AdminRealTimeTurnoverComparisonTop20SectorWiseORM(BaseOrm):
     name: Mapped[str] = mapped_column("Com_s_name", String(50),primary_key=True)
     primary_value: Mapped[float] = mapped_column("DSE_TurnOver", Numeric(38, 6))
     secondary_value: Mapped[float] = mapped_column("LBSL_TurnOver", Numeric(38, 6))
+    secondary_percent: Mapped[float] = mapped_column("Lbsl_Dse_percentage", Numeric(5, 2))
     push_date: Mapped[DateTime] = mapped_column(
         "push_date", DateTime(), primary_key=True
     )
