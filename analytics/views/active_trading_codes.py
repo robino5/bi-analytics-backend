@@ -325,23 +325,53 @@ def get_admin_realtime_turnover_exchange_top_20(request: Request) -> Response:
 
     return Response(results)
 
-@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+
+@extend_schema(
+    tags=[OpenApiTags.ACTIVE_TRADING_CODE],
+    parameters=[
+        OpenApiParameter(
+            "trading_date",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Trading date in format YYYY-MM-DD",
+        ),
+    ],
+)
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated, IsManagementUser])
 def get_admin_realtime_turnover_comaparison_sector_wise(request: Request) -> Response:
-    """fetch admin real time turnover comparison sector wise"""
+    """Fetch admin real-time turnover comparison sector-wise for a given trading date or the latest trading date."""
     request.accepted_renderer = CustomRenderer()
+    has_trading_date = request.query_params.get("trading_date")
 
     with Session(engine) as session:
+        if has_trading_date:
+            try:
+                trading_date = datetime.strptime(has_trading_date, "%Y-%m-%d")
+            except ValueError:
+                return Response({"error": "Invalid date format. Use YYYY-MM-DD."}, status=400)
+        else:
+            trading_date = session.execute(
+                select(func.max(AdminRealTimeTurnoverComparisonSectorWiseORM.trading_date))
+            ).scalar()
+
+            if not trading_date:
+                return Response([]) 
+
         qs = session.execute(
-            select(AdminRealTimeTurnoverComparisonSectorWiseORM).order_by(
-                AdminRealTimeTurnoverComparisonSectorWiseORM.primary_value.desc()
-            )
+            select(AdminRealTimeTurnoverComparisonSectorWiseORM)
+            .where(AdminRealTimeTurnoverComparisonSectorWiseORM.trading_date == trading_date)
+            .order_by(AdminRealTimeTurnoverComparisonSectorWiseORM.primary_value.desc())
         ).scalars()
 
-        results = [AdminRealTimeTurnoverComparisonSectorWise.model_validate(row).model_dump() for row in qs]
+        results = [
+            AdminRealTimeTurnoverComparisonSectorWise.model_validate(row).model_dump()
+            for row in qs
+        ]
 
     return Response(results)
+
 
 @extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
 @api_view([HTTPMethod.GET])

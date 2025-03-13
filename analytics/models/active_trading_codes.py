@@ -94,7 +94,7 @@ class AdminRealTimeTurnoverExchangeTop20(PushDateModel):
     name: str
     value: float
 
-class AdminRealTimeTurnoverComparisonSectorWise(BaseModel):
+class AdminRealTimeTurnoverComparisonSectorWise(TradingDateModel):
     name: str
     primary_value: float
     secondary_value: float

@@ -113,6 +113,7 @@ class AdminRealTimeTurnoverComparisonSectorWiseORM(BaseOrm):
     name: Mapped[str] = mapped_column("Sector_name", String(50),primary_key=True)
     primary_value: Mapped[float] = mapped_column("DSE_turnover", Numeric(38, 6))
     secondary_value: Mapped[float] = mapped_column("TurnOver", Numeric(38, 6))
+    trading_date: Mapped[DateTime] = mapped_column("trd_dt", DateTime, primary_key=True)
 
 class AdminRealTimeTurnoverComparisonTop20SectorWiseORM(BaseOrm):
     __tablename__ = "BI_trd_Admin_RealTime_Turnover_LBSL_Exchange_Top20_Comparison"
