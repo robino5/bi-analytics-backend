@@ -97,6 +97,7 @@ class AdminRealTimeTurnoverTop20ORM(BaseOrm):
     value: Mapped[float] = mapped_column("TurnOver", Numeric(38, 6))
     buy: Mapped[float] = mapped_column("Buy_TurnOver", Numeric(38, 6))
     sell: Mapped[float] = mapped_column("Sell_TurnOver", Numeric(38, 6))
+    trading_date: Mapped[DateTime] = mapped_column("trd_dt", DateTime, primary_key=True)
 
 class AdminRealTimeTurnoverExchangeTop20ORM(BaseOrm):
     __tablename__ = "BI_trd_Admin_RealTime_Turnover_Exchange_Top_20"
@@ -106,6 +107,7 @@ class AdminRealTimeTurnoverExchangeTop20ORM(BaseOrm):
     push_date: Mapped[DateTime] = mapped_column(
         "push_date", DateTime(), primary_key=True
     )
+    trading_date: Mapped[DateTime] = mapped_column("trd_dt", DateTime, primary_key=True)
 
 class AdminRealTimeTurnoverComparisonSectorWiseORM(BaseOrm):
     __tablename__ = "BI_trd_Admin_RealTime_Turnover_SectorWise"
@@ -125,3 +127,4 @@ class AdminRealTimeTurnoverComparisonTop20SectorWiseORM(BaseOrm):
     push_date: Mapped[DateTime] = mapped_column(
         "push_date", DateTime(), primary_key=True
     )
+    trading_date: Mapped[DateTime] = mapped_column("trd_dt", DateTime, primary_key=True)

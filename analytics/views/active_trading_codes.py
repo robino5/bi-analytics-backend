@@ -289,36 +289,87 @@ def get_admin_sector_wise_turnover_breakdown(request: Request) -> Response:
 
     return Response(results)
 
-@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@extend_schema(
+    tags=[OpenApiTags.ACTIVE_TRADING_CODE],
+    parameters=[
+        OpenApiParameter(
+            "trading_date",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Trading date in format YYYY-MM-DD",
+        ),
+    ],
+)
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated, IsManagementUser])
 def get_admin_realtime_turnover_top_20(request: Request) -> Response:
     """fetch admin real time turnover top 20"""
     request.accepted_renderer = CustomRenderer()
+    has_trading_date = request.query_params.get("trading_date")
 
     with Session(engine) as session:
+        if has_trading_date:
+            try:
+                trading_date = datetime.strptime(has_trading_date, "%Y-%m-%d")
+            except ValueError:
+                return Response({"error": "Invalid date format. Use YYYY-MM-DD."}, status=400)
+        else:
+            trading_date = session.execute(
+                select(func.max(AdminRealTimeTurnoverTop20ORM.trading_date))
+            ).scalar()
+
+            if not trading_date:
+                return Response([]) 
+            
+            
         qs = session.execute(
-            select(AdminRealTimeTurnoverTop20ORM).order_by(
-                AdminRealTimeTurnoverTop20ORM.value.desc()
-            )
+            select(AdminRealTimeTurnoverTop20ORM)
+            .where(AdminRealTimeTurnoverTop20ORM.trading_date == trading_date)
+            .order_by(AdminRealTimeTurnoverTop20ORM.value.desc())
         ).scalars()
 
         results = [AdminRealTimeTurnoverTop20.model_validate(row).model_dump() for row in qs]
 
     return Response(results)
 
-@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@extend_schema(
+    tags=[OpenApiTags.ACTIVE_TRADING_CODE],
+    parameters=[
+        OpenApiParameter(
+            "trading_date",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Trading date in format YYYY-MM-DD",
+        ),
+    ],
+)
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated, IsManagementUser])
 def get_admin_realtime_turnover_exchange_top_20(request: Request) -> Response:
     """fetch admin real time turnover exchange top 20"""
     request.accepted_renderer = CustomRenderer()
+    has_trading_date = request.query_params.get("trading_date")
 
     with Session(engine) as session:
+        if has_trading_date:
+            try:
+                trading_date = datetime.strptime(has_trading_date, "%Y-%m-%d")
+            except ValueError:
+                return Response({"error": "Invalid date format. Use YYYY-MM-DD."}, status=400)
+        else:
+            trading_date = session.execute(
+                select(func.max(AdminRealTimeTurnoverExchangeTop20ORM.trading_date))
+            ).scalar()
+
+            if not trading_date:
+                return Response([]) 
+
         qs = session.execute(
-            select(AdminRealTimeTurnoverExchangeTop20ORM).order_by(
-                AdminRealTimeTurnoverExchangeTop20ORM.value.desc()
-            )
+            select(AdminRealTimeTurnoverExchangeTop20ORM)
+            .where(AdminRealTimeTurnoverExchangeTop20ORM.trading_date == trading_date)
+            .order_by(AdminRealTimeTurnoverExchangeTop20ORM.value.desc())
         ).scalars()
 
         results = [AdminRealTimeTurnoverExchangeTop20.model_validate(row).model_dump() for row in qs]
@@ -373,18 +424,44 @@ def get_admin_realtime_turnover_comaparison_sector_wise(request: Request) -> Res
     return Response(results)
 
 
-@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@extend_schema(
+    tags=[OpenApiTags.ACTIVE_TRADING_CODE],
+    parameters=[
+        OpenApiParameter(
+            "trading_date",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Trading date in format YYYY-MM-DD",
+        ),
+    ],
+)
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated, IsManagementUser])
 def get_admin_realtime_turnover_comaparison_top20_sector_wise(request: Request) -> Response:
     """fetch admin real time turnover comparison top 20 sector wise"""
     request.accepted_renderer = CustomRenderer()
+    has_trading_date = request.query_params.get("trading_date")
 
     with Session(engine) as session:
+        if has_trading_date:
+            try:
+                trading_date = datetime.strptime(has_trading_date, "%Y-%m-%d")
+            except ValueError:
+                return Response({"error": "Invalid date format. Use YYYY-MM-DD."}, status=400)
+        else:
+            trading_date = session.execute(
+                select(func.max(AdminRealTimeTurnoverComparisonTop20SectorWiseORM.trading_date))
+            ).scalar()
+
+            if not trading_date:
+                return Response([]) 
+    
+
         qs = session.execute(
-            select(AdminRealTimeTurnoverComparisonTop20SectorWiseORM).order_by(
-                AdminRealTimeTurnoverComparisonTop20SectorWiseORM.primary_value.desc()
-            )
+            select(AdminRealTimeTurnoverComparisonTop20SectorWiseORM)
+            .where(AdminRealTimeTurnoverComparisonTop20SectorWiseORM.trading_date == trading_date)
+            .order_by(AdminRealTimeTurnoverComparisonTop20SectorWiseORM.primary_value.desc())
         ).scalars()
 
         results = [AdminRealTimeTurnoverComparisonTop20SectorWise.model_validate(row).model_dump() for row in qs]
