@@ -84,26 +84,40 @@ class AdminRealTimeTurnoverTop20(BaseModel):
     value: float
 
     
-class AdminRealTimeTurnoverTop20(BaseModel):
+class AdminRealTimeTurnoverTop20(TradingDateModel):
     name: str
     value: float
     buy:float
     sell:float
 
-class AdminRealTimeTurnoverExchangeTop20(PushDateModel):
+class AdminRealTimeTurnoverExchangeTop20(TradingDateModel):
     name: str
     value: float
+    push_date: Optional[datetime] = None 
+
+    @field_serializer("push_date")
+    def serialize_push_date(self, dt: Optional[datetime], _info) -> str:
+        if dt:
+            return f"{dt.strftime('%d-%b-%y')} ({dt.strftime('%I:%M:%S %p')})"
+        return ""  
 
 class AdminRealTimeTurnoverComparisonSectorWise(TradingDateModel):
     name: str
     primary_value: float
     secondary_value: float
 
-class AdminRealTimeTurnoverComparisonTop20SectorWise(PushDateModel):
+class AdminRealTimeTurnoverComparisonTop20SectorWise(TradingDateModel):
     name: str
     primary_value: float
     secondary_value: float
     secondary_percent: float
+    push_date: Optional[datetime] = None 
+
+    @field_serializer("push_date")
+    def serialize_push_date(self, dt: Optional[datetime], _info) -> str:
+        if dt:
+            return f"{dt.strftime('%d-%b-%y')} ({dt.strftime('%I:%M:%S %p')})"
+        return ""
 
 
 
