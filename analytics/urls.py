@@ -85,7 +85,9 @@ urlpatterns = [
     path("active-trading-daywise/", views.get_active_trading_summary_daywise),
     path("active-trading-monthwise/", views.get_active_trading_monthwise_client),
     path("admin-oms-branchwise-turnover/", views.get_admin_oms_branch_wise_turnover_as_on_month),
+    path("admin-oms-branchwise-turnover-dt/", views.get_admin_oms_branch_wise_turnover_dt_as_on_month),
     path("admin-oms-branchwise-turnover-csv/", views.download_admin_oms_datewise_turnover_csv),
+    path("admin-oms-branchwise-dt-turnover-csv/", views.download_admin_oms_datewise_dt_turnover_csv),
     path("admin-oms-datewise-turnover/", views.get_admin_oms_datewise_turnover),
     path("admin-sector-wise-turnover/", views.get_admin_sector_wise_turnover),
     path("admin-sector-wise-turnover-breakdown/", views.get_admin_sector_wise_turnover_breakdown),
@@ -93,6 +95,8 @@ urlpatterns = [
     path("admin-realtime-turnover-exchange-top-20/", views.get_admin_realtime_turnover_exchange_top_20),
     path("admin-realtime-turnover-comparison-sector-wise/", views.get_admin_realtime_turnover_comaparison_sector_wise),
     path("admin-realtime-turnover-comparison-top20-sector-wise/", views.get_admin_realtime_turnover_comaparison_top20_sector_wise),
+    path("admin-realtime-turnover-comparison-top20-sector-wise/", views.get_admin_realtime_turnover_comaparison_top20_sector_wise),
+    path("admin-dse-live-trade/", views.live_dse_trade),
     # Business And Trade Management
     path("admin/board-turnover/", views.get_board_turnovers),
     path("admin/board-turnovers-breakdown/", views.get_board_turnovers_breakdown),

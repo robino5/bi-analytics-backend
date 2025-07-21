@@ -15,6 +15,7 @@ __all__ = [
     "AdminSectorWiseTurnoverBreakdown",
     "AdminRealTimeTurnoverTop20",
     "AdminRealTimeTurnoverComparisonSectorWise",
+    "AdminOMSBranchWiseTurnoverDtAsOnMonth",
     "AdminRealTimeTurnoverExchangeTop20",
     "AdminRealTimeTurnoverComparisonTop20SectorWise"
 ]
@@ -60,6 +61,13 @@ class ActiveCodeMonthWise(BaseModel):
     total_turnover: float
 
 class AdminOMSBranchWiseTurnoverAsOnMonth(BaseModel):
+    branch_Name: str
+    active_clients_today: int
+    turnover_today: float
+    active_clients_month: int
+    turnover_month: float
+
+class AdminOMSBranchWiseTurnoverDtAsOnMonth(BaseModel):
     branch_Name: str
     active_clients_today: int
     turnover_today: float
