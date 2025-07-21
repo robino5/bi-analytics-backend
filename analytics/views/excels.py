@@ -14,14 +14,17 @@ from rest_framework.permissions import IsAuthenticated
 from core.permissions import IsManagementUser
 
 from ..models import (
-    AdminOMSBranchWiseTurnoverAsOnMonth
+    AdminOMSBranchWiseTurnoverAsOnMonth,
+    AdminOMSBranchWiseTurnoverDtAsOnMonth
 )
 from ..orm import (
-    AdminOMSBranchWiseTurnoverAsOnMonthORM
+    AdminOMSBranchWiseTurnoverAsOnMonthORM,
+    AdminOMSBranchWiseTurnoverDtAsOnMonthORM
 )
 
 __all__ = [
-    "download_admin_oms_datewise_turnover_csv"
+    "download_admin_oms_datewise_turnover_csv",
+    "download_admin_oms_datewise_dt_turnover_csv"
 ]
 
 
@@ -52,4 +55,34 @@ def download_admin_oms_datewise_turnover_csv(request):
     ]
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     filename = f"branchwise_turnover-internet-{current_time}"
+    return generate_csv(remapped_results, headers, filename)
+    
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+def download_admin_oms_datewise_dt_turnover_csv(request):
+    """Download admin OMS Branch wise dt turnover as CSV"""
+    with Session(engine) as session:
+        qs = session.execute(
+            select(AdminOMSBranchWiseTurnoverDtAsOnMonthORM).order_by(
+                AdminOMSBranchWiseTurnoverDtAsOnMonthORM.branch_Name
+            )
+        ).scalars()
+
+        results = [AdminOMSBranchWiseTurnoverDtAsOnMonth.model_validate(row).model_dump() for row in qs]
+        
+    header_mapping = {
+        "branch_Name": "Branch Name",
+        "active_clients_today": "Active Clients Today",
+        "turnover_today": "Turnover Today",
+        "active_clients_month": f"Active Clients-{datetime.now().strftime("%B-%Y")}",
+        "turnover_month": f"Turnover-{datetime.now().strftime("%B-%Y")}"
+    }
+    headers = list(header_mapping.values())
+    remapped_results = [
+        {header_mapping[key]: value for key, value in row.items() if key in header_mapping}
+        for row in results
+    ]
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    filename = f"branchwise_turnover-dt-{current_time}"
     return generate_csv(remapped_results, headers, filename)

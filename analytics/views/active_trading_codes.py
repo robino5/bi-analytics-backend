@@ -26,7 +26,8 @@ from ..models import (
     AdminRealTimeTurnoverTop20,
     AdminRealTimeTurnoverComparisonSectorWise,
     AdminRealTimeTurnoverExchangeTop20,
-    AdminRealTimeTurnoverComparisonTop20SectorWise
+    AdminRealTimeTurnoverComparisonTop20SectorWise,
+    AdminOMSBranchWiseTurnoverDtAsOnMonth
 
 
 )
@@ -41,7 +42,8 @@ from ..orm import (
     AdminRealTimeTurnoverTop20ORM,
     AdminRealTimeTurnoverComparisonSectorWiseORM,
     AdminRealTimeTurnoverExchangeTop20ORM,
-    AdminRealTimeTurnoverComparisonTop20SectorWiseORM
+    AdminRealTimeTurnoverComparisonTop20SectorWiseORM,
+    AdminOMSBranchWiseTurnoverDtAsOnMonthORM
 )
 
 __all__ = [
@@ -55,7 +57,8 @@ __all__ = [
     "get_admin_realtime_turnover_top_20",
     "get_admin_realtime_turnover_comaparison_sector_wise",
     "get_admin_realtime_turnover_exchange_top_20",
-    "get_admin_realtime_turnover_comaparison_top20_sector_wise"
+    "get_admin_realtime_turnover_comaparison_top20_sector_wise",
+    "get_admin_oms_branch_wise_turnover_dt_as_on_month"
 
 ]
 
@@ -189,6 +192,37 @@ def get_admin_oms_branch_wise_turnover_as_on_month(request: Request) -> Response
         ).scalars()
 
         results = [AdminOMSBranchWiseTurnoverAsOnMonth.model_validate(row).model_dump() for row in qs]
+
+        
+    response = {
+        "detail": {
+            "period":datetime.now().strftime("%B-%Y"),
+            "sum_of_total_client_today": get_sum_of_property("active_clients_today", results),
+            "sum_of_turnover_today": get_sum_of_property("turnover_today", results),
+            "sum_of_total_client_month": get_sum_of_property("active_clients_month", results),
+            "sum_of_turnover_month": get_sum_of_property("turnover_month", results),
+        },
+        "rows": results,
+    }
+
+    return Response(response)
+
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_oms_branch_wise_turnover_dt_as_on_month(request: Request) -> Response:
+    """fetch admin OMS Branch wise turnover Dt as on month status"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(AdminOMSBranchWiseTurnoverDtAsOnMonthORM).order_by(
+                AdminOMSBranchWiseTurnoverDtAsOnMonthORM.branch_Name
+            )
+        ).scalars()
+
+        results = [AdminOMSBranchWiseTurnoverDtAsOnMonth.model_validate(row).model_dump() for row in qs]
 
         
     response = {
