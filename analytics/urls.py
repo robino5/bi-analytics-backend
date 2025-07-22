@@ -99,7 +99,7 @@ urlpatterns = [
 
     # portal live data
     path("portal-dse-live-trade/", views.live_dse_trade),
-    path("portal-live-tiker/", views.live_tikers),
+    path("portal-live-tickers/", views.live_tickers),
     # Business And Trade Management
     path("admin/board-turnover/", views.get_board_turnovers),
     path("admin/board-turnovers-breakdown/", views.get_board_turnovers_breakdown),
