@@ -1,5 +1,3 @@
-import requests
-from bs4 import BeautifulSoup
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from drf_spectacular.utils import extend_schema
