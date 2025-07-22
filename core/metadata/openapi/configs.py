@@ -17,6 +17,7 @@ class OpenApiTags:
     ACTIVE_TRADING_CODE = "active-trading-codes"
     BUSINESS_TRADE_MANAGEMENT = "business-and-trade-management"
     ADMIN_CUSTOMER_MANAGEMENT = "customer-management"
+    PORTAL_LIVE_DATA = "portal-live-data"
 
 
 openapi_description = r"""
