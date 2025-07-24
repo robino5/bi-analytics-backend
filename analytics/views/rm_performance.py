@@ -15,11 +15,11 @@ from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
-from ..models import RMWiseClientDetail
-from ..orm import RMWiseClientDetailOrm, RMWiseTurnoverPerformanceOrm
+from ..models import RMWiseClientDetail,InvestroLiveNetTradeRMWise
+from ..orm import RMWiseClientDetailOrm, RMWiseTurnoverPerformanceOrm,InvestroLiveNetTradeRMWiseOrm
 from .utils import rolewise_branch_data_filter
 
-__all__ = ["get_turnover_perfomance_rmwise", "get_client_detail_rmwise"]
+__all__ = ["get_turnover_perfomance_rmwise", "get_client_detail_rmwise","get_investor_live_net_trade_rm_wise"]
 
 
 @extend_schema(
@@ -129,5 +129,53 @@ def get_client_detail_rmwise(request: Request) -> Response:
         rows = session.execute(qs).scalars()
 
         results = [RMWiseClientDetail.model_validate(row).model_dump() for row in rows]
+
+    return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.RMWISE_PERFORMANCE],
+    parameters=[
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=True,
+            description="Branch Code Of the RM",
+        ),
+        OpenApiParameter(
+            "trader",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=True,
+            description="Username of the RM",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_investor_live_net_trade_rm_wise(request: Request) -> Response:
+    """fetch the investor live net trade rm wise"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
+
+    with Session(engine) as session:
+        qs = select(InvestroLiveNetTradeRMWiseOrm).order_by(InvestroLiveNetTradeRMWiseOrm.trader_id)
+        qs = rolewise_branch_data_filter(qs, current_user, InvestroLiveNetTradeRMWiseOrm)
+
+        if has_branch:
+            qs = qs.where(
+                InvestroLiveNetTradeRMWiseOrm.branch_code == has_branch,
+            )
+        if has_trader:
+            qs = qs.where(
+                InvestroLiveNetTradeRMWiseOrm.trader_id == has_trader,
+            )
+        rows = session.execute(qs).scalars()
+
+        results = [InvestroLiveNetTradeRMWise.model_validate(row).model_dump() for row in rows]
 
     return Response(results)

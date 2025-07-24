@@ -72,6 +72,7 @@ urlpatterns = [
     ),
     path("rm/sector-exposure-margincode/", views.get_margincode_sector_exposure_rmwise),
     path("rm/turnover-performance/", views.get_turnover_perfomance_rmwise),
+    path("rm/investor-live-trade-rm-wise/", views.get_investor_live_net_trade_rm_wise),
     path("rm/client-details/", views.get_client_detail_rmwise),
      path("rm/daily-trade-data/", views. get_rmwise_daily_trade_date),
     # RM portfolio
