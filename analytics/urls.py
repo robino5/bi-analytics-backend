@@ -72,6 +72,7 @@ urlpatterns = [
     ),
     path("rm/sector-exposure-margincode/", views.get_margincode_sector_exposure_rmwise),
     path("rm/turnover-performance/", views.get_turnover_perfomance_rmwise),
+    path("rm/investor-live-trade-rm-wise/", views.get_investor_live_net_trade_rm_wise),
     path("rm/client-details/", views.get_client_detail_rmwise),
      path("rm/daily-trade-data/", views. get_rmwise_daily_trade_date),
     # RM portfolio
@@ -99,7 +100,7 @@ urlpatterns = [
 
     # portal live data
     path("portal-dse-live-trade/", views.live_dse_trade),
-    path("portal-live-tiker/", views.live_tikers),
+    path("portal-live-tickers/", views.live_tickers),
     # Business And Trade Management
     path("admin/board-turnover/", views.get_board_turnovers),
     path("admin/board-turnovers-breakdown/", views.get_board_turnovers_breakdown),

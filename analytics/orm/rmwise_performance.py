@@ -3,7 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from db import BaseOrm
 
-__all__ = ["RMWiseTurnoverPerformanceOrm", "RMWiseClientDetailOrm"]
+__all__ = ["RMWiseTurnoverPerformanceOrm", "RMWiseClientDetailOrm","InvestroLiveNetTradeRMWiseOrm"]
 
 
 class RMWiseTurnoverPerformanceOrm(BaseOrm):
@@ -41,3 +41,17 @@ class RMWiseClientDetailOrm(BaseOrm):
         "Fortnightly_TurnOver", Numeric(2)
     )
     monthly_turnover: Mapped[float] = mapped_column("Monthly_TurnOver", Numeric(2))
+
+
+class InvestroLiveNetTradeRMWiseOrm(BaseOrm):
+      __tablename__ = "BI_RMWise_Live_Investors_NetTrade"
+
+      branch_code: Mapped[int] = mapped_column(Integer, primary_key=True)
+      branch_name: Mapped[str] = mapped_column("RM Branch",String(50))
+      trader_id: Mapped[str] = mapped_column("RM Name",String(50))
+      investor_code: Mapped[str] = mapped_column("Client Code", String(50), primary_key=True)
+      join_holder_name: Mapped[str] = mapped_column("Name", String(200))
+      buy: Mapped[float] = mapped_column("Tot Buy", Numeric(2))
+      sell: Mapped[float] = mapped_column("Tot Sale", Numeric(2))
+      net: Mapped[float] = mapped_column("Net", Numeric(2))
+      ledger_balance: Mapped[float] = mapped_column("Ledger Balance", Numeric(2))
