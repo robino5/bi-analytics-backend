@@ -108,10 +108,9 @@ urlpatterns = [
     path("admin/atb-market-share-details/", views.get_atb_markte_share_details),
     path("admin/companywise-saleable-stock/", views.get_company_wise_saleable_stock),
     path("admin/investorwise-saleable-stock/", views.get_investor_wise_saleable_stock),
-    path(
-        "admin/companywise-saleable-stock-percentage/",
-        views.get_company_wise_saleable_stock_percentage,
-    ),
+    path("admin/companywise-saleable-stock-percentage/",views.get_company_wise_saleable_stock_percentage,),
+    path("admin/live-investor-top-sale-rm-wise/", views.get_live_investor_top_sale_rm_wise),
+     path("admin/live-investor-top-buy-rm-wise/", views.get_live_investor_top_buy_rm_wise),
     # Admin Customer Management
     path(
         "admin/customer-management/client-segmentations/",
