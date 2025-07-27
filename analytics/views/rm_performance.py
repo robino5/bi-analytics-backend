@@ -163,7 +163,7 @@ def get_investor_live_net_trade_rm_wise(request: Request) -> Response:
     has_trader = request.query_params.get("trader", None)
 
     with Session(engine) as session:
-        qs = select(InvestroLiveNetTradeRMWiseOrm).order_by(InvestroLiveNetTradeRMWiseOrm.trader_id)
+        qs = select(InvestroLiveNetTradeRMWiseOrm).order_by(InvestroLiveNetTradeRMWiseOrm.ledger_balance.desc())
         qs = rolewise_branch_data_filter(qs, current_user, InvestroLiveNetTradeRMWiseOrm)
 
         if has_branch:
