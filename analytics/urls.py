@@ -101,6 +101,8 @@ urlpatterns = [
     # portal live data
     path("portal-dse-live-trade/", views.live_dse_trade),
     path("portal-live-tickers/", views.live_tickers),
+    path("portal-live-dse-dsex/", views.live_dse_dsex),
+     path("portal-live-dse-dsex-summary/", views.live_dse_dsex_summary),
     # Business And Trade Management
     path("admin/board-turnover/", views.get_board_turnovers),
     path("admin/board-turnovers-breakdown/", views.get_board_turnovers_breakdown),
