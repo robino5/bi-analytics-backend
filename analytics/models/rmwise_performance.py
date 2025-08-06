@@ -1,6 +1,10 @@
-from .base import BranchInfoBaseModel
+from .base import BaseModel, BranchInfoBaseModel
 
-__all__ = ["RMWiseClientDetail","InvestroLiveNetTradeRMWise"]
+__all__ = ["RMWiseClientDetail",
+           "InvestroLiveNetTradeRMWise",
+           "LiveInvestorTopSaleRMWise",
+           "LiveInvestorTopBuyRMWise"
+           ]
 
 
 class RMWiseClientDetail(BranchInfoBaseModel):
@@ -30,3 +34,21 @@ class InvestroLiveNetTradeRMWise(BranchInfoBaseModel):
     sell: float
     net: float
     ledger_balance: float
+
+
+class LiveInvestorTopBuyRMWise(BaseModel):
+    branch_code: int
+    branch_name: str
+    rm_name: str
+    investor_code: str
+    investor_name: str
+    turnover: float
+
+class LiveInvestorTopSaleRMWise(BaseModel):
+    branch_code: int
+    branch_name: str
+    rm_name: str
+    investor_code: str
+    investor_name: str
+    turnover: float
+    

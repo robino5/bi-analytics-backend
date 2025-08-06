@@ -8,7 +8,8 @@ from analytics.views.utils import fetch_from_lankabd_api
 __all__ = ["live_dse_trade",
             "live_tickers",
             "live_dse_dsex",
-            "live_dse_dsex_summary"
+            "live_dse_dsex_summary",
+            "dse_dsex_trade_summary_previous_ten_days"
             ]
 
 
@@ -50,6 +51,17 @@ def live_dse_dsex(request: Request):
 @api_view(["GET"])
 def live_dse_dsex_summary(request: Request):
     data = fetch_from_lankabd_api("/api/datafeed/IndexLiveData/LiveIndexSummaryCDP?symbol=DSEX")
+    if data is None:
+        return JsonResponse(
+            {"error": "Failed to fetch live DSE ticker data."},
+            status=500
+        )
+    return JsonResponse(data, safe=False)
+
+@extend_schema(tags=[OpenApiTags.PORTAL_LIVE_DATA])
+@api_view(["GET"])
+def dse_dsex_trade_summary_previous_ten_days(request: Request):
+    data = fetch_from_lankabd_api("/api/APIMarket/GetTradeStatisitcsHistory?count=10")
     if data is None:
         return JsonResponse(
             {"error": "Failed to fetch live DSE ticker data."},

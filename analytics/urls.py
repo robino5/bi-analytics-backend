@@ -81,6 +81,8 @@ urlpatterns = [
     path("rm/daily-net-fund-flow/", views.get_daily_net_fund_flow_rmwise),
     path("rm/marked-clients/", views.get_zone_marked_clients_rmwise),
     path("rm/ecrm-details/", views.get_ecrm_details_rmwise),
+    path("admin/live-investor-top-sale-rm-wise/", views.get_live_investor_top_sale_rm_wise),
+    path("admin/live-investor-top-buy-rm-wise/", views.get_live_investor_top_buy_rm_wise),
     # Active Trading Codes Route
     path("active-trading-today/", views.get_active_trading_summary),
     path("active-trading-daywise/", views.get_active_trading_summary_daywise),
@@ -102,7 +104,8 @@ urlpatterns = [
     path("portal-dse-live-trade/", views.live_dse_trade),
     path("portal-live-tickers/", views.live_tickers),
     path("portal-live-dse-dsex/", views.live_dse_dsex),
-     path("portal-live-dse-dsex-summary/", views.live_dse_dsex_summary),
+    path("portal-live-dse-dsex-summary/", views.live_dse_dsex_summary),
+    path("portal-dse-trade-summary-previous-ten-days/", views.dse_dsex_trade_summary_previous_ten_days),
     # Business And Trade Management
     path("admin/board-turnover/", views.get_board_turnovers),
     path("admin/board-turnovers-breakdown/", views.get_board_turnovers_breakdown),
@@ -111,8 +114,6 @@ urlpatterns = [
     path("admin/companywise-saleable-stock/", views.get_company_wise_saleable_stock),
     path("admin/investorwise-saleable-stock/", views.get_investor_wise_saleable_stock),
     path("admin/companywise-saleable-stock-percentage/",views.get_company_wise_saleable_stock_percentage,),
-    path("admin/live-investor-top-sale-rm-wise/", views.get_live_investor_top_sale_rm_wise),
-     path("admin/live-investor-top-buy-rm-wise/", views.get_live_investor_top_buy_rm_wise),
     # Admin Customer Management
     path(
         "admin/customer-management/client-segmentations/",

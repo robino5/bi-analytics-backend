@@ -3,7 +3,12 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from db import BaseOrm
 
-__all__ = ["RMWiseTurnoverPerformanceOrm", "RMWiseClientDetailOrm","InvestroLiveNetTradeRMWiseOrm"]
+__all__ = ["RMWiseTurnoverPerformanceOrm", 
+           "RMWiseClientDetailOrm",
+           "InvestroLiveNetTradeRMWiseOrm",
+           "LiveInvestorTopBuyRMWiseOrm",
+           "LiveInvestorTopSaleRMWiseOrm"
+           ]
 
 
 class RMWiseTurnoverPerformanceOrm(BaseOrm):
@@ -55,3 +60,24 @@ class InvestroLiveNetTradeRMWiseOrm(BaseOrm):
       sell: Mapped[float] = mapped_column("Tot Sale", Numeric(2))
       net: Mapped[float] = mapped_column("Net", Numeric(2))
       ledger_balance: Mapped[float] = mapped_column("Ledger Balance", Numeric(2))
+
+class LiveInvestorTopBuyRMWiseOrm(BaseOrm):
+    __tablename__ = "BI_RMWise_Live_Investors_Top_Buy"
+
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
+    branch_name: Mapped[str] = mapped_column("RM Branch", String(255)) 
+    rm_name: Mapped[str] = mapped_column("RM Name", String(255)) 
+    investor_code: Mapped[str] = mapped_column( "Client Code", String(255), primary_key=True)
+    investor_name: Mapped[str] = mapped_column("Name", String(255))
+    turnover: Mapped[float] = mapped_column("TurnOver", Numeric(38, 6), default=0)
+    
+
+class LiveInvestorTopSaleRMWiseOrm(BaseOrm):
+    __tablename__ = "BI_RMWise_Live_Investors_Top_Sale"
+
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
+    branch_name: Mapped[str] = mapped_column("RM Branch", String(255)) 
+    rm_name: Mapped[str] = mapped_column("RM Name", String(255)) 
+    investor_code: Mapped[str] = mapped_column( "Client Code", String(255), primary_key=True)
+    investor_name: Mapped[str] = mapped_column("Name", String(255))
+    turnover: Mapped[float] = mapped_column("TurnOver", Numeric(38, 6), default=0)
