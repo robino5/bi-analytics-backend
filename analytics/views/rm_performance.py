@@ -15,15 +15,17 @@ from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
-from ..models import RMWiseClientDetail,InvestroLiveNetTradeRMWise,LiveInvestorTopSaleRMWise,LiveInvestorTopBuyRMWise
-from ..orm import RMWiseClientDetailOrm, RMWiseTurnoverPerformanceOrm,InvestroLiveNetTradeRMWiseOrm,LiveInvestorTopBuyRMWiseOrm,LiveInvestorTopSaleRMWiseOrm
+from ..models import RMWiseClientDetail,InvestroLiveNetTradeRMWise,LiveInvestorTopSaleRMWise,LiveInvestorTopBuyRMWise,BranchWiseNonePerformClient
+from ..orm import RMWiseClientDetailOrm, RMWiseTurnoverPerformanceOrm,InvestroLiveNetTradeRMWiseOrm,LiveInvestorTopBuyRMWiseOrm,LiveInvestorTopSaleRMWiseOrm,BranchWiseNonePerformClientOrm
 from .utils import rolewise_branch_data_filter
 
 __all__ = ["get_turnover_perfomance_rmwise", 
            "get_client_detail_rmwise",
            "get_investor_live_net_trade_rm_wise",
            "get_live_investor_top_buy_rm_wise",
-           "get_live_investor_top_sale_rm_wise"]
+           "get_live_investor_top_sale_rm_wise",
+           "get_branch_wise_none_performing_client"
+           ]
 
 
 @extend_schema(
@@ -273,3 +275,51 @@ def get_live_investor_top_buy_rm_wise(request: Request) -> Response:
         rows = session.execute(qs).scalars()
         results = [LiveInvestorTopBuyRMWise.model_validate(row).model_dump() for row in rows]
     return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.RMWISE_PERFORMANCE],
+    parameters=[
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Branch Code Of the RM",
+        ),
+        OpenApiParameter(
+            "trader",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Username of the RM",
+        ),
+    ],
+)
+@extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_branch_wise_none_performing_client(request: Request) -> Response:
+    """fetch live investor top buy rm wise"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
+    with Session(engine) as session:
+        qs = select(BranchWiseNonePerformClientOrm).order_by(BranchWiseNonePerformClientOrm.available_balance.desc())
+        qs = rolewise_branch_data_filter(qs, current_user, BranchWiseNonePerformClientOrm)
+        if has_branch:
+            qs = qs.where(
+                BranchWiseNonePerformClientOrm.branch_code == has_branch,
+            )
+        if has_trader:
+            qs = qs.where(
+                BranchWiseNonePerformClientOrm.rm_name == has_trader,
+            )
+        qs = qs.limit(20)
+        rows = session.execute(qs).scalars()
+        results = [BranchWiseNonePerformClient.model_validate(row).model_dump() for row in rows]
+    return Response(results)
+
+
+
