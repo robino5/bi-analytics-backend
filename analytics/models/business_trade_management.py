@@ -7,9 +7,7 @@ __all__ = [
     "ATBMarketShareSME",
     "CompanyWiseSaleableStock",
     "InvestorWiseSaleableStock",
-    "CompanyWiseSaleableStockPercentage",
-    "LiveInvestorTopSaleRMWise",
-    "LiveInvestorTopBuyRMWise"
+    "CompanyWiseSaleableStockPercentage"
 ]
 
 
@@ -79,20 +77,5 @@ class CompanyWiseSaleableStockPercentage(BaseModel):
     stock_available: int
     stock_available_percentage: float
 
-class LiveInvestorTopBuyRMWise(BaseModel):
-    branch_code: int
-    branch_name: str
-    rm_name: str
-    investor_code: str
-    investor_name: str
-    turnover: float
 
-class LiveInvestorTopSaleRMWise(BaseModel):
-    branch_code: int
-    branch_name: str
-    rm_name: str
-    investor_code: str
-    investor_name: str
-    turnover: float
-    
 

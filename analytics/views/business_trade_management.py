@@ -22,9 +22,7 @@ from ..models import (
     CompanyWiseSaleableStock,
     CompanyWiseSaleableStockPercentage,
     InvestorWiseSaleableStock,
-    MarketShareLBSL,
-    LiveInvestorTopSaleRMWise,
-    LiveInvestorTopBuyRMWise
+    MarketShareLBSL
   
 )
 from ..orm import (
@@ -34,9 +32,7 @@ from ..orm import (
     CompanyWiseSaleableStockOrm,
     CompanyWiseSaleableStockPercentageOrm,
     InvestorWiseSaleableStockOrm,
-    MarketShareLBSLOrm,
-    LiveInvestorTopBuyRMWiseOrm,
-    LiveInvestorTopSaleRMWiseOrm
+    MarketShareLBSLOrm
 )
 
 
@@ -329,38 +325,3 @@ def get_company_wise_saleable_stock_percentage(request: Request) -> Response:
         ]
         return paginator.get_paginated_response(results)
     
-
-@extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
-@api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated, IsManagementUser])
-def get_live_investor_top_sale_rm_wise(request: Request) -> Response:
-    """fetch live investor top sale rm wise"""
-    request.accepted_renderer = CustomRenderer()
-    with Session(engine) as session:
-        qs = session.execute(
-            select(LiveInvestorTopSaleRMWiseOrm).order_by(
-                LiveInvestorTopSaleRMWiseOrm.turnover.desc()
-            )
-        ).scalars()
-
-        results = [LiveInvestorTopSaleRMWise.model_validate(row).model_dump() for row in qs]
-
-    return Response(results)
-
-
-@extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
-@api_view([HTTPMethod.GET])
-@permission_classes([IsAuthenticated, IsManagementUser])
-def get_live_investor_top_buy_rm_wise(request: Request) -> Response:
-    """fetch live investor top buy rm wise"""
-    request.accepted_renderer = CustomRenderer()
-    with Session(engine) as session:
-        qs = session.execute(
-            select(LiveInvestorTopBuyRMWiseOrm).order_by(
-                LiveInvestorTopBuyRMWiseOrm.turnover.desc()
-            )
-        ).scalars()
-
-        results = [LiveInvestorTopBuyRMWise.model_validate(row).model_dump() for row in qs]
-
-    return Response(results)

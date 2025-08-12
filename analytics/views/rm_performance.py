@@ -15,11 +15,15 @@ from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
-from ..models import RMWiseClientDetail,InvestroLiveNetTradeRMWise
-from ..orm import RMWiseClientDetailOrm, RMWiseTurnoverPerformanceOrm,InvestroLiveNetTradeRMWiseOrm
+from ..models import RMWiseClientDetail,InvestroLiveNetTradeRMWise,LiveInvestorTopSaleRMWise,LiveInvestorTopBuyRMWise
+from ..orm import RMWiseClientDetailOrm, RMWiseTurnoverPerformanceOrm,InvestroLiveNetTradeRMWiseOrm,LiveInvestorTopBuyRMWiseOrm,LiveInvestorTopSaleRMWiseOrm
 from .utils import rolewise_branch_data_filter
 
-__all__ = ["get_turnover_perfomance_rmwise", "get_client_detail_rmwise","get_investor_live_net_trade_rm_wise"]
+__all__ = ["get_turnover_perfomance_rmwise", 
+           "get_client_detail_rmwise",
+           "get_investor_live_net_trade_rm_wise",
+           "get_live_investor_top_buy_rm_wise",
+           "get_live_investor_top_sale_rm_wise"]
 
 
 @extend_schema(
@@ -178,4 +182,94 @@ def get_investor_live_net_trade_rm_wise(request: Request) -> Response:
 
         results = [InvestroLiveNetTradeRMWise.model_validate(row).model_dump() for row in rows]
 
+    return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.RMWISE_PERFORMANCE],
+    parameters=[
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Branch Code Of the RM",
+        ),
+        OpenApiParameter(
+            "trader",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Username of the RM",
+        ),
+    ],
+)
+@extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_live_investor_top_sale_rm_wise(request: Request) -> Response:
+    """fetch live investor top sale rm wise"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
+    with Session(engine) as session:
+        qs = select(LiveInvestorTopSaleRMWiseOrm).order_by(LiveInvestorTopSaleRMWiseOrm.turnover.desc())
+        qs = rolewise_branch_data_filter(qs, current_user, LiveInvestorTopSaleRMWiseOrm)
+        if has_branch:
+            qs = qs.where(
+                LiveInvestorTopSaleRMWiseOrm.branch_code == has_branch,
+            )
+        if has_trader:
+            qs = qs.where(
+                LiveInvestorTopSaleRMWiseOrm.rm_name == has_trader,
+            )
+        qs = qs.limit(20)
+        rows = session.execute(qs).scalars()
+        results = [LiveInvestorTopSaleRMWise.model_validate(row).model_dump() for row in rows]
+    return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.RMWISE_PERFORMANCE],
+    parameters=[
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Branch Code Of the RM",
+        ),
+        OpenApiParameter(
+            "trader",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Username of the RM",
+        ),
+    ],
+)
+@extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_live_investor_top_buy_rm_wise(request: Request) -> Response:
+    """fetch live investor top buy rm wise"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
+    with Session(engine) as session:
+        qs = select(LiveInvestorTopBuyRMWiseOrm).order_by(LiveInvestorTopBuyRMWiseOrm.turnover.desc())
+        qs = rolewise_branch_data_filter(qs, current_user, LiveInvestorTopBuyRMWiseOrm)
+        if has_branch:
+            qs = qs.where(
+                LiveInvestorTopBuyRMWiseOrm.branch_code == has_branch,
+            )
+        if has_trader:
+            qs = qs.where(
+                LiveInvestorTopBuyRMWiseOrm.rm_name == has_trader,
+            )
+        qs = qs.limit(20)
+        rows = session.execute(qs).scalars()
+        results = [LiveInvestorTopBuyRMWise.model_validate(row).model_dump() for row in rows]
     return Response(results)
