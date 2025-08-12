@@ -30,6 +30,9 @@ class InvestroLiveNetTradeRMWise(BranchInfoBaseModel):
     trader_id: str
     investor_code: str
     join_holder_name: str
+    investor_type:str
+    mobile:str
+    email:str
     buy: float
     sell: float
     net: float
