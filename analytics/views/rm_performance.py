@@ -316,7 +316,6 @@ def get_branch_wise_none_performing_client(request: Request) -> Response:
             qs = qs.where(
                 BranchWiseNonePerformClientOrm.rm_name == has_trader,
             )
-        qs = qs.limit(20)
         rows = session.execute(qs).scalars()
         results = [BranchWiseNonePerformClient.model_validate(row).model_dump() for row in rows]
     return Response(results)
