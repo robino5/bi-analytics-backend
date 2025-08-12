@@ -7,7 +7,8 @@ __all__ = ["RMWiseTurnoverPerformanceOrm",
            "RMWiseClientDetailOrm",
            "InvestroLiveNetTradeRMWiseOrm",
            "LiveInvestorTopBuyRMWiseOrm",
-           "LiveInvestorTopSaleRMWiseOrm"
+           "LiveInvestorTopSaleRMWiseOrm",
+           "BranchWiseNonePerformClientOrm"
            ]
 
 
@@ -84,3 +85,15 @@ class LiveInvestorTopSaleRMWiseOrm(BaseOrm):
     investor_code: Mapped[str] = mapped_column( "Client Code", String(255), primary_key=True)
     investor_name: Mapped[str] = mapped_column("Name", String(255))
     turnover: Mapped[float] = mapped_column("TurnOver", Numeric(38, 6), default=0)
+
+class BranchWiseNonePerformClientOrm(BaseOrm):
+    __tablename__ = "BI_BranchRM_Non_Performer_client"
+
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
+    branch_name: Mapped[str] = mapped_column("RM Branch", String(255))
+    rm_name: Mapped[str] = mapped_column("RM Name", String(255)) 
+    investor_code: Mapped[str] = mapped_column( "Client Code", String(255), primary_key=True)
+    investor_name: Mapped[str] = mapped_column("Name", String(255))
+    available_balance: Mapped[float] = mapped_column("Available Balance", Numeric(38, 6), default=0)
+    mobile: Mapped[str] = mapped_column("mobile",String(50))
+    email: Mapped[str] = mapped_column("Email",String(100))
