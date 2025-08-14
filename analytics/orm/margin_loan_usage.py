@@ -29,6 +29,7 @@ class BaseInvestor(BaseOrm):
         "Ledger_balance", Numeric(34, 2), nullable=False
     )
     rm_name: Mapped[str] = mapped_column("RM_NAME", String(50), nullable=False)
+    exposure: Mapped[float] = mapped_column("Exposure", Numeric(34,2), nullable=False)
 
 
 class MarginLoanAllocationUsageOrm(BaseOrm):
@@ -78,7 +79,7 @@ class RedZoneInvestorOrm(BaseInvestor):
 
 
 class YellowZoneInvestorOrm(BaseInvestor):
-    __tablename__ = "BI_trd_RMWise_Investors_Yellow_zone"
+    __tablename__ = "BI_trd_RM_Investors_Yellow_zone"
 
 
 class NegativeEquityInvestorOrm(BaseInvestor):
