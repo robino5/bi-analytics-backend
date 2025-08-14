@@ -28,3 +28,4 @@ class MarkedInvestor(BaseModel):
     investor_name: str
     ledger_balance: float
     rm_name: str
+    exposure:float
