@@ -30,6 +30,7 @@ class BaseInvestor(BaseOrm):
     )
     rm_name: Mapped[str] = mapped_column("RM_NAME", String(50), nullable=False)
     exposure: Mapped[float] = mapped_column("Exposure", Numeric(34,2), nullable=False)
+    equity: Mapped[float] = mapped_column("Equity", Numeric(34,2), nullable=False)
 
 
 class MarginLoanAllocationUsageOrm(BaseOrm):

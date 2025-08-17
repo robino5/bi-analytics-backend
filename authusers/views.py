@@ -250,7 +250,6 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
             current_user = User.objects.get(username=request.data.get("username"))
             user = UserSerializer(instance=current_user)
-
             # Decode access token to get expiry time
             access_token_obj = AccessToken(serializer.validated_data.get("access"))
             expires_timestamp = access_token_obj["exp"]
