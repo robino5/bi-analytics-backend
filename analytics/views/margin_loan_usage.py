@@ -64,6 +64,7 @@ def get_marked_investors(
         investor_cls.rm_name,
         investor_cls.exposure,
         investor_cls.equity,
+        investor_cls.loan_ratio
     ).order_by(investor_cls.investor_name)
 
     qs = rolewise_branch_data_filter(qs, user, investor_cls)

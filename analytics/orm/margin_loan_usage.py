@@ -31,6 +31,7 @@ class BaseInvestor(BaseOrm):
     rm_name: Mapped[str] = mapped_column("RM_NAME", String(50), nullable=False)
     exposure: Mapped[float] = mapped_column("Exposure", Numeric(34,2), nullable=False)
     equity: Mapped[float] = mapped_column("Equity", Numeric(34,2), nullable=False)
+    loan_ratio: Mapped[str] = mapped_column("loan ratio", String(20), nullable=False)
 
 
 class MarginLoanAllocationUsageOrm(BaseOrm):
@@ -47,12 +48,9 @@ class ExposureControllingManagementOrm(BaseOrm):
     branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
     branch_name: Mapped[str] = mapped_column("branch_Name", String(255), nullable=False)
     exposure_type: Mapped[str] = mapped_column("Exposure", String(88), nullable=False)
-    investors_count: Mapped[int] = mapped_column(
-        "Exposure_no_investors", Numeric(10, 4), nullable=False
-    )
-    loan_amount: Mapped[float] = mapped_column(
-        "Loan_amount", Numeric(34, 2), nullable=False
-    )
+    investors_count: Mapped[int] = mapped_column("Exposure_no_investors", Numeric(10, 4), nullable=False)
+    loan_amount: Mapped[float] = mapped_column( "Loan_amount", Numeric(34, 2), nullable=False)
+
 
 
 class RMWiseNetTradeOrm(BaseOrm):
