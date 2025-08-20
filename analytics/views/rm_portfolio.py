@@ -17,13 +17,14 @@ from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
-from ..models import DailyNetFundFlow, MarkedInvestor, PortfolioMangement
+from ..models import DailyNetFundFlow, MarkedInvestor, PortfolioMangement,RmPerformanceSummary
 from ..orm import (
     RMWiseDailyNetFundFlowORM,
     RMWiseFundCollectionOrm,
     RMWisePortfolioMangementORM,
     RMWiseRedZoneTraderORM,
     RMWiseYellowZoneTraderORM,
+    RmPerformanceSummaryORM
 )
 from .utils import rolewise_branch_data_filter
 
@@ -32,6 +33,7 @@ __all__ = [
     "get_portfolio_management_rmwise",
     "get_daily_net_fund_flow_rmwise",
     "get_zone_marked_clients_rmwise",
+    "get_rmwise_performance_summary"
 ]
 
 
@@ -291,4 +293,53 @@ def get_zone_marked_clients_rmwise(request: Request) -> Response:
         results = [
             MarkedInvestor.model_validate(row._asdict()).model_dump() for row in rows
         ]
+    return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.RMWISE_PORTFOLIO],
+    parameters=[
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Branch Code Of the RM",
+        ),
+        OpenApiParameter(
+            "trader",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Trader Id of the RM",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_rmwise_performance_summary(request: Request) -> Response:
+    """fetch summary of RM performance status"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
+
+    with Session(engine) as session:
+        qs = select(RmPerformanceSummaryORM).order_by(RmPerformanceSummaryORM.branch_name)
+
+        qs = rolewise_branch_data_filter(qs, current_user, RmPerformanceSummaryORM)
+
+        if has_branch:
+            qs = qs.where(
+                RmPerformanceSummaryORM.branch_code == has_branch,
+            )
+        if has_trader:
+            qs = qs.where(
+                RmPerformanceSummaryORM.trader_id == has_trader,
+            )
+        rows = session.execute(qs).scalars().all()
+
+        results = [RmPerformanceSummary.model_validate(row).model_dump() for row in rows]
+
     return Response(results)

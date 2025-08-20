@@ -11,6 +11,7 @@ __all__ = [
     "RMWiseDailyNetFundFlowORM",
     "RMWiseRedZoneTraderORM",
     "RMWiseYellowZoneTraderORM",
+    "RmPerformanceSummaryORM"
 ]
 
 
@@ -66,3 +67,26 @@ class RMWiseRedZoneTraderORM(ZoneWiseTraderAbastractOrm):
 
 class RMWiseYellowZoneTraderORM(ZoneWiseTraderAbastractOrm):
     __tablename__ = "BI_trd_RMWise_Investors_Yellow_zone"
+
+
+class RmPerformanceSummaryORM(BaseOrm):
+    __tablename__ = "BI_RMWise_Performance_Summary"
+
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(50), nullable=False)
+    trader_id: Mapped[str] = mapped_column("trader_id", String(100), nullable=False)
+    trader_name: Mapped[str] = mapped_column("trader_name", String(200), nullable=False)
+    emp_number: Mapped[str] = mapped_column("emp_number", String(20), nullable=False)
+    yearly_bo: Mapped[float] = mapped_column("yearly_bo", Numeric(15, 2), nullable=False)
+    yearly_fund: Mapped[float] = mapped_column("yearly_fund", Numeric(15, 2), nullable=False)
+    daily_traded: Mapped[float] = mapped_column("daily_traded", Numeric(38, 2))
+    commission: Mapped[float] = mapped_column("commission", Numeric(38, 2))
+    new_bo: Mapped[float] = mapped_column("new_bo", Numeric(38, 2))
+    total_link_share_in: Mapped[float ] = mapped_column("total_link_share_in", Numeric(38, 2))
+    total_link_share_out: Mapped[float] = mapped_column("total_link_share_out", Numeric(38, 2))
+    total_net_link_share: Mapped[float] = mapped_column("total_net_link_share", Numeric(38, 2))
+    total_deposit: Mapped[float] = mapped_column("total_deposit", Numeric(38, 2))
+    total_withdrawal: Mapped[float] = mapped_column("total_withdrawal", Numeric(38, 2))
+    total_net_fund: Mapped[float] = mapped_column("Total_net_fund", Numeric(38, 2))
+    region_name: Mapped[str] = mapped_column("region_Name", String(50))
+    cluster_name: Mapped[str] = mapped_column("cluster_Name", String(20))
