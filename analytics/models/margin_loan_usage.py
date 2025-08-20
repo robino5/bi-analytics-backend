@@ -30,3 +30,4 @@ class MarkedInvestor(BaseModel):
     rm_name: str
     exposure:float
     equity:float
+    loan_ratio:str
