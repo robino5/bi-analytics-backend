@@ -75,6 +75,7 @@ urlpatterns = [
     path("rm/investor-live-trade-rm-wise/", views.get_investor_live_net_trade_rm_wise),
     path("rm/client-details/", views.get_client_detail_rmwise),
     path("rm/daily-trade-data/", views. get_rmwise_daily_trade_date),
+    path("rm/rm-live-turnover-sectorwise/", views.get_rm_live_turnover_sectorwise_date),
     path("branchwise-none-performing-client/", views.get_branch_wise_none_performing_client),
     # RM portfolio
     path("rm/fund-collections/", views.get_fund_collection_rmwise),
@@ -109,6 +110,7 @@ urlpatterns = [
     path("portal-live-dse-dsex/", views.live_dse_dsex),
     path("portal-live-dse-dsex-summary/", views.live_dse_dsex_summary),
     path("portal-dse-trade-summary-previous-ten-days/", views.dse_dsex_trade_summary_previous_ten_days),
+    path("live-market-sentiment/", views.fear_greed),
     # Business And Trade Management
     path("admin/board-turnover/", views.get_board_turnovers),
     path("admin/board-turnovers-breakdown/", views.get_board_turnovers_breakdown),
