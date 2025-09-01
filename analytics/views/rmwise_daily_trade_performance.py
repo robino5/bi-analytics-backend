@@ -14,14 +14,15 @@ from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
-from ..models import DailyTurnoverPerformance, SectorExposure,EcrmRetailsRMwise,RMwiseDailyTradeData
+from ..models import DailyTurnoverPerformance, SectorExposure,EcrmRetailsRMwise,RMwiseDailyTradeData,RMWiseLiveSectorData
 from ..orm import (
     RMWiseDailyTurnoverPerformanceOrm,
     RMWiseOverallSummaryOrm,
     RMWiseSectorExposureCashCodeOrm,
     RMWiseSectorExposureMarginCodeOrm,
     RMWiseEcrmDetailsOrm,
-    RMWiseDailyTradeDataOrm
+    RMWiseDailyTradeDataOrm,
+    RMWiseLiveSectorDataOrm
 )
 from .utils import parse_summary, rolewise_branch_data_filter
 
@@ -32,7 +33,8 @@ __all__ = [
     "get_margincode_sector_exposure_rmwise",
     "get_ecrm_details_rmwise",
     "get_rmwise_daily_trade_date",
-    "get_rmwise_daily_trade_date"
+    "get_rmwise_daily_trade_date",
+    "get_rm_live_turnover_sectorwise_date"
 ]
 
 SUMMARY_QUERY_STR = select(
@@ -416,6 +418,90 @@ def get_rmwise_daily_trade_date(request: Request) -> Response:
         rows = session.execute(qs).scalars().all()
 
         results = [RMwiseDailyTradeData.model_validate(row).model_dump() for row in rows]
+
+    return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.RMWISE_DTP],
+    parameters=[
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Branch Code Of the RM",
+        ),
+        OpenApiParameter(
+            "trader",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Trader Id of the RM",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_rm_live_turnover_sectorwise_date(request: Request) -> Response:
+    """fetch the rm live turnover sector wise"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
+
+    with Session(engine) as session:
+        # base aggregates
+        aggregates = [
+            func.sum(RMWiseLiveSectorDataOrm.turnOver).label("turnOver"),
+            func.max(RMWiseLiveSectorDataOrm.dse_turnOver).label("dse_turnOver"),
+        ]
+
+        # always include sector_name
+        select_fields = [RMWiseLiveSectorDataOrm.sector_name] + aggregates
+        group_fields = [RMWiseLiveSectorDataOrm.sector_name]
+
+        # if trader provided → sector + trader (with branch info)
+        if has_trader:
+            select_fields += [
+                RMWiseLiveSectorDataOrm.branch_code,
+                RMWiseLiveSectorDataOrm.branch,
+                RMWiseLiveSectorDataOrm.rm_name,
+            ]
+            group_fields += [
+                RMWiseLiveSectorDataOrm.branch_code,
+                RMWiseLiveSectorDataOrm.branch,
+                RMWiseLiveSectorDataOrm.rm_name,
+            ]
+
+        qs = select(*select_fields).order_by(desc(text("dse_turnOver")))
+        qs = rolewise_branch_data_filter(qs, current_user, RMWiseLiveSectorDataOrm)
+
+        if has_branch:
+            qs = qs.where(RMWiseLiveSectorDataOrm.branch_code == has_branch)
+
+        if has_trader:
+            qs = qs.where(RMWiseLiveSectorDataOrm.rm_name == has_trader)
+
+        qs = qs.group_by(*group_fields)
+
+        rows = session.execute(qs).all()
+
+        # build response
+        results = []
+        for row in rows:
+            result = {
+                "name": row.sector_name,
+                "secondary_value": float(row.turnOver),
+                "primary_value": float(row.dse_turnOver),
+            }
+    
+            results.append(result)
+
+    return Response(results)
+
+
 
     return Response(results)
 

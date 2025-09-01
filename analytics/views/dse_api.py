@@ -3,13 +3,14 @@ from rest_framework.decorators import api_view
 from drf_spectacular.utils import extend_schema
 from core.metadata.openapi.configs import OpenApiTags
 from rest_framework.request import Request
-from analytics.views.utils import fetch_from_lankabd_api
+from analytics.views.utils import fetch_from_lankabd_api,fetch_fear_greed
 
 __all__ = ["live_dse_trade",
             "live_tickers",
             "live_dse_dsex",
             "live_dse_dsex_summary",
-            "dse_dsex_trade_summary_previous_ten_days"
+            "dse_dsex_trade_summary_previous_ten_days",
+            "fear_greed"
             ]
 
 
@@ -68,3 +69,17 @@ def dse_dsex_trade_summary_previous_ten_days(request: Request):
             status=500
         )
     return JsonResponse(data, safe=False)
+
+
+
+@extend_schema(tags=[OpenApiTags.PORTAL_LIVE_DATA])
+@api_view(["GET"])
+def fear_greed(request: Request):
+    try:
+        data = fetch_fear_greed()
+        return JsonResponse(data, safe=False)  
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+
