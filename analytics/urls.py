@@ -76,7 +76,9 @@ urlpatterns = [
     path("rm/client-details/", views.get_client_detail_rmwise),
     path("rm/daily-trade-data/", views. get_rmwise_daily_trade_date),
     path("rm/rm-live-turnover-sectorwise/", views.get_rm_live_turnover_sectorwise_date),
+    path("rm/branch-wise-rm-oms-realtime-summary/", views.get_brach_wise_rm_oms_realtime_summary),
     path("branchwise-none-performing-client/", views.get_branch_wise_none_performing_client),
+
     # RM portfolio
     path("rm/fund-collections/", views.get_fund_collection_rmwise),
     path("rm/portfolio-management-status/", views.get_portfolio_management_rmwise),
@@ -86,7 +88,7 @@ urlpatterns = [
     path("admin/live-investor-top-sale-rm-wise/", views.get_live_investor_top_sale_rm_wise),
     path("admin/live-investor-top-buy-rm-wise/", views.get_live_investor_top_buy_rm_wise),
     path("admin/rm-performance-summary/", views.get_rmwise_performance_summary),
-     path("admin/branch-wise-rm-oms-realtime-summary/", views.get_brach_wise_rm_oms_realtime_summary),
+    
 
     # Active Trading Codes Route
     path("active-trading-today/", views.get_active_trading_summary),
