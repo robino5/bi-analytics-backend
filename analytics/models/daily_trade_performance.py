@@ -1,7 +1,8 @@
 from datetime import datetime
 from .base import BaseModel, TradingDateModel, PushDateModel
 
-__all__ = ["DailyTurnoverPerformance", "DailyMarginLoanUsage", "SectorExposure","EcrmRetailsRMwise","RMwiseDailyTradeData","RMWiseLiveSectorData"]
+__all__ = ["DailyTurnoverPerformance", "DailyMarginLoanUsage", "SectorExposure","EcrmRetailsRMwise","RMwiseDailyTradeData","RMWiseLiveSectorData",
+           "BranchWiseRMOmsRealtimeSummary"]
 
 
 class DailyTurnoverPerformance(TradingDateModel):
@@ -40,5 +41,19 @@ class RMWiseLiveSectorData(BaseModel):
     sector_name: str 
     turnOver: float
     primary_value: float
+
+class BranchWiseRMOmsRealtimeSummary(BaseModel):
+
+    branch_code: int
+    rm_name: str
+    channel: str
+    total_client: int
+    trades: int
+    total_turnOver: float
+    trading_date: datetime
+    push_date: datetime
+
+
+
 
 

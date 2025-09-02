@@ -12,7 +12,8 @@ __all__ = [
     "RMWiseSectorExposureMarginCodeOrm",
     "RMWiseEcrmDetailsOrm",
     "RMWiseDailyTradeDataOrm",
-    "RMWiseLiveSectorDataOrm"
+    "RMWiseLiveSectorDataOrm",
+    "BranchWiseRMOmsRealtimeSummaryOrm"
 ]
 
 
@@ -131,6 +132,18 @@ class RMWiseLiveSectorDataOrm(BaseOrm):
     sector_name: Mapped[str] = mapped_column("Sector_name", String(250)) 
     turnOver: Mapped[float] = mapped_column("TurnOver", Numeric(38, 6)) 
     dse_turnOver: Mapped[float] = mapped_column("DSE_turnover", Numeric(38, 6)) 
+
+class BranchWiseRMOmsRealtimeSummaryOrm(BaseOrm):
+    __tablename__ = "BI_trd_Branch_RM_OMS_Realtime_Summary_data"
+ 
+    branch_code: Mapped[int] = mapped_column("branch_Code",Numeric(3,0),primary_key=True)
+    rm_name: Mapped[str] = mapped_column("RM_id",String(50),primary_key=True)
+    channel: Mapped[str] = mapped_column("channel",String(50))
+    total_client: Mapped[int] = mapped_column("Total_Clients",Integer)
+    trades: Mapped[int] = mapped_column("Trades",Integer)
+    total_turnOver: Mapped[float] = mapped_column("Total_turnOver",Numeric(38,5))
+    trading_date: Mapped[DateTime] = mapped_column("Trade_dt",DateTime)
+    push_date: Mapped[DateTime] = mapped_column("push_date",DateTime)
 
 
 

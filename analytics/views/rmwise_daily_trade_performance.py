@@ -14,7 +14,7 @@ from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
-from ..models import DailyTurnoverPerformance, SectorExposure,EcrmRetailsRMwise,RMwiseDailyTradeData,RMWiseLiveSectorData
+from ..models import DailyTurnoverPerformance, SectorExposure,EcrmRetailsRMwise,RMwiseDailyTradeData
 from ..orm import (
     RMWiseDailyTurnoverPerformanceOrm,
     RMWiseOverallSummaryOrm,
@@ -22,7 +22,8 @@ from ..orm import (
     RMWiseSectorExposureMarginCodeOrm,
     RMWiseEcrmDetailsOrm,
     RMWiseDailyTradeDataOrm,
-    RMWiseLiveSectorDataOrm
+    RMWiseLiveSectorDataOrm,
+    BranchWiseRMOmsRealtimeSummaryOrm
 )
 from .utils import parse_summary, rolewise_branch_data_filter
 
@@ -34,7 +35,8 @@ __all__ = [
     "get_ecrm_details_rmwise",
     "get_rmwise_daily_trade_date",
     "get_rmwise_daily_trade_date",
-    "get_rm_live_turnover_sectorwise_date"
+    "get_rm_live_turnover_sectorwise_date",
+    "get_brach_wise_rm_oms_realtime_summary"
 ]
 
 SUMMARY_QUERY_STR = select(
@@ -502,6 +504,90 @@ def get_rm_live_turnover_sectorwise_date(request: Request) -> Response:
     return Response(results)
 
 
+@extend_schema(
+    tags=[OpenApiTags.RMWISE_DTP],
+    parameters=[
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Branch Code Of the RM",
+        ),
+        OpenApiParameter(
+            "trader",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Trader Id of the RM",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_brach_wise_rm_oms_realtime_summary(request: Request) -> Response:
+    """fetch the brach wise rm oms realtime summary"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
+
+    with Session(engine) as session:
+        # base aggregates
+        aggregates = [
+            func.sum(BranchWiseRMOmsRealtimeSummaryOrm.total_client).label("total_client"),
+            func.sum(BranchWiseRMOmsRealtimeSummaryOrm.trades).label("trades"),
+            func.sum(BranchWiseRMOmsRealtimeSummaryOrm.total_turnOver).label("total_turnOver"),
+        ]
+
+        # always include sector_name
+        select_fields = [BranchWiseRMOmsRealtimeSummaryOrm.channel,
+                         BranchWiseRMOmsRealtimeSummaryOrm.trading_date,
+                         BranchWiseRMOmsRealtimeSummaryOrm.push_date
+                         ] + aggregates
+        group_fields = [BranchWiseRMOmsRealtimeSummaryOrm.channel,
+                         BranchWiseRMOmsRealtimeSummaryOrm.trading_date,
+                         BranchWiseRMOmsRealtimeSummaryOrm.push_date]
+
+        # if trader provided → sector + trader (with branch info)
+        if has_trader:
+            select_fields += [
+                BranchWiseRMOmsRealtimeSummaryOrm.branch_code,
+                BranchWiseRMOmsRealtimeSummaryOrm.rm_name,
+            ]
+            group_fields += [
+                  BranchWiseRMOmsRealtimeSummaryOrm.branch_code,
+                BranchWiseRMOmsRealtimeSummaryOrm.rm_name,
+            ]
+
+        qs = select(*select_fields)
+        qs = rolewise_branch_data_filter(qs, current_user, BranchWiseRMOmsRealtimeSummaryOrm)
+
+        if has_branch:
+            qs = qs.where(BranchWiseRMOmsRealtimeSummaryOrm.branch_code == has_branch)
+
+        if has_trader:
+            qs = qs.where(BranchWiseRMOmsRealtimeSummaryOrm.rm_name == has_trader)
+
+        qs = qs.group_by(*group_fields)
+
+        rows = session.execute(qs).all()
+
+        # build response
+        results = []
+        for row in rows:
+            result = {
+                "channel": row.channel,
+                "total_client": float(row.total_client),
+                "total_turnOver": float(row.total_turnOver),
+                "trades": float(row.trades),
+                "trading_date": row.trading_date,
+                "push_date": row.push_date,
+            }
+    
+            results.append(result)
 
     return Response(results)
+
 

@@ -86,6 +86,7 @@ urlpatterns = [
     path("admin/live-investor-top-sale-rm-wise/", views.get_live_investor_top_sale_rm_wise),
     path("admin/live-investor-top-buy-rm-wise/", views.get_live_investor_top_buy_rm_wise),
     path("admin/rm-performance-summary/", views.get_rmwise_performance_summary),
+     path("admin/branch-wise-rm-oms-realtime-summary/", views.get_brach_wise_rm_oms_realtime_summary),
 
     # Active Trading Codes Route
     path("active-trading-today/", views.get_active_trading_summary),
