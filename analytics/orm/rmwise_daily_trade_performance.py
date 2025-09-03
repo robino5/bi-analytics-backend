@@ -138,7 +138,7 @@ class BranchWiseRMOmsRealtimeSummaryOrm(BaseOrm):
  
     branch_code: Mapped[int] = mapped_column("branch_Code",Numeric(3,0),primary_key=True)
     rm_name: Mapped[str] = mapped_column("RM_id",String(50),primary_key=True)
-    channel: Mapped[str] = mapped_column("channel",String(50))
+    channel: Mapped[str] = mapped_column("channel",String(50),primary_key=True)
     total_client: Mapped[int] = mapped_column("Total_Clients",Integer)
     trades: Mapped[int] = mapped_column("Trades",Integer)
     total_turnOver: Mapped[float] = mapped_column("Total_turnOver",Numeric(38,5))
