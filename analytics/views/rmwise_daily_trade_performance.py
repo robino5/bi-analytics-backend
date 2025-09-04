@@ -587,7 +587,7 @@ def get_brach_wise_rm_oms_realtime_summary(request: Request) -> Response:
                 "total_turnover": float(row.total_turnOver),
                 "trades": float(row.trades),
                 "trading_date": row.trading_date,
-                "push_date": row.push_date,
+                "push_date": row.push_date.strftime("%d-%b-%y (%I:%M:%S %p)"),
             }
     
             results.append(result)
