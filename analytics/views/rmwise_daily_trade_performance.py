@@ -6,8 +6,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from sqlalchemy import desc, func, select, text
+from sqlalchemy import desc, func, select, text, case
 from sqlalchemy.orm import Session
+
 
 from authusers.models import User
 from core.metadata.openapi import OpenApiTags
@@ -572,6 +573,9 @@ def get_brach_wise_rm_oms_realtime_summary(request: Request) -> Response:
 
         qs = qs.group_by(*group_fields)
 
+        
+        qs = qs.order_by(BranchWiseRMOmsRealtimeSummaryOrm.channel)
+
         rows = session.execute(qs).all()
 
         # build response
@@ -583,7 +587,7 @@ def get_brach_wise_rm_oms_realtime_summary(request: Request) -> Response:
                 "total_turnover": float(row.total_turnOver),
                 "trades": float(row.trades),
                 "trading_date": row.trading_date,
-                "push_date": row.push_date,
+                "push_date": row.push_date.strftime("%d-%b-%y (%I:%M:%S %p)"),
             }
     
             results.append(result)

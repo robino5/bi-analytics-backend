@@ -361,6 +361,7 @@ def get_admin_realtime_turnover_top_20(request: Request) -> Response:
             select(AdminRealTimeTurnoverTop20ORM)
             .where(AdminRealTimeTurnoverTop20ORM.trading_date == trading_date)
             .order_by(AdminRealTimeTurnoverTop20ORM.value.desc())
+            .limit(20)
         ).scalars()
 
         results = [AdminRealTimeTurnoverTop20.model_validate(row).model_dump() for row in qs]
