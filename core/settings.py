@@ -33,7 +33,7 @@ SECRET_KEY = config("SECRET_KEY", default="putyourownkey")
 
 DEBUG = config("DEBUG", cast=bool, default=True)
 
-ALLOWED_HOSTS = ["localhost", "192.168.10.7", "127.0.0.1", "lbsl.idash.com"]
+ALLOWED_HOSTS = ["localhost", "192.168.10.7", "127.0.0.1", "lbsl.idash.com","192.168.100.131"]
 
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 
