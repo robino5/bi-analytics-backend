@@ -13,7 +13,8 @@ __all__ = [
     "RMWiseEcrmDetailsOrm",
     "RMWiseDailyTradeDataOrm",
     "RMWiseLiveSectorDataOrm",
-    "BranchWiseRMOmsRealtimeSummaryOrm"
+    "BranchWiseRMOmsRealtimeSummaryOrm",
+    "AdminRealtimeTopRmTurnoverOrm"
 ]
 
 
@@ -144,6 +145,20 @@ class BranchWiseRMOmsRealtimeSummaryOrm(BaseOrm):
     total_turnOver: Mapped[float] = mapped_column("Total_turnOver",Numeric(38,5))
     trading_date: Mapped[DateTime] = mapped_column("Trade_dt",DateTime)
     push_date: Mapped[DateTime] = mapped_column("push_date",DateTime)
+
+
+class AdminRealtimeTopRmTurnoverOrm(BaseOrm):
+    __tablename__ = "BI_trd_Admin_RealTime_TOP_RM_TurnOver"
+ 
+    branch_code: Mapped[int] = mapped_column("branch_Code",Numeric(3,0),primary_key=True)
+    rm_name: Mapped[str] = mapped_column("RM_id",String(50),primary_key=True)
+    total_turnOver_today: Mapped[float] = mapped_column("total_turnover_today",Numeric(38,5))
+    total_commission: Mapped[float] = mapped_column("total_commission",Numeric(38,5))
+    total_yearly_comm: Mapped[float] = mapped_column("Total_Yearly_comm",Numeric(38,5))
+    max_turnOver: Mapped[float] = mapped_column("Max_turnOver",Numeric(38,5))
+    trading_date: Mapped[DateTime] = mapped_column("trd_dt",DateTime)
+    rank_no: Mapped[int] = mapped_column("RankNo",Integer)
+
 
 
 

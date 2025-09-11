@@ -15,7 +15,7 @@ from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
-from ..models import DailyTurnoverPerformance, SectorExposure,EcrmRetailsRMwise,RMwiseDailyTradeData
+from ..models import DailyTurnoverPerformance, SectorExposure,EcrmRetailsRMwise,RMwiseDailyTradeData,AdminRealtimeTopRmTurnover
 from ..orm import (
     RMWiseDailyTurnoverPerformanceOrm,
     RMWiseOverallSummaryOrm,
@@ -24,7 +24,9 @@ from ..orm import (
     RMWiseEcrmDetailsOrm,
     RMWiseDailyTradeDataOrm,
     RMWiseLiveSectorDataOrm,
-    BranchWiseRMOmsRealtimeSummaryOrm
+    BranchWiseRMOmsRealtimeSummaryOrm,
+    AdminRealtimeTopRmTurnoverOrm,
+    BranchOrm
 )
 from .utils import parse_summary, rolewise_branch_data_filter
 
@@ -37,7 +39,8 @@ __all__ = [
     "get_rmwise_daily_trade_date",
     "get_rmwise_daily_trade_date",
     "get_rm_live_turnover_sectorwise_date",
-    "get_brach_wise_rm_oms_realtime_summary"
+    "get_brach_wise_rm_oms_realtime_summary",
+    "get_admin_realtime_top_rm_turnover"
 ]
 
 SUMMARY_QUERY_STR = select(
@@ -591,6 +594,65 @@ def get_brach_wise_rm_oms_realtime_summary(request: Request) -> Response:
             }
     
             results.append(result)
+
+    return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.RMWISE_DTP],
+    parameters=[
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Branch Code Of the RM",
+        ),
+        OpenApiParameter(
+            "trader",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Trader Id of the RM",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_admin_realtime_top_rm_turnover(request: Request) -> Response:
+    """fetch the realtime top rm turnover"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
+
+    with Session(engine) as session:
+        qs = (
+            select(AdminRealtimeTopRmTurnoverOrm,BranchOrm.branch_name)
+            .join(BranchOrm,AdminRealtimeTopRmTurnoverOrm.branch_code==BranchOrm.branch_code,isouter=True)
+            .order_by(AdminRealtimeTopRmTurnoverOrm.rank_no)
+        )
+        qs = rolewise_branch_data_filter(
+            qs, current_user, AdminRealtimeTopRmTurnoverOrm
+        )
+
+        if has_branch:
+            qs = qs.where(
+                AdminRealtimeTopRmTurnoverOrm.branch_code == has_branch,
+            )
+        if has_trader:
+            qs = qs.where(
+                AdminRealtimeTopRmTurnoverOrm.rm_name == has_trader,
+            )
+    rows = session.execute(qs).all()  # (orm, branch_name)
+
+    results = [
+    AdminRealtimeTopRmTurnover.model_validate(
+        {**orm.__dict__, "branch_name": branch_name}
+    ).model_dump()
+    for orm, branch_name in rows
+]
 
     return Response(results)
 
