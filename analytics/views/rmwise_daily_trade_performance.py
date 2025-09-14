@@ -648,10 +648,7 @@ def get_admin_realtime_top_rm_turnover(request: Request) -> Response:
     rows = session.execute(qs).all()  # (orm, branch_name)
 
     results = [
-    AdminRealtimeTopRmTurnover.model_validate(
-        {**orm.__dict__, "branch_name": branch_name}
-    ).model_dump()
-    for orm, branch_name in rows
+    AdminRealtimeTopRmTurnover.model_validate({**orm.__dict__, "branch_name": branch_name}).model_dump()for orm, branch_name in rows
 ]
 
     return Response(results)
