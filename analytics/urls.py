@@ -77,6 +77,7 @@ urlpatterns = [
     path("rm/daily-trade-data/", views. get_rmwise_daily_trade_date),
     path("rm/rm-live-turnover-sectorwise/", views.get_rm_live_turnover_sectorwise_date),
     path("rm/branch-wise-rm-oms-realtime-summary/", views.get_brach_wise_rm_oms_realtime_summary),
+    path("rm/realtime-top-rm-turnover/", views.get_admin_realtime_top_rm_turnover),
     path("branchwise-none-performing-client/", views.get_branch_wise_none_performing_client),
 
     # RM portfolio
