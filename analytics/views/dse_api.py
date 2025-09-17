@@ -3,14 +3,15 @@ from rest_framework.decorators import api_view
 from drf_spectacular.utils import extend_schema
 from core.metadata.openapi.configs import OpenApiTags
 from rest_framework.request import Request
-from analytics.views.utils import fetch_from_lankabd_api,fetch_fear_greed
+from analytics.views.utils import fetch_from_lankabd_api,fetchAamarStockWeb
 
 __all__ = ["live_dse_trade",
             "live_tickers",
             "live_dse_dsex",
             "live_dse_dsex_summary",
             "dse_dsex_trade_summary_previous_ten_days",
-            "fear_greed"
+            "fear_greed",
+            "stock_pe_ration"
             ]
 
 
@@ -76,7 +77,16 @@ def dse_dsex_trade_summary_previous_ten_days(request: Request):
 @api_view(["GET"])
 def fear_greed(request: Request):
     try:
-        data = fetch_fear_greed()
+        data = fetchAamarStockWeb("https://www.amarstock.com/Home/GetFearGreedOnly")
+        return JsonResponse(data, safe=False)  
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+    
+@extend_schema(tags=[OpenApiTags.PORTAL_LIVE_DATA])
+@api_view(["GET"])
+def stock_pe_ration(request: Request):
+    try:
+        data = fetchAamarStockWeb("https://www.amarstock.com/pe-data-chart")
         return JsonResponse(data, safe=False)  
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)

@@ -1,6 +1,7 @@
 from datetime import timedelta
 from pathlib import Path
 from typing import Optional
+import pyodbc
 
 from decouple import config
 
@@ -103,19 +104,47 @@ TEMPLATES = [
 WSGI_APPLICATION = "core.wsgi.application"
 
 
-DATABASES = {
-    "default": {
-        "ENGINE": "mssql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USERNAME"),
-        "PASSWORD": config("DB_PASS"),
-        "HOST": config("DB_HOST"),
-        "PORT": config("DB_PORT"),
-        "OPTIONS": {
-            "driver": "ODBC Driver 17 for SQL Server",
-        },
-    },
+def test_conn(db):
+    try:
+        conn = pyodbc.connect(
+            f"DRIVER=ODBC Driver 17 for SQL Server;"
+            f"SERVER={db['HOST']},{db['PORT']};"
+            f"DATABASE={db['NAME']};"
+            f"UID={db['USER']};PWD={db['PASSWORD']};"
+            "TrustServerCertificate=yes;",
+            timeout=3
+        )
+        conn.close()
+        return True
+    except Exception:
+        return False
+
+PRIMARY = {
+    "ENGINE": "mssql",
+    "NAME": config("DB_NAME"),
+    "USER": config("DB_USERNAME"),
+    "PASSWORD": config("DB_PASS"),
+    "HOST": config("DB_HOST"),
+    "PORT": config("DB_PORT", cast=int, default=1433),
+    "OPTIONS": {"driver": "ODBC Driver 17 for SQL Server"},
 }
+
+BACKUP = {
+    "ENGINE": "mssql",
+    "NAME": config("DB_BACKUP_NAME"),
+    "USER": config("DB_BACKUP_USERNAME"),
+    "PASSWORD":  config("DB_BACKUP_PASS"),
+    "HOST": config("DB_BACKUP_HOST"),
+    "PORT": config("DB_BACKUP_PORT", cast=int),
+    "OPTIONS": {"driver": "ODBC Driver 17 for SQL Server"},
+}
+
+# Use PRIMARY if alive, otherwise BACKUP
+DATABASES = {
+    "default": PRIMARY if test_conn(PRIMARY) else BACKUP
+}
+
+ACTIVE_DB = DATABASES['default']
 
 
 AUTH_PASSWORD_VALIDATORS = [
