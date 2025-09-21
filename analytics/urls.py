@@ -115,6 +115,9 @@ urlpatterns = [
     path("portal-live-dse-dsex-summary/", views.live_dse_dsex_summary),
     path("portal-dse-trade-summary-previous-ten-days/", views.dse_dsex_trade_summary_previous_ten_days),
     path("live-market-sentiment/", views.fear_greed),
+    path("live-market-stock-pe-ration/", views.stock_pe_ration),
+    path("dse-traded-company-list/", views.dse_traded_company_list),
+    path("portal-pe-rsi-company-wise/", views.get_poral_pe_rsi_conpanywise),
     # Business And Trade Management
     path("admin/board-turnover/", views.get_board_turnovers),
     path("admin/board-turnovers-breakdown/", views.get_board_turnovers_breakdown),

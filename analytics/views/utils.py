@@ -139,7 +139,7 @@ def fetch_from_lankabd_api(endpoint: str) -> dict | None:
         print(f"❌ Error fetching data from {endpoint}: {e}")
         return None
     
-def fetch_fear_greed():
-    response = requests.get("https://www.amarstock.com/Home/GetFearGreedOnly")
+def fetchAamarStockWeb(endpoint: str):
+    response = requests.get(endpoint)
     response.raise_for_status()
     return response.json()
