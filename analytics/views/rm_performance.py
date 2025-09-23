@@ -24,7 +24,8 @@ __all__ = ["get_turnover_perfomance_rmwise",
            "get_investor_live_net_trade_rm_wise",
            "get_live_investor_top_buy_rm_wise",
            "get_live_investor_top_sale_rm_wise",
-           "get_branch_wise_none_performing_client"
+           "get_branch_wise_none_performing_client",
+           "get_top_turnover_investor"
            ]
 
 
@@ -170,6 +171,53 @@ def get_investor_live_net_trade_rm_wise(request: Request) -> Response:
 
     with Session(engine) as session:
         qs = select(InvestroLiveNetTradeRMWiseOrm).order_by(InvestroLiveNetTradeRMWiseOrm.net.desc())
+        qs = rolewise_branch_data_filter(qs, current_user, InvestroLiveNetTradeRMWiseOrm)
+
+        if has_branch:
+            qs = qs.where(
+                InvestroLiveNetTradeRMWiseOrm.branch_code == has_branch,
+            )
+        if has_trader:
+            qs = qs.where(
+                InvestroLiveNetTradeRMWiseOrm.trader_id == has_trader,
+            )
+        rows = session.execute(qs).scalars()
+
+        results = [InvestroLiveNetTradeRMWise.model_validate(row).model_dump() for row in rows]
+
+    return Response(results)
+
+@extend_schema(
+    tags=[OpenApiTags.RMWISE_PERFORMANCE],
+    parameters=[
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Branch Code Of the RM",
+        ),
+        OpenApiParameter(
+            "trader",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Username of the RM",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_top_turnover_investor(request: Request) -> Response:
+    """fetch the top turnover investor"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
+
+    with Session(engine) as session:
+        qs = select(InvestroLiveNetTradeRMWiseOrm).order_by(InvestroLiveNetTradeRMWiseOrm.turnover.desc()).limit(20)
         qs = rolewise_branch_data_filter(qs, current_user, InvestroLiveNetTradeRMWiseOrm)
 
         if has_branch:

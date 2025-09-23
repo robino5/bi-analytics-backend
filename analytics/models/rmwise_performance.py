@@ -38,6 +38,7 @@ class InvestroLiveNetTradeRMWise(BranchInfoBaseModel):
     sell: float
     net: float
     ledger_balance: float
+    turnover: float
 
 
 class LiveInvestorTopBuyRMWise(BaseModel):
