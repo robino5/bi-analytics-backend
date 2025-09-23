@@ -64,6 +64,7 @@ class InvestroLiveNetTradeRMWiseOrm(BaseOrm):
       sell: Mapped[float] = mapped_column("Tot Sale", Numeric(2))
       net: Mapped[float] = mapped_column("Net", Numeric(2))
       ledger_balance: Mapped[float] = mapped_column("Ledger Balance", Numeric(2))
+      turnover: Mapped[float] = mapped_column("Turnover", Numeric(2))
 
 class LiveInvestorTopBuyRMWiseOrm(BaseOrm):
     __tablename__ = "BI_RMWise_Live_Investors_Top_Buy"
