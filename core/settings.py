@@ -34,7 +34,7 @@ SECRET_KEY = config("SECRET_KEY", default="putyourownkey")
 
 DEBUG = config("DEBUG", cast=bool, default=True)
 
-ALLOWED_HOSTS = ["localhost", "192.168.10.7", "127.0.0.1", "lbsl.idash.com","192.168.100.131","192.168.50.31"]
+ALLOWED_HOSTS = ["localhost", "192.168.10.7", "127.0.0.1", "lbsl.idash.com","192.168.100.131","192.168.50.31","idash.lbsbd.com"]
 
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 
@@ -54,6 +54,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.150.31",
     "http://192.168.50.31:8080",
     "http://192.168.50.31:3000",
+    "https://idash.lbsbd.com:3000"
 ]
 
 
