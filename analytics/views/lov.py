@@ -105,7 +105,7 @@ def get_traders_for_branchid(request: Request, id: int) -> Request:
     current_user: User = request.user
 
     with Session(engine) as session:
-        query = select(TraderOrm).order_by(TraderOrm.branch_name)
+        query = select(TraderOrm).order_by(TraderOrm.trader_id)
         if current_user.role == RoleChoices.REGIONAL_MANAGER:
             query = query.where(TraderOrm.trader_id == current_user.username)
         else:
