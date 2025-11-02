@@ -109,6 +109,12 @@ urlpatterns = [
     path("admin-realtime-turnover-comparison-top20-sector-wise/", views.get_admin_realtime_turnover_comaparison_top20_sector_wise),
     path("admin-realtime-turnover-comparison-top20-sector-wise/", views.get_admin_realtime_turnover_comaparison_top20_sector_wise),
 
+    # Financial Information Route
+    path("admin/total-deposit-branch-wise-today/", views.get_admin_total_deposit_branch_wise_today),
+    path("admin/total-deposit-branch-wise-this-year/", views.get_admin_total_deposit_branch_wise_this_year),
+    path("admin/total-withdrawal-branch-wise-today/", views.get_admin_total_withdrawal_branch_wise_today),
+    path("admin/total-withdrawal-branch-wise-this-year/", views.get_admin_total_withdrawal_branch_wise_this_year),
+
     # portal live data
     path("portal-dse-live-trade/", views.live_dse_trade),
     path("portal-live-tickers/", views.live_tickers),
@@ -119,6 +125,7 @@ urlpatterns = [
     path("live-market-stock-pe-ration/", views.stock_pe_ration),
     path("dse-traded-company-list/", views.dse_traded_company_list),
     path("portal-pe-rsi-company-wise/", views.get_poral_pe_rsi_conpanywise),
+    path("portal-history-comapny-wise/", views.dse_history_company),
     # Business And Trade Management
     path("admin/board-turnover/", views.get_board_turnovers),
     path("admin/board-turnovers-breakdown/", views.get_board_turnovers_breakdown),
