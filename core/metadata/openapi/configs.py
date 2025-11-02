@@ -18,6 +18,7 @@ class OpenApiTags:
     BUSINESS_TRADE_MANAGEMENT = "business-and-trade-management"
     ADMIN_CUSTOMER_MANAGEMENT = "customer-management"
     PORTAL_LIVE_DATA = "portal-live-data"
+    FINANCIAL_INFORMATION = "financial-information"
 
 
 openapi_description = r"""

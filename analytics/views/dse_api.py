@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+import time
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from drf_spectacular.utils import extend_schema,OpenApiParameter
@@ -14,7 +16,8 @@ __all__ = ["live_dse_trade",
             "fear_greed",
             "stock_pe_ration",
             "dse_traded_company_list",
-            "get_poral_pe_rsi_conpanywise"
+            "get_poral_pe_rsi_conpanywise",
+            "dse_history_company"
             ]
 
 
@@ -161,3 +164,46 @@ def get_poral_pe_rsi_conpanywise(request: Request):
     return JsonResponse(response_data, safe=False)
 
 
+
+
+@extend_schema(tags=[OpenApiTags.PORTAL_LIVE_DATA],
+        parameters=[
+        OpenApiParameter(
+            "symbol",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=True,
+            description="Company Symbol Of the DSE",
+        )]
+               )
+@extend_schema(tags=[OpenApiTags.PORTAL_LIVE_DATA])
+@api_view(["GET"])
+def dse_history_company(request: Request):
+    # ✅ Get symbol from query params
+    symbol = request.query_params.get("symbol")
+    if not symbol:
+        return JsonResponse(
+            {"error": "Symbol parameter is required."},
+            status=400
+        )
+
+    # ✅ Calculate date range: from = 1 month ago, to = today
+    today = datetime.now()
+    one_month_ago = today - timedelta(days=30)
+
+    # ✅ Convert to UNIX timestamp (seconds)
+    to_timestamp = int(time.mktime(today.timetuple()))
+    from_timestamp = int(time.mktime(one_month_ago.timetuple()))
+
+    # ✅ Build URL dynamically
+    url = f"/tvc/DataFeed/history?symbol={symbol}&resolution=D&from={from_timestamp}&to={to_timestamp}&dataType=false&isAdjusted=false&is"
+
+    # ✅ Fetch data
+    data = fetch_from_lankabd_api(url)
+    if data is None:
+        return JsonResponse(
+            {"error": "Failed to fetch live DSE ticker data."},
+            status=500
+        )
+
+    return JsonResponse(data, safe=False)
