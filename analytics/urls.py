@@ -114,6 +114,8 @@ urlpatterns = [
     path("admin/total-deposit-branch-wise-this-year/", views.get_admin_total_deposit_branch_wise_this_year),
     path("admin/total-withdrawal-branch-wise-today/", views.get_admin_total_withdrawal_branch_wise_today),
     path("admin/total-withdrawal-branch-wise-this-year/", views.get_admin_total_withdrawal_branch_wise_this_year),
+    path("admin/total-deposit-branch-wise-monthly/", views.get_admin_total_deposit_branch_wise_monthly),
+    path("admin/total-withdrawal-branch-wise-monthly/", views.get_admin_total_withdrawal_branch_wise_monthly),
 
     # portal live data
     path("portal-dse-live-trade/", views.live_dse_trade),

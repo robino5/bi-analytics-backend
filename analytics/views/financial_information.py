@@ -20,13 +20,17 @@ from ..models import (
     TotalDepositToday,
     TotalDepositThisYear,
     TotalWithdrawalToday,
-    TotalWithdrawalThisYear
+    TotalWithdrawalThisYear,
+    TotalDepositMonthWise,
+    TotalPaymentMonthWise
 )
 from ..orm import (
     TotalDepositTodayOrm,
     TotalDepositThisYearOrm,
     TotalWithdrawalTodayOrm,
-    TotalWithdrawalThisYearOrm
+    TotalWithdrawalThisYearOrm,
+    TotalDepositMonthWiseORM,
+    TotalPaymentMonthWiseORM
 )
 
 __all__ = [
@@ -34,6 +38,8 @@ __all__ = [
     "get_admin_total_deposit_branch_wise_this_year",
     "get_admin_total_withdrawal_branch_wise_today",
     "get_admin_total_withdrawal_branch_wise_this_year",
+    "get_admin_total_deposit_branch_wise_monthly",
+    "get_admin_total_withdrawal_branch_wise_monthly"
 ]
 
 
@@ -173,5 +179,85 @@ def get_admin_total_withdrawal_branch_wise_this_year(request: Request) -> Respon
     }
 
     return Response(response)
+
+
+#### Total Deposit Month Wise  ####
+@extend_schema(tags=[OpenApiTags.FINANCIAL_INFORMATION])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_total_deposit_branch_wise_monthly(request: Request) -> Response:
+    """fetch admin total deposit branch wise monthly"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(TotalDepositMonthWiseORM).order_by(
+                TotalDepositMonthWiseORM.branch_code
+            )
+        ).scalars()
+
+        results = [TotalDepositMonthWise.model_validate(row).model_dump() for row in qs]
+
+        response = {
+        "monthly_wise": {
+           "january": get_sum_of_property("january", results),
+           "february": get_sum_of_property("february", results),
+            "march": get_sum_of_property("march", results),
+            "april": get_sum_of_property("april", results),
+            "may": get_sum_of_property("may", results),
+            "june": get_sum_of_property("june", results),
+            "july": get_sum_of_property("july", results),
+            "august": get_sum_of_property("august", results),
+            "september": get_sum_of_property("september", results),
+            "october": get_sum_of_property("october", results),
+            "november": get_sum_of_property("november", results),
+            "december": get_sum_of_property("december", results),
+        },
+        "rows": results,
+    }
+
+
+    return Response(response)
+
+
+#### Total Withdrawal Month Wise  ####
+@extend_schema(tags=[OpenApiTags.FINANCIAL_INFORMATION])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_total_withdrawal_branch_wise_monthly(request: Request) -> Response:
+    """fetch admin total withdrawal branch wise monthly"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(TotalPaymentMonthWiseORM).order_by(
+                TotalPaymentMonthWiseORM.branch_code
+            )
+        ).scalars()
+
+        results = [TotalPaymentMonthWise.model_validate(row).model_dump() for row in qs]
+
+        response = {
+        "monthly_wise": {
+           "january": get_sum_of_property("january", results),
+           "february": get_sum_of_property("february", results),
+            "march": get_sum_of_property("march", results),
+            "april": get_sum_of_property("april", results),
+            "may": get_sum_of_property("may", results),
+            "june": get_sum_of_property("june", results),
+            "july": get_sum_of_property("july", results),
+            "august": get_sum_of_property("august", results),
+            "september": get_sum_of_property("september", results),
+            "october": get_sum_of_property("october", results),
+            "november": get_sum_of_property("november", results),
+            "december": get_sum_of_property("december", results),
+        },
+        "rows": results,
+    }
+
+
+    return Response(response)
+
+
 
 
