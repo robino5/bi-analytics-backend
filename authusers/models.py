@@ -37,7 +37,8 @@ class User(AbstractUser, AuditLogMixin):
 
     objects = BaseUserManager()
     profile: "UserProfile" = models.QuerySet["UserProfile"]
-
+    board_permissions: "BoardPermission" = models.QuerySet["BoardPermission"]
+    
     def is_admin(self) -> bool:
         return self.role == RoleChoices.ADMIN or self.is_superuser or self.is_staff
 
@@ -70,6 +71,20 @@ class UserProfile(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user.username.title()} Profile"
+
+
+class BoardPermission(models.Model):
+    active_trading_codes = models.BooleanField(default=False)
+    business_and_trade_management = models.BooleanField(default=False)
+    trade_insights = models.BooleanField(default=False)
+    customer_management = models.BooleanField(default=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="board_permissions")
+
+    class Meta:
+        db_table = "board_permission"  
+
+    def __str__(self):
+        return f"{self.user.username.title()} Board Permissions"
 
 
 class Trader(models.Model):

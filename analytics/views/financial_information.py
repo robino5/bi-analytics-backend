@@ -69,12 +69,18 @@ def get_admin_total_deposit_branch_wise_today(request: Request) -> Response:
         
     response = {
         "detail": {
-            "total_deposit_today": get_sum_of_property("cash_deposit", results)
+            "total_deposit": get_sum_of_property("cash_deposit", results)
             +get_sum_of_property("cheque_deposit", results)
             +get_sum_of_property("scb_deposit", results)
             +get_sum_of_property("pay_order", results)
             +get_sum_of_property("cash_dividend", results)
             +get_sum_of_property("ipo_mode", results),
+           "cash_deposit": get_sum_of_property("cash_deposit", results),
+           "cheque_deposit": get_sum_of_property("cheque_deposit", results),
+           "scb_deposit": get_sum_of_property("scb_deposit", results),
+           "pay_order": get_sum_of_property("pay_order", results),
+           "cash_dividend": get_sum_of_property("cash_dividend", results),
+           "ipo_mode": get_sum_of_property("ipo_mode", results),
         },
         "rows": results,
     }
@@ -101,12 +107,18 @@ def get_admin_total_deposit_branch_wise_this_year(request: Request) -> Response:
         
     response = {
         "detail": {
-            "total_deposit_today": get_sum_of_property("cash_deposit", results)
+            "total_deposit": get_sum_of_property("cash_deposit", results)
             +get_sum_of_property("cheque_deposit", results)
             +get_sum_of_property("scb_deposit", results)
             +get_sum_of_property("pay_order", results)
             +get_sum_of_property("cash_dividend", results)
             +get_sum_of_property("ipo_mode", results),
+            "cash_deposit": get_sum_of_property("cash_deposit", results),
+            "cheque_deposit": get_sum_of_property("cheque_deposit", results),
+            "scb_deposit": get_sum_of_property("scb_deposit", results),
+            "pay_order": get_sum_of_property("pay_order", results),
+            "cash_dividend": get_sum_of_property("cash_dividend", results),
+            "ipo_mode": get_sum_of_property("ipo_mode", results),
         },
         "rows": results,
     }
@@ -133,13 +145,20 @@ def get_admin_total_withdrawal_branch_wise_today(request: Request) -> Response:
         
     response = {
         "detail": {
-            "total_withdrawal_today": get_sum_of_property("cash_withdrawal", results)
+            "total_withdrawal": get_sum_of_property("cash_withdrawal", results)
             +get_sum_of_property("cheque_withdrawal", results)
             +get_sum_of_property("online_requisition", results)
-            +get_sum_of_property("rtsg", results)
+            +get_sum_of_property("rtgs", results)
             +get_sum_of_property("cash_dividend_deduction", results)
             +get_sum_of_property("pay_order", results)
-            +get_sum_of_property("ipo_mode", results)
+            +get_sum_of_property("ipo_mode", results),
+            "cash_withdrawal": get_sum_of_property("cash_withdrawal", results),
+            "cheque_withdrawal": get_sum_of_property("cheque_withdrawal", results),
+            "online_requisition": get_sum_of_property("online_requisition", results),
+            "rtgs": get_sum_of_property("rtgs", results),
+            "cash_dividend_deduction": get_sum_of_property("cash_dividend_deduction", results),
+            "pay_order": get_sum_of_property("pay_order", results),
+            "ipo_mode": get_sum_of_property("ipo_mode", results),
         },
         "rows": results,
     }
@@ -167,13 +186,20 @@ def get_admin_total_withdrawal_branch_wise_this_year(request: Request) -> Respon
         
     response = {
         "detail": {
-            "total_withdrawal_this_year": get_sum_of_property("cash_withdrawal", results)
+            "total_withdrawal": get_sum_of_property("cash_withdrawal", results)
             +get_sum_of_property("cheque_withdrawal", results)
             +get_sum_of_property("online_requisition", results)
-            +get_sum_of_property("rtsg", results)
+            +get_sum_of_property("rtgs", results)
             +get_sum_of_property("cash_dividend_deduction", results)
             +get_sum_of_property("pay_order", results)
-            +get_sum_of_property("ipo_mode", results)
+            +get_sum_of_property("ipo_mode", results),
+            "cash_withdrawal": get_sum_of_property("cash_withdrawal", results),
+            "cheque_withdrawal": get_sum_of_property("cheque_withdrawal", results),
+            "online_requisition": get_sum_of_property("online_requisition", results),
+            "rtgs": get_sum_of_property("rtgs", results),
+            "cash_dividend_deduction": get_sum_of_property("cash_dividend_deduction", results),
+            "pay_order": get_sum_of_property("pay_order", results),
+            "ipo_mode": get_sum_of_property("ipo_mode", results),
         },
         "rows": results,
     }
