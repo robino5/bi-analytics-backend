@@ -9,7 +9,7 @@ from rest_framework.serializers import (
 )
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import Role, RoleChoices, Trader, User, UserProfile
+from .models import Role, RoleChoices, Trader, User, UserProfile, BoardPermission
 
 MIN_LENGTH_PASSWORD = 6
 
@@ -17,6 +17,11 @@ MIN_LENGTH_PASSWORD = 6
 class ProfileSerializer(ModelSerializer):
     class Meta:
         model = UserProfile
+        fields = "__all__"
+
+class BoardPermissionSerializer(ModelSerializer):
+    class Meta:
+        model = BoardPermission
         fields = "__all__"
 
 
@@ -42,7 +47,18 @@ class UserSerializer(ModelSerializer):
     def to_representation(self, instance: User):
         data = super().to_representation(instance)
         data["name"] = instance.get_full_name()
-        data["profile"] = ProfileSerializer(instance=instance.profile).data
+        # ✅ Profile serialization
+        data["profile"] = ProfileSerializer(instance=instance.profile).data if hasattr(instance, "profile") else None
+        # ✅ BoardPermission serialization with fallback
+        if hasattr(instance, "board_permissions"):
+            data["board_permissions"] = BoardPermissionSerializer(instance=instance.board_permissions).data
+        else:
+            data["board_permissions"] = {
+                "active_trading_codes": False,
+                "business_and_trade_management": False,
+                "trade_insights": False,
+                "customer_management": False,
+            }
         return data
 
 

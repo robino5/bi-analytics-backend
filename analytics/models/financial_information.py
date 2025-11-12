@@ -37,7 +37,7 @@ class TotalWithdrawalToday(BaseModel):
     cash_withdrawal: float
     cheque_withdrawal: float
     online_requisition: float
-    rtsg: float
+    rtgs: float
     pay_order: float
     cash_dividend_deduction: float
     ipo_mode: float
@@ -49,7 +49,7 @@ class TotalWithdrawalThisYear(BaseModel):
     cash_withdrawal: float
     cheque_withdrawal: float
     online_requisition: float
-    rtsg: float
+    rtgs: float
     pay_order: float
     cash_dividend_deduction: float
     ipo_mode: float
