@@ -6,7 +6,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from bi_menu.models import Menu
 
-from .models import Role, UserProfile
+from .models import Role, UserProfile,BoardPermission
 
 UserModel = get_user_model()
 
@@ -15,6 +15,11 @@ class ProfileInline(admin.StackedInline):
     model = UserProfile
     can_delete = False
     verbose_name = "👤 Profile"
+
+class BoardPermissionInline(admin.StackedInline):
+    model = BoardPermission
+    can_delete = False
+    verbose_name = "👤 Admin Board Permission"
 
 
 @admin.register(UserModel)
@@ -90,7 +95,7 @@ class UserAdmin(BaseUserAdmin):
     ordering = ("-created_at",)
     readonly_fields = ("created_at", "updated_at", "created_by", "updated_by")
     search_fields = ("username", "first_name", "last_name", "email")
-    inlines = [ProfileInline]
+    inlines = [ProfileInline,BoardPermissionInline]
     list_per_page = 15
 
     def name(self, instance, **kwargs):
