@@ -48,6 +48,7 @@ class LiveInvestorTopBuyRMWise(BaseModel):
     investor_code: str
     investor_name: str
     turnover: float
+    client_type: str
 
 class LiveInvestorTopSaleRMWise(BaseModel):
     branch_code: int
@@ -56,6 +57,7 @@ class LiveInvestorTopSaleRMWise(BaseModel):
     investor_code: str
     investor_name: str
     turnover: float
+    client_type: str
 
 class BranchWiseNonePerformClient(BaseModel):
     branch_code: int

@@ -75,6 +75,7 @@ class LiveInvestorTopBuyRMWiseOrm(BaseOrm):
     investor_code: Mapped[str] = mapped_column( "Client Code", String(255), primary_key=True)
     investor_name: Mapped[str] = mapped_column("Name", String(255))
     turnover: Mapped[float] = mapped_column("TurnOver", Numeric(38, 6), default=0)
+    client_type: Mapped[str] = mapped_column("Client Type", String(50))
     
 
 class LiveInvestorTopSaleRMWiseOrm(BaseOrm):
@@ -86,6 +87,7 @@ class LiveInvestorTopSaleRMWiseOrm(BaseOrm):
     investor_code: Mapped[str] = mapped_column( "Client Code", String(255), primary_key=True)
     investor_name: Mapped[str] = mapped_column("Name", String(255))
     turnover: Mapped[float] = mapped_column("TurnOver", Numeric(38, 6), default=0)
+    client_type: Mapped[str] = mapped_column("Client Type", String(50))
 
 class BranchWiseNonePerformClientOrm(BaseOrm):
     __tablename__ = "BI_BranchRM_Non_Performer_client"
