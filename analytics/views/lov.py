@@ -23,8 +23,50 @@ __all__ = [
     "get_all_traders",
     "get_traders_for_branchid",
     "get_cluster_managers",
+    "get_regions",
 ]
 
+
+@extend_schema(
+    responses={200: enveloper(BranchSerializer, many=True)}, tags=[OpenApiTags.LOV]
+)
+@api_view([HTTPMethod.GET])
+@permission_classes(
+    [
+        IsAuthenticated,
+    ]
+)
+def get_regions(request: Request) -> Response:
+    """fetch all regions. results will be automatically filters according to user role."""
+    request.accepted_renderer = CustomRenderer()
+
+    current_user: User = request.user
+
+    with Session(engine) as session:
+        match current_user.role:
+            # case RoleChoices.BRANCH_MANAGER | RoleChoices.REGIONAL_MANAGER:
+            #     qs = session.execute(
+            #         select(BranchOrm)
+            #         .where(BranchOrm.branch_code == current_user.profile.branch_id)
+            #         .order_by(BranchOrm.branch_name)
+            #     ).scalars()
+            case RoleChoices.CLUSTER_MANAGER:
+                qs = session.execute(
+                    select(ClusterManagerOrm)
+                    .distinct(ClusterManagerOrm.region_id)
+                    .where(ClusterManagerOrm.manager_name == current_user.username)
+                    .order_by(ClusterManagerOrm.region_name)
+                ).scalars()
+            case _:
+                # management or admin
+                # * Any selective type of case should be explicitly handle
+                qs = session.execute(
+                    select(ClusterManagerOrm)
+                    .distinct(ClusterManagerOrm.region_id)
+                    .order_by(ClusterManagerOrm.region_name)
+                ).scalars()
+        results = [ClusterManager.model_validate(region).model_dump() for region in qs]
+    return Response(results)
 
 @extend_schema(
     responses={200: enveloper(BranchSerializer, many=True)}, tags=[OpenApiTags.LOV]
