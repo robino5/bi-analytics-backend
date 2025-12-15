@@ -118,6 +118,14 @@ urlpatterns = [
     path("admin/total-deposit-branch-wise-monthly/", views.get_admin_total_deposit_branch_wise_monthly),
     path("admin/total-withdrawal-branch-wise-monthly/", views.get_admin_total_withdrawal_branch_wise_monthly),
 
+    # regional business performance
+    path("exchange-wise-market-statistics/", views.get_exchange_wise_market_statistics),
+    path("branch-wise-market-statistics/", views.get_branch_wise_market_statistics),
+    path("branch-wise-regional-client-performance-nonperformance/", views.get_branch_wise_regional_client_performance_nonperformance_list),
+    path("branch-wise-regional-eCRM-details/", views.get_branch_wise_regional_eCRM_details_list),
+    path("branch-wise-regional-eKYC-details/", views.get_branch_wise_regional_eKYC_details_list),
+    path("branch-wise-regional-employee-structure/", views.get_branch_wise_regional_employee_structure_list),
+
     # portal live data
     path("portal-dse-live-trade/", views.live_dse_trade),
     path("portal-live-tickers/", views.live_tickers),
