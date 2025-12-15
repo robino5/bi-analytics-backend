@@ -10,6 +10,7 @@ class OpenApiTags:
     PM = "portfolio-management"
     MLU = "margin-loan-usage"
     BP = "branch-performance"
+    RBP = "regional-business-performance"
 
     RMWISE_DTP = "rmwise-daily-trade-performance"
     RMWISE_PERFORMANCE = "rmwise-performance"
@@ -19,6 +20,7 @@ class OpenApiTags:
     ADMIN_CUSTOMER_MANAGEMENT = "customer-management"
     PORTAL_LIVE_DATA = "portal-live-data"
     FINANCIAL_INFORMATION = "financial-information"
+    REGIONAL_BUSINESS_PERFORMANCE = "regional-business-performance"
 
 
 openapi_description = r"""
