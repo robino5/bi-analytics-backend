@@ -1,3 +1,4 @@
+from datetime import datetime
 from .base import BaseModel
 
 __all__ = ["ExchangeWisearketStatistics", 
@@ -6,7 +7,10 @@ __all__ = ["ExchangeWisearketStatistics",
            "RegionalECRMDetails",
            "RegionalECRMDetails",
            "RegionaleKYCDetail",
-           "RegionalEmployeeStructure"
+           "RegionalEmployeeStructure",
+           "RegionalChannelWiseTrades",
+           "RegionalPartyTurnoverCommission",
+           "RegionalCashMarginDetails",
            ]
 
 class ExchangeWisearketStatistics(BaseModel):
@@ -65,3 +69,34 @@ class RegionalEmployeeStructure(BaseModel):
     permanent_trader: float
     contractual_with_salary: float
     contractual_without_salary: float
+
+class RegionalChannelWiseTrades(BaseModel):
+    region_name: str
+    branch_code: int
+    branch_name: str
+    channel: str
+    total_clients: int
+    total_trades: int
+    total_turnover: float
+    push_date: datetime
+
+class RegionalPartyTurnoverCommission(BaseModel):
+    region_name: str
+    cluster_name: str
+    branch_code: int
+    branch_name: str
+    total_party: int
+    total_investor: int
+    total_turnover: float
+    total_commission: float
+
+
+class RegionalCashMarginDetails(BaseModel):
+    region_name: str
+    branch_code: int
+    branch_name: str
+    total_deposit: float
+    total_withdrawal: float
+    total_portfolio: float
+    margin_negative: float
+    cash_available: float
