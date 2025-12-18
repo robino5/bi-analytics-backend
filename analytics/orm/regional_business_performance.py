@@ -1,6 +1,7 @@
 
-from sqlalchemy import  Integer, Numeric, String
+from sqlalchemy import  DateTime, Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
+from datetime import datetime
 
 from db import BaseOrm
 
@@ -10,7 +11,10 @@ __all__ = [
     "RegionalClientPerformanceNonPerformanceORM",
     "RegionalECRMDetailsORM",
     "RegionaleKYCDetailORM",
-    "RegionalEmployeeStructureORM"
+    "RegionalEmployeeStructureORM",
+    "RegionalChannelWiseTradesORM",
+    "RegionalPartyTurnoverCommissionORM",
+    "RegionalCashMarginDetailsORM",
     ]
 
 class ExchangeWisearketStatisticsORM(BaseOrm):
@@ -84,3 +88,40 @@ class RegionalEmployeeStructureORM(BaseOrm):
     permanent_trader: Mapped[float] = mapped_column("Permanent_trader", Numeric(34, 0), nullable=False)
     contractual_with_salary: Mapped[float] = mapped_column("Contractual_with_salary", Numeric(34, 0), nullable=False)
     contractual_without_salary: Mapped[float] = mapped_column("Contractual_without_salary", Numeric(34, 0), nullable=False)
+
+class RegionalChannelWiseTradesORM(BaseOrm):
+    __tablename__ = "BI_trd_Regional_ChannelWise_trades"
+
+    region_name: Mapped[str] = mapped_column("region_Name", String(50), )
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer,primary_key=True) 
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
+    channel: Mapped[str] = mapped_column("channel", String(20),primary_key=True)
+    total_clients: Mapped[int] = mapped_column("Total_Clients", Integer, nullable=False)
+    total_trades: Mapped[int] = mapped_column("Trades", Integer, nullable=False)
+    total_turnover: Mapped[float] = mapped_column("Total_Turnover", Numeric(34, 0), nullable=False)
+    push_date: Mapped[datetime] = mapped_column("push_date", DateTime, nullable=False)
+
+
+class RegionalPartyTurnoverCommissionORM(BaseOrm):
+    __tablename__ = "BI_trd_Regional_Party_turnover_commission"
+
+    region_name: Mapped[str] = mapped_column("region_name", String(50),)
+    cluster_name: Mapped[str] = mapped_column("cluster_name", String(50),)
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer,primary_key=True) 
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
+    total_party: Mapped[int] = mapped_column("party_count", Integer, nullable=False)
+    total_investor: Mapped[int] = mapped_column("investor_count", Integer, nullable=False)
+    total_turnover: Mapped[float] = mapped_column("TurnOver", Numeric(34, 0), nullable=False)
+    total_commission: Mapped[float] = mapped_column("commission", Numeric(34, 0), nullable=False)
+
+class RegionalCashMarginDetailsORM(BaseOrm):
+    __tablename__ = "BI_trd_Regional_Tpv_Cash_margin_dep_Witdrawal_details"
+
+    region_name: Mapped[str] = mapped_column("region_Name", String(50),)
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer,primary_key=True) 
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
+    total_deposit: Mapped[float] = mapped_column("Total_Deposit", Numeric(34, 0), nullable=False)
+    total_withdrawal: Mapped[float] = mapped_column("Total_Withdrawal", Numeric(34, 0), nullable=False)
+    total_portfolio: Mapped[float] = mapped_column("TPV", Numeric(34, 0), nullable=False)
+    margin_negative: Mapped[float] = mapped_column("Margin_Negative", Numeric(34, 0), nullable=False)
+    cash_available: Mapped[float] = mapped_column("Cash_Available", Numeric(34, 0), nullable=False)

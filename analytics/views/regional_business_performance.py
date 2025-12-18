@@ -24,7 +24,11 @@ from ..models import (
      ExchangeWisearketStatistics,
      RegionalClientPerformanceNonPerformance,
      RegionalECRMDetails,RegionaleKYCDetail,
-     RegionalEmployeeStructure)
+     RegionalEmployeeStructure,
+     RegionalChannelWiseTrades,
+     RegionalPartyTurnoverCommission,
+     RegionalCashMarginDetails,
+     )
 
 from ..orm import (
     ExchangeWisearketStatisticsORM,
@@ -32,7 +36,10 @@ from ..orm import (
     RegionalClientPerformanceNonPerformanceORM,
     RegionalECRMDetailsORM, 
     RegionaleKYCDetailORM,
-    RegionalEmployeeStructureORM
+    RegionalEmployeeStructureORM,
+    RegionalChannelWiseTradesORM,
+    RegionalPartyTurnoverCommissionORM,
+    RegionalCashMarginDetailsORM,
 )
 
 __all__ = [
@@ -41,7 +48,10 @@ __all__ = [
     "get_branch_wise_regional_client_performance_nonperformance_list",
     "get_branch_wise_regional_eKYC_details_list",
     "get_branch_wise_regional_eCRM_details_list",
-    "get_branch_wise_regional_employee_structure_list"
+    "get_branch_wise_regional_employee_structure_list",
+    "get_branch_wise_regional_channel_wise_trades_list",
+    "get_branch_wise_regional_party_wise_turnover_commission",
+    "get_branch_wise_regional_deposit_withdraw_details"
 ]
 
 
@@ -364,6 +374,165 @@ def get_branch_wise_regional_employee_structure_list(request: Request) -> Respon
             "sum_of_permanent_trader": get_sum_of_property('permanent_trader', results),
             "sum_of_contractual_with_salary": get_sum_of_property('contractual_with_salary', results),
             "sum_of_contractual_without_salary": get_sum_of_property('contractual_without_salary', results),
+        },
+        "rows": results,
+    }
+    return Response(response)
+
+
+@extend_schema(
+    tags=[OpenApiTags.RBP],
+    parameters=[
+        OpenApiParameter(
+            "region_name",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific region name",
+        ),
+           OpenApiParameter(
+            "branch_code",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific branch code",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_branch_wise_regional_channel_wise_trades_list(request: Request) -> Response:
+    """fetch branch wise regional channel wise trades statistics"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+
+    has_region_name = request.query_params.get("region_name", None)
+    has_branch_code = request.query_params.get("branch_code", None)
+    
+    with Session(engine) as session:
+      qs = select(RegionalChannelWiseTradesORM)
+    qs = rolewise_branch_data_filter(qs, current_user, RegionalChannelWiseTradesORM)
+   
+    if has_region_name:
+            qs = qs.where(RegionalChannelWiseTradesORM.region_name == has_region_name)
+    if has_branch_code:
+            qs = qs.where(RegionalChannelWiseTradesORM.branch_code == has_branch_code)
+
+    rows = session.execute(qs).scalars().all()
+    results = [RegionalChannelWiseTrades.model_validate(row).model_dump()for row in rows ]
+    
+    response = {
+        "detail": {
+            "sum_of_total_clients": get_sum_of_property('total_clients', results),
+            "sum_of_total_trades": get_sum_of_property('total_trades', results),
+            "sum_of_total_turnover": get_sum_of_property('total_turnover', results),
+        },
+        "rows": results,
+    }
+    return Response(response)
+
+
+@extend_schema(
+    tags=[OpenApiTags.RBP],
+    parameters=[
+        OpenApiParameter(
+            "region_name",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific region name",
+        ),
+           OpenApiParameter(
+            "branch_code",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific branch code",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_branch_wise_regional_party_wise_turnover_commission(request: Request) -> Response:
+    """fetch branch wise regional party wise turnover commission statistics"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+
+    has_region_name = request.query_params.get("region_name", None)
+    has_branch_code = request.query_params.get("branch_code", None)
+    
+    with Session(engine) as session:
+      qs = select(RegionalPartyTurnoverCommissionORM)
+    qs = rolewise_branch_data_filter(qs, current_user, RegionalPartyTurnoverCommissionORM)
+   
+    if has_region_name:
+            qs = qs.where(RegionalPartyTurnoverCommissionORM.region_name == has_region_name)
+    if has_branch_code:
+            qs = qs.where(RegionalPartyTurnoverCommissionORM.branch_code == has_branch_code)
+
+    rows = session.execute(qs).scalars().all()
+    results = [RegionalPartyTurnoverCommission.model_validate(row).model_dump()for row in rows ]
+    
+    response = {
+        "detail": {
+            "sum_of_total_party": get_sum_of_property('total_party', results),
+            "sum_of_total_investor": get_sum_of_property('total_investor', results),
+            "sum_of_total_turnover": get_sum_of_property('total_turnover', results),
+            "sum_of_total_commission": get_sum_of_property('total_commission', results),
+        },
+        "rows": results,
+    }
+    return Response(response)
+
+
+@extend_schema(
+    tags=[OpenApiTags.RBP],
+    parameters=[
+        OpenApiParameter(
+            "region_name",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific region name",
+        ),
+           OpenApiParameter(
+            "branch_code",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific branch code",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_branch_wise_regional_deposit_withdraw_details(request: Request) -> Response:
+    """fetch branch wise regional deposit and withdrawal details statistics"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+
+    has_region_name = request.query_params.get("region_name", None)
+    has_branch_code = request.query_params.get("branch_code", None)
+    
+    with Session(engine) as session:
+      qs = select(RegionalCashMarginDetailsORM)
+    qs = rolewise_branch_data_filter(qs, current_user, RegionalCashMarginDetailsORM)
+   
+    if has_region_name:
+            qs = qs.where(RegionalCashMarginDetailsORM.region_name == has_region_name)
+    if has_branch_code:
+            qs = qs.where(RegionalCashMarginDetailsORM.branch_code == has_branch_code)
+
+    rows = session.execute(qs).scalars().all()
+    results = [RegionalCashMarginDetails.model_validate(row).model_dump()for row in rows ]
+    
+    response = {
+        "detail": {
+            "sum_of_total_deposit": get_sum_of_property('total_deposit', results),
+            "sum_of_total_withdrawal": get_sum_of_property('total_withdrawal', results),
+            "sum_of_total_portfolio": get_sum_of_property('total_portfolio', results),
+            "sum_of_margin_negative": get_sum_of_property('margin_negative', results),
+            "sum_of_cash_available": get_sum_of_property('cash_available', results),
         },
         "rows": results,
     }
