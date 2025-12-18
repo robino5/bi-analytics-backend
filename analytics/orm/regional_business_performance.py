@@ -15,6 +15,7 @@ __all__ = [
     "RegionalChannelWiseTradesORM",
     "RegionalPartyTurnoverCommissionORM",
     "RegionalCashMarginDetailsORM",
+    "RegionalExposureDetailsORM"
     ]
 
 class ExchangeWisearketStatisticsORM(BaseOrm):
@@ -125,3 +126,16 @@ class RegionalCashMarginDetailsORM(BaseOrm):
     total_portfolio: Mapped[float] = mapped_column("TPV", Numeric(34, 0), nullable=False)
     margin_negative: Mapped[float] = mapped_column("Margin_Negative", Numeric(34, 0), nullable=False)
     cash_available: Mapped[float] = mapped_column("Cash_Available", Numeric(34, 0), nullable=False)
+
+
+class RegionalExposureDetailsORM(BaseOrm):
+    __tablename__ = "BI_trd_Regional_Exposure_details"
+
+    region_name: Mapped[str] = mapped_column("region_Name", String(50),)
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer,primary_key=True) 
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
+    ledger_bal: Mapped[float] = mapped_column("ledger_bal", Numeric(34, 0), nullable=False)
+    green: Mapped[int] = mapped_column("GREEN", Integer, nullable=False)
+    yellow: Mapped[int] = mapped_column("YELLOW", Integer, nullable=False)
+    red: Mapped[int] = mapped_column("RED", Integer, nullable=False)
+    negative_equity: Mapped[int] = mapped_column("NEGATIVE_EQUITY", Integer, nullable=False)

@@ -11,6 +11,7 @@ __all__ = ["ExchangeWisearketStatistics",
            "RegionalChannelWiseTrades",
            "RegionalPartyTurnoverCommission",
            "RegionalCashMarginDetails",
+           "RegionalExposureDetails"
            ]
 
 class ExchangeWisearketStatistics(BaseModel):
@@ -100,3 +101,13 @@ class RegionalCashMarginDetails(BaseModel):
     total_portfolio: float
     margin_negative: float
     cash_available: float
+
+class RegionalExposureDetails(BaseModel):
+    region_name: str
+    branch_code: int
+    branch_name: str
+    ledger_bal: float
+    green: int
+    yellow: int
+    red: int
+    negative_equity: int
