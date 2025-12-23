@@ -11,7 +11,8 @@ __all__ = ["ExchangeWisearketStatistics",
            "RegionalChannelWiseTrades",
            "RegionalPartyTurnoverCommission",
            "RegionalCashMarginDetails",
-           "RegionalExposureDetails"
+           "RegionalExposureDetails",
+           "RegionalBusinessPerformance"
            ]
 
 class ExchangeWisearketStatistics(BaseModel):
@@ -111,3 +112,29 @@ class RegionalExposureDetails(BaseModel):
     yellow: int
     red: int
     negative_equity: int
+
+
+class RegionalBusinessPerformance(BaseModel):
+
+    region_name: str
+    cluster_name: str
+    branch_code: int
+    branch_name: str
+    target: float
+    turnover_achieved: float
+    turnover_percentage: float
+    fund_target: float
+    total_net_fund: float
+    total_net_link_share: float
+    fund_percentage: float
+    bo_opening_target: float
+    bo_opened: float
+    bo_percentage: float
+    total_trade_days: int
+    commission: float
+    total_link_share_in: float
+    total_link_share_out: float
+    total_deposit: float
+    total_withdrawal: float
+    total_expenses: float
+    profit_loss: float
