@@ -15,7 +15,8 @@ __all__ = [
     "RegionalChannelWiseTradesORM",
     "RegionalPartyTurnoverCommissionORM",
     "RegionalCashMarginDetailsORM",
-    "RegionalExposureDetailsORM"
+    "RegionalExposureDetailsORM",
+    "RegionalBusinessPerformanceORM"
     ]
 
 class ExchangeWisearketStatisticsORM(BaseOrm):
@@ -139,3 +140,30 @@ class RegionalExposureDetailsORM(BaseOrm):
     yellow: Mapped[int] = mapped_column("YELLOW", Integer, nullable=False)
     red: Mapped[int] = mapped_column("RED", Integer, nullable=False)
     negative_equity: Mapped[int] = mapped_column("NEGATIVE_EQUITY", Integer, nullable=False)
+
+
+class RegionalBusinessPerformanceORM(BaseOrm):
+    __tablename__ = "BI_trd_Regional_Business_performance"
+
+    region_name: Mapped[str] = mapped_column("region_Name", String(50),)
+    cluster_name: Mapped[str] = mapped_column("cluster_Name", String(50))
+    branch_code: Mapped[int] = mapped_column("branch_code", Integer,primary_key=True) 
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
+    target: Mapped[float] = mapped_column("Target(mn)", Numeric(34, 0), nullable=False)
+    turnover_achieved: Mapped[float] = mapped_column("Turnover Achieved (mn)", Numeric(34, 0), nullable=False)
+    turnover_percentage: Mapped[float] = mapped_column("Turnover Percentage(%)", Numeric(34, 0), nullable=False)
+    fund_target: Mapped[float] = mapped_column("fund_target", Numeric(34, 0), nullable=False)
+    total_net_fund: Mapped[float] = mapped_column("Total_net_fund", Numeric(34, 0), nullable=False)
+    total_net_link_share: Mapped[float] = mapped_column("total_net_link_share", Numeric(34, 0), nullable=False)
+    fund_percentage: Mapped[float] = mapped_column("Fund Percentage(%)", Numeric(34, 0), nullable=False)
+    bo_opening_target: Mapped[float] = mapped_column("Bo Opening Traget", Numeric(34, 0), nullable=False)
+    bo_opened: Mapped[float] = mapped_column("Bo Opened", Numeric(34, 0), nullable=False)
+    bo_percentage: Mapped[float] = mapped_column("Bo Percentage(%)", Numeric(34, 0), nullable=False)
+    total_trade_days: Mapped[int] = mapped_column("total_trade_days", Integer, nullable=False)
+    commission: Mapped[float] = mapped_column("commission", Numeric(34, 0), nullable=False)
+    total_link_share_in: Mapped[float] = mapped_column("total_link_share_in", Numeric(34, 0), nullable=False)
+    total_link_share_out: Mapped[float] = mapped_column("total_link_share_out", Numeric(34, 0), nullable=False)
+    total_deposit: Mapped[float] = mapped_column("total_deposit", Numeric(34, 0), nullable=False)
+    total_withdrawal: Mapped[float] = mapped_column("total_withdrawal", Numeric(34, 0), nullable=False)
+    total_expenses: Mapped[float] = mapped_column("Total_expenses", Numeric(34, 0), nullable=False)
+    profit_loss: Mapped[float] = mapped_column("Profit_loss", Numeric(34, 0), nullable=False)

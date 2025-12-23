@@ -129,6 +129,7 @@ urlpatterns = [
     path("branch-wise-regional-party-wise-turnover-commission/", views.get_branch_wise_regional_party_wise_turnover_commission),
     path("branch-wise-regional-deposit-withdraw-details/", views.get_branch_wise_regional_deposit_withdraw_details),
     path("branch-wise-regional-exposure-details/", views.get_branch_wise_regional_exposure_details),
+    path("branch-wise-regional-business-performance/", views.get_branch_wise_regional_business_performance),
 
     # portal live data
     path("portal-dse-live-trade/", views.live_dse_trade),
