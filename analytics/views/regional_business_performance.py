@@ -29,7 +29,8 @@ from ..models import (
      RegionalPartyTurnoverCommission,
      RegionalCashMarginDetails,
      RegionalExposureDetails,
-     RegionalBusinessPerformance
+     RegionalBusinessPerformance,
+     RegionalOfficeSpace
      )
 
 from ..orm import (
@@ -43,7 +44,8 @@ from ..orm import (
     RegionalPartyTurnoverCommissionORM,
     RegionalCashMarginDetailsORM,
     RegionalExposureDetailsORM,
-    RegionalBusinessPerformanceORM
+    RegionalBusinessPerformanceORM,
+    RegionalOfficeSpaceORM
 )
 
 __all__ = [
@@ -57,7 +59,8 @@ __all__ = [
     "get_branch_wise_regional_party_wise_turnover_commission",
     "get_branch_wise_regional_deposit_withdraw_details",
     "get_branch_wise_regional_exposure_details",
-    "get_branch_wise_regional_business_performance"
+    "get_branch_wise_regional_business_performance",
+    "get_branch_wise_regional_office_space_details"
 ]
 
 
@@ -651,3 +654,54 @@ def get_branch_wise_regional_business_performance(request: Request) -> Response:
     #     "rows": results,
     # }
     return Response(results)
+
+
+
+@extend_schema(
+    tags=[OpenApiTags.RBP],
+    parameters=[
+        OpenApiParameter(
+            "region_name",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific region name",
+        ),
+           OpenApiParameter(
+            "branch_code",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific branch code",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_branch_wise_regional_office_space_details(request: Request) -> Response:
+    """fetch branch wise regional office space details statistics"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+
+    has_region_name = request.query_params.get("region_name", None)
+    has_branch_code = request.query_params.get("branch_code", None)
+    
+    with Session(engine) as session:
+      qs = select(RegionalOfficeSpaceORM)
+    qs = rolewise_branch_data_filter(qs, current_user, RegionalOfficeSpaceORM)
+   
+    if has_region_name:
+            qs = qs.where(RegionalOfficeSpaceORM.region_name == has_region_name)
+    if has_branch_code:
+            qs = qs.where(RegionalOfficeSpaceORM.branch_code == has_branch_code)
+
+    rows = session.execute(qs).scalars().all()
+    results = [RegionalOfficeSpace.model_validate(row).model_dump()for row in rows ]
+    
+    response = {
+        "detail": {
+            "sum_of_total_office_area": get_sum_of_property('office_space', results),
+        },
+        "rows": results,
+    }
+    return Response(response)
