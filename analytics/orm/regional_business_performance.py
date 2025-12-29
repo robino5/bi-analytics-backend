@@ -16,7 +16,8 @@ __all__ = [
     "RegionalPartyTurnoverCommissionORM",
     "RegionalCashMarginDetailsORM",
     "RegionalExposureDetailsORM",
-    "RegionalBusinessPerformanceORM"
+    "RegionalBusinessPerformanceORM",
+    "RegionalOfficeSpaceORM"
     ]
 
 class ExchangeWisearketStatisticsORM(BaseOrm):
@@ -34,9 +35,9 @@ class BranchWisearketStatisticsORM(BaseOrm):
 
     region_id: Mapped[int] = mapped_column("region_id", Integer, primary_key=True)
     region_name: Mapped[str] = mapped_column("region_name", String(15))
-    branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
-    branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
-    exchange: Mapped[str] = mapped_column("exchange", String(50))
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer,primary_key=True )
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(50),)
+    exchange: Mapped[str] = mapped_column("exchange", String(50), primary_key=True)
     total_turnover: Mapped[float] = mapped_column("total_turnover", Numeric(34, 0), nullable=False)
     avg_turnover: Mapped[float] = mapped_column("avg_turnover", Numeric(34, 0), nullable=False)
 
@@ -167,3 +168,12 @@ class RegionalBusinessPerformanceORM(BaseOrm):
     total_withdrawal: Mapped[float] = mapped_column("total_withdrawal", Numeric(34, 0), nullable=False)
     total_expenses: Mapped[float] = mapped_column("Total_expenses", Numeric(34, 0), nullable=False)
     profit_loss: Mapped[float] = mapped_column("Profit_loss", Numeric(34, 0), nullable=False)
+
+
+class RegionalOfficeSpaceORM(BaseOrm):
+    __tablename__ = "BI_trd_Regional_Office_Spaces"
+
+    region_name: Mapped[str] = mapped_column("region_Name", String(50),)
+    branch_code: Mapped[int] = mapped_column("branch_code", Integer,primary_key=True) 
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
+    office_space: Mapped[float] = mapped_column("office_area", Numeric(34, 0), nullable=False)

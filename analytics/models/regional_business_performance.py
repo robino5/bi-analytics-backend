@@ -12,7 +12,8 @@ __all__ = ["ExchangeWisearketStatistics",
            "RegionalPartyTurnoverCommission",
            "RegionalCashMarginDetails",
            "RegionalExposureDetails",
-           "RegionalBusinessPerformance"
+           "RegionalBusinessPerformance",
+           "RegionalOfficeSpace"
            ]
 
 class ExchangeWisearketStatistics(BaseModel):
@@ -138,3 +139,9 @@ class RegionalBusinessPerformance(BaseModel):
     total_withdrawal: float
     total_expenses: float
     profit_loss: float
+
+class RegionalOfficeSpace(BaseModel):
+    region_name: str
+    branch_code: int
+    branch_name: str
+    office_space: float
