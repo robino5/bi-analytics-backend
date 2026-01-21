@@ -2,6 +2,7 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from http import HTTPMethod
 from typing import Any, Dict
+from urllib import response
 
 import pandas as pd
 from drf_spectacular.types import OpenApiTypes
@@ -94,14 +95,14 @@ def get_exchange_wise_market_statistics(request: Request) -> Response:
     with Session(engine) as session:
       qs = select(ExchangeWisearketStatisticsORM).order_by(ExchangeWisearketStatisticsORM.exchange)
 
-    qs = rolewise_branch_data_filter(qs, current_user, ExchangeWisearketStatisticsORM)
+    #qs = rolewise_branch_data_filter(qs, current_user, ExchangeWisearketStatisticsORM)
 
     if has_exchange:
             qs = qs.where(ExchangeWisearketStatisticsORM.exchange == has_exchange)
 
     rows = session.execute(qs).scalars()
     results = [ExchangeWisearketStatistics.model_validate(row).model_dump()for row in rows ]
-    
+
     response = {
         "detail": {
             "sum_of_total_turnover": get_sum_of_property('total_turnover', results),
@@ -111,6 +112,7 @@ def get_exchange_wise_market_statistics(request: Request) -> Response:
         },
         "rows": results,
     }
+    
     return Response(response)
 
 
@@ -189,40 +191,41 @@ def get_branch_wise_market_statistics(request: Request) -> Response:
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
 def get_branch_wise_regional_client_performance_nonperformance_list(request: Request) -> Response:
-    """fetch branch wise regional client performance nonperformance statistics"""
+    """Fetch branch-wise regional client performance/non-performance summary"""
+    
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
 
-    has_region_name = request.query_params.get("region_name", None)
-    has_branch_code = request.query_params.get("branch_code", None)
-    
+    has_region_name = request.query_params.get("region_name")
+    has_branch_code = request.query_params.get("branch_code")
+
     with Session(engine) as session:
-      qs = select(RegionalClientPerformanceNonPerformanceORM).order_by(RegionalClientPerformanceNonPerformanceORM.branch_code)
+        qs = select(
+            func.sum(RegionalClientPerformanceNonPerformanceORM.total_investor).label("total_investor"),
+            func.sum(RegionalClientPerformanceNonPerformanceORM.texpress_investor).label("texpress_investor"),
+            func.sum(RegionalClientPerformanceNonPerformanceORM.ibroker_investor).label("ibroker_investor"),
+            func.sum(RegionalClientPerformanceNonPerformanceORM.performer).label("performer"),
+            func.sum(RegionalClientPerformanceNonPerformanceORM.none_performer).label("none_performer"),
+            func.sum(RegionalClientPerformanceNonPerformanceORM.performer_percentage).label("performer_percentage"),
+            func.sum(RegionalClientPerformanceNonPerformanceORM.nonperformer_percentage).label("nonperformer_percentage"),
+        )
 
-    qs = rolewise_branch_data_filter(qs, current_user, RegionalClientPerformanceNonPerformanceORM)
+        # Apply role-based filters
+        qs = rolewise_branch_data_filter(qs, current_user, RegionalClientPerformanceNonPerformanceORM)
 
-   
-    if has_region_name:
+        # Apply optional filters
+        if has_region_name:
             qs = qs.where(RegionalClientPerformanceNonPerformanceORM.region_name == has_region_name)
-    if has_branch_code:
+        if has_branch_code:
             qs = qs.where(RegionalClientPerformanceNonPerformanceORM.branch_code == has_branch_code)
 
-    rows = session.execute(qs).scalars()
-    results = [RegionalClientPerformanceNonPerformance.model_validate(row).model_dump()for row in rows ]
-    
-    response = {
-        "detail": {
-            "sum_of_total_investor": get_sum_of_property('total_investor', results),
-            "sum_of_texpress_investor": get_sum_of_property('texpress_investor', results),
-            "sum_of_ibroker_investor": get_sum_of_property('ibroker_investor', results),
-            "sum_of_performer": get_sum_of_property('performer', results),
-            "sum_of_none_performer": get_sum_of_property('none_performer', results),
-            "sum_of_performer_percentage": get_sum_of_property('performer_percentage', results),
-            "sum_of_nonperformer_percentage": get_sum_of_property('nonperformer_percentage', results)
-        },
-        "rows": results,
-    }
-    return Response(response)
+        # Fetch as a **dict-like object**
+        row = session.execute(qs).mappings().first()
+ 
+        # Validate with Pydantic
+        data = RegionalClientPerformanceNonPerformance.model_validate(row).model_dump()
+
+        return Response(data)
 
 
 @extend_schema(
@@ -255,30 +258,24 @@ def get_branch_wise_regional_eCRM_details_list(request: Request) -> Response:
     has_branch_code = request.query_params.get("branch_code", None)
     
     with Session(engine) as session:
-      qs = select(RegionalECRMDetailsORM).order_by(RegionalECRMDetailsORM.branch_code)
+      qs = select(
+           func.sum(RegionalECRMDetailsORM.total_visits).label("total_visits"),
+           func.sum(RegionalECRMDetailsORM.total_success).label("total_success"),
+           func.sum(RegionalECRMDetailsORM.total_in_progress).label("total_in_progress"),
+           func.sum(RegionalECRMDetailsORM.total_discard).label("total_discard"),
+           func.sum(RegionalECRMDetailsORM.total_existing_client_visit).label("total_existing_client_visit"),
+           )
 
     qs = rolewise_branch_data_filter(qs, current_user, RegionalECRMDetailsORM)
 
-   
     if has_region_name:
             qs = qs.where(RegionalECRMDetailsORM.region_name == has_region_name)
     if has_branch_code:
             qs = qs.where(RegionalECRMDetailsORM.branch_code == has_branch_code)
 
-    rows = session.execute(qs).scalars()
-    results = [RegionalECRMDetails.model_validate(row).model_dump()for row in rows ]
-    
-    response = {
-        "detail": {
-            "sum_of_total_visits": get_sum_of_property('total_visits', results),
-            "sum_of_total_success": get_sum_of_property('total_success', results),
-            "sum_of_total_in_progress": get_sum_of_property('total_in_progress', results),
-            "sum_of_total_discard": get_sum_of_property('total_discard', results),
-            "sum_of_total_existing_client_visit": get_sum_of_property('total_existing_client_visit', results),
-        },
-        "rows": results,
-    }
-    return Response(response)
+    rows = session.execute(qs).mappings().first()
+    results = RegionalECRMDetails.model_validate(rows).model_dump()
+    return Response(results)
 
 
 @extend_schema(
@@ -311,7 +308,11 @@ def get_branch_wise_regional_eKYC_details_list(request: Request) -> Response:
     has_branch_code = request.query_params.get("branch_code", None)
     
     with Session(engine) as session:
-      qs = select(RegionaleKYCDetailORM).order_by(RegionaleKYCDetailORM.branch_code)
+      qs = select(
+                   func.sum(RegionaleKYCDetailORM.total_investor).label("total_investor"),
+                   func.sum(RegionaleKYCDetailORM.total_submitted).label("total_submitted"),
+                   func.sum(RegionaleKYCDetailORM.due).label("due"),
+                  )
 
     qs = rolewise_branch_data_filter(qs, current_user, RegionaleKYCDetailORM)
 
@@ -321,18 +322,10 @@ def get_branch_wise_regional_eKYC_details_list(request: Request) -> Response:
     if has_branch_code:
             qs = qs.where(RegionaleKYCDetailORM.branch_code == has_branch_code)
 
-    rows = session.execute(qs).scalars()
-    results = [RegionaleKYCDetail.model_validate(row).model_dump()for row in rows ]
+    rows = session.execute(qs).mappings().first()
+    results = RegionaleKYCDetail.model_validate(rows).model_dump()
     
-    response = {
-        "detail": {
-            "sum_of_total_investor": get_sum_of_property('total_investor', results),
-            "sum_of_total_submitted": get_sum_of_property('total_submitted', results),
-            "sum_of_due": get_sum_of_property('due', results),
-        },
-        "rows": results,
-    }
-    return Response(response)
+    return Response(results)
 
 
 @extend_schema(
@@ -365,7 +358,11 @@ def get_branch_wise_regional_employee_structure_list(request: Request) -> Respon
     has_branch_code = request.query_params.get("branch_code", None)
     
     with Session(engine) as session:
-      qs = select(RegionalEmployeeStructureORM).order_by(RegionalEmployeeStructureORM.branch_code)
+      qs = select(
+                    func.sum(RegionalEmployeeStructureORM.permanent_trader).label("permanent_trader"),
+                    func.sum(RegionalEmployeeStructureORM.contractual_with_salary).label("contractual_with_salary"),
+                    func.sum(RegionalEmployeeStructureORM.contractual_without_salary).label("contractual_without_salary"),
+                  )
 
     qs = rolewise_branch_data_filter(qs, current_user, RegionalEmployeeStructureORM)
 
@@ -375,18 +372,10 @@ def get_branch_wise_regional_employee_structure_list(request: Request) -> Respon
     if has_branch_code:
             qs = qs.where(RegionalEmployeeStructureORM.branch_code == has_branch_code)
 
-    rows = session.execute(qs).scalars()
-    results = [RegionalEmployeeStructure.model_validate(row).model_dump()for row in rows ]
+    rows = session.execute(qs).mappings().first()
+    results = RegionalEmployeeStructure.model_validate(rows).model_dump()
     
-    response = {
-        "detail": {
-            "sum_of_permanent_trader": get_sum_of_property('permanent_trader', results),
-            "sum_of_contractual_with_salary": get_sum_of_property('contractual_with_salary', results),
-            "sum_of_contractual_without_salary": get_sum_of_property('contractual_without_salary', results),
-        },
-        "rows": results,
-    }
-    return Response(response)
+    return Response(results)
 
 
 @extend_schema(
@@ -427,18 +416,10 @@ def get_branch_wise_regional_channel_wise_trades_list(request: Request) -> Respo
     if has_branch_code:
             qs = qs.where(RegionalChannelWiseTradesORM.branch_code == has_branch_code)
 
-    rows = session.execute(qs).scalars().all()
+    rows = session.execute(qs).scalars()
     results = [RegionalChannelWiseTrades.model_validate(row).model_dump()for row in rows ]
     
-    response = {
-        "detail": {
-            "sum_of_total_clients": get_sum_of_property('total_clients', results),
-            "sum_of_total_trades": get_sum_of_property('total_trades', results),
-            "sum_of_total_turnover": get_sum_of_property('total_turnover', results),
-        },
-        "rows": results,
-    }
-    return Response(response)
+    return Response(results)
 
 
 @extend_schema(
@@ -471,7 +452,14 @@ def get_branch_wise_regional_party_wise_turnover_commission(request: Request) ->
     has_branch_code = request.query_params.get("branch_code", None)
     
     with Session(engine) as session:
-      qs = select(RegionalPartyTurnoverCommissionORM)
+      qs = select(
+             func.sum(RegionalPartyTurnoverCommissionORM.total_party).label("total_party"),
+             func.sum(RegionalPartyTurnoverCommissionORM.total_investor).label("total_investor"),
+             func.sum(RegionalPartyTurnoverCommissionORM.total_turnover).label("total_turnover"),
+             func.sum(RegionalPartyTurnoverCommissionORM.total_commission).label("total_commission"),
+
+           )
+
     qs = rolewise_branch_data_filter(qs, current_user, RegionalPartyTurnoverCommissionORM)
    
     if has_region_name:
@@ -479,19 +467,9 @@ def get_branch_wise_regional_party_wise_turnover_commission(request: Request) ->
     if has_branch_code:
             qs = qs.where(RegionalPartyTurnoverCommissionORM.branch_code == has_branch_code)
 
-    rows = session.execute(qs).scalars().all()
-    results = [RegionalPartyTurnoverCommission.model_validate(row).model_dump()for row in rows ]
-    
-    response = {
-        "detail": {
-            "sum_of_total_party": get_sum_of_property('total_party', results),
-            "sum_of_total_investor": get_sum_of_property('total_investor', results),
-            "sum_of_total_turnover": get_sum_of_property('total_turnover', results),
-            "sum_of_total_commission": get_sum_of_property('total_commission', results),
-        },
-        "rows": results,
-    }
-    return Response(response)
+    rows = session.execute(qs).mappings().first()
+    results = RegionalPartyTurnoverCommission.model_validate(rows).model_dump()
+    return Response(results)
 
 
 @extend_schema(
@@ -524,7 +502,13 @@ def get_branch_wise_regional_deposit_withdraw_details(request: Request) -> Respo
     has_branch_code = request.query_params.get("branch_code", None)
     
     with Session(engine) as session:
-      qs = select(RegionalCashMarginDetailsORM)
+      qs = select(
+           func.sum(RegionalCashMarginDetailsORM.total_deposit).label("total_deposit"),
+           func.sum(RegionalCashMarginDetailsORM.total_withdrawal).label("total_withdrawal"),
+           func.sum(RegionalCashMarginDetailsORM.total_portfolio).label("total_portfolio"),
+           func.sum(RegionalCashMarginDetailsORM.margin_negative).label("margin_negative"),
+           func.sum(RegionalCashMarginDetailsORM.cash_available).label("cash_available"),
+           )
     qs = rolewise_branch_data_filter(qs, current_user, RegionalCashMarginDetailsORM)
    
     if has_region_name:
@@ -532,20 +516,10 @@ def get_branch_wise_regional_deposit_withdraw_details(request: Request) -> Respo
     if has_branch_code:
             qs = qs.where(RegionalCashMarginDetailsORM.branch_code == has_branch_code)
 
-    rows = session.execute(qs).scalars().all()
-    results = [RegionalCashMarginDetails.model_validate(row).model_dump()for row in rows ]
+    rows = session.execute(qs).mappings().first()
+    results = RegionalCashMarginDetails.model_validate(rows).model_dump()
     
-    response = {
-        "detail": {
-            "sum_of_total_deposit": get_sum_of_property('total_deposit', results),
-            "sum_of_total_withdrawal": get_sum_of_property('total_withdrawal', results),
-            "sum_of_total_portfolio": get_sum_of_property('total_portfolio', results),
-            "sum_of_margin_negative": get_sum_of_property('margin_negative', results),
-            "sum_of_cash_available": get_sum_of_property('cash_available', results),
-        },
-        "rows": results,
-    }
-    return Response(response)
+    return Response(results)
 
 
 @extend_schema(
@@ -578,7 +552,13 @@ def get_branch_wise_regional_exposure_details(request: Request) -> Response:
     has_branch_code = request.query_params.get("branch_code", None)
     
     with Session(engine) as session:
-      qs = select(RegionalExposureDetailsORM)
+      qs = select(
+           func.sum(RegionalExposureDetailsORM.ledger_bal).label("ledger_bal"),
+           func.sum(RegionalExposureDetailsORM.green).label("green"),
+           func.sum(RegionalExposureDetailsORM.yellow).label("yellow"),
+           func.sum(RegionalExposureDetailsORM.red).label("red"),
+           func.sum(RegionalExposureDetailsORM.negative_equity).label("negative_equity"),
+           )
     qs = rolewise_branch_data_filter(qs, current_user, RegionalExposureDetailsORM)
    
     if has_region_name:
@@ -586,21 +566,10 @@ def get_branch_wise_regional_exposure_details(request: Request) -> Response:
     if has_branch_code:
             qs = qs.where(RegionalExposureDetailsORM.branch_code == has_branch_code)
 
-    rows = session.execute(qs).scalars().all()
-    results = [RegionalExposureDetails.model_validate(row).model_dump()for row in rows ]
-    
-    response = {
-        "detail": {
-            "sum_of_total_ledger_bal": get_sum_of_property('ledger_bal', results),
-            "sum_of_total_green": get_sum_of_property('green', results),
-            "sum_of_total_yellow": get_sum_of_property('yellow', results),
-            "sum_of_margin_red": get_sum_of_property('red', results),
-            "sum_of_negative_equity": get_sum_of_property('negative_equity', results),
-        },
-        "rows": results,
-    }
-    return Response(response)
+    rows = session.execute(qs).mappings().first()
+    results = RegionalExposureDetails.model_validate(rows).model_dump()
 
+    return Response(results)
 
 @extend_schema(
     tags=[OpenApiTags.RBP],
@@ -687,7 +656,9 @@ def get_branch_wise_regional_office_space_details(request: Request) -> Response:
     has_branch_code = request.query_params.get("branch_code", None)
     
     with Session(engine) as session:
-      qs = select(RegionalOfficeSpaceORM)
+      qs = select(
+           func.sum(RegionalOfficeSpaceORM.office_space).label("office_space"),
+           )
     qs = rolewise_branch_data_filter(qs, current_user, RegionalOfficeSpaceORM)
    
     if has_region_name:
@@ -695,13 +666,7 @@ def get_branch_wise_regional_office_space_details(request: Request) -> Response:
     if has_branch_code:
             qs = qs.where(RegionalOfficeSpaceORM.branch_code == has_branch_code)
 
-    rows = session.execute(qs).scalars().all()
-    results = [RegionalOfficeSpace.model_validate(row).model_dump()for row in rows ]
-    
-    response = {
-        "detail": {
-            "sum_of_total_office_area": get_sum_of_property('office_space', results),
-        },
-        "rows": results,
-    }
-    return Response(response)
+    rows = session.execute(qs).mappings().first()
+    results =  RegionalOfficeSpace.model_validate(rows).model_dump()
+   
+    return Response(results)

@@ -1,4 +1,6 @@
 from typing import Optional
+
+from datetime import datetime
 from .base import BaseModel
 
 __all__ = [
@@ -7,7 +9,9 @@ __all__ = [
     "TotalWithdrawalToday",
     "TotalWithdrawalThisYear",
     "TotalDepositMonthWise",
-    "TotalPaymentMonthWise"
+    "TotalPaymentMonthWise",
+    "DayWiseSSLDetails",
+    "YearWiseSSLDetails",
 ]
 
 class TotalDepositToday(BaseModel):
@@ -85,4 +89,16 @@ class TotalPaymentMonthWise(BaseModel):
     october: float
     november: float
     december: float
+
+class DayWiseSSLDetails(BaseModel):
+    channel: str
+    no_of_transactions: int
+    amount: float
+    trans_date: datetime
+
+class YearWiseSSLDetails(BaseModel):
+    channel: str
+    no_of_transactions: int
+    amount: float
+    year: int
 
