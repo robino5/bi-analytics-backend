@@ -33,45 +33,46 @@ class BranchWisearketStatistics(BaseModel):
     avg_turnover: float
 
 class RegionalClientPerformanceNonPerformance(BaseModel):
-    region_name: str
-    branch_code: int
-    branch_name: str
-    total_investor: float
-    texpress_investor: float
-    ibroker_investor: float
-    performer: float
-    none_performer: float
-    performer_percentage: float
-    nonperformer_percentage: float
+    region_name: str | None=None
+    cluster_name: str | None=None
+    branch_code: int | None=None
+    branch_name: str | None=None
+    total_investor: float | None=0
+    texpress_investor: float | None=0
+    ibroker_investor: float | None=0
+    performer: float | None=0
+    none_performer: float | None=0
+    performer_percentage: float | None=0
+    nonperformer_percentage: float | None=0
 
 class RegionalECRMDetails(BaseModel):
-    region_name: str
-    cluster_name: str
-    branch_code: int
-    branch_name: str
-    total_visits: float
-    total_success: float
-    total_in_progress: float
-    total_discard: float
-    total_existing_client_visit: float
+    region_name: str | None=None
+    cluster_name: str | None=None
+    branch_code: int | None=None
+    branch_name: str | None=None
+    total_visits: float | None=0
+    total_success: float | None=0
+    total_in_progress: float | None=0
+    total_discard: float | None=0
+    total_existing_client_visit: float | None=0
 
 class RegionaleKYCDetail(BaseModel):
-    region_name: str
-    cluster_name: str
-    branch_code: int
-    branch_name: str
-    total_investor: float
-    total_submitted: float
-    due: float
+    region_name: str | None=None
+    cluster_name: str | None=None
+    branch_code: int | None=None
+    branch_name: str | None=None
+    total_investor: float | None=0
+    total_submitted: float | None=0
+    due: float | None=0
 
 class RegionalEmployeeStructure(BaseModel):
-    region_name: str
-    cluster_name: str
-    branch_code: int
-    branch_name: str
-    permanent_trader: float
-    contractual_with_salary: float
-    contractual_without_salary: float
+    region_name: str | None=None
+    cluster_name: str | None=None
+    branch_code: int | None=None
+    branch_name: str | None=None
+    permanent_trader: float | None=0
+    contractual_with_salary: float | None=0
+    contractual_without_salary: float | None=0
 
 class RegionalChannelWiseTrades(BaseModel):
     region_name: str
@@ -84,35 +85,35 @@ class RegionalChannelWiseTrades(BaseModel):
     push_date: datetime
 
 class RegionalPartyTurnoverCommission(BaseModel):
-    region_name: str
-    cluster_name: str
-    branch_code: int
-    branch_name: str
-    total_party: int
-    total_investor: int
-    total_turnover: float
-    total_commission: float
+    region_name: str | None=None
+    cluster_name: str | None=None
+    branch_code: int | None=None
+    branch_name: str | None=None
+    total_party: int | None=0
+    total_investor: int | None=0
+    total_turnover: float | None=0
+    total_commission: float | None=0
 
 
 class RegionalCashMarginDetails(BaseModel):
-    region_name: str
-    branch_code: int
-    branch_name: str
-    total_deposit: float
-    total_withdrawal: float
-    total_portfolio: float
-    margin_negative: float
-    cash_available: float
+    region_name: str | None=None
+    branch_code: int | None=None
+    branch_name: str | None=None
+    total_deposit: float | None=0
+    total_withdrawal: float | None=0
+    total_portfolio: float | None=0
+    margin_negative: float | None=0
+    cash_available: float | None=0
 
 class RegionalExposureDetails(BaseModel):
-    region_name: str
-    branch_code: int
-    branch_name: str
-    ledger_bal: float
-    green: int
-    yellow: int
-    red: int
-    negative_equity: int
+    region_name: str | None=None
+    branch_code: int | None=None
+    branch_name: str | None=None
+    ledger_bal: float | None=0
+    green: int | None=0
+    yellow: int | None=0
+    red: int | None=0
+    negative_equity: int | None=0
 
 
 class RegionalBusinessPerformance(BaseModel):
@@ -141,7 +142,7 @@ class RegionalBusinessPerformance(BaseModel):
     profit_loss: float
 
 class RegionalOfficeSpace(BaseModel):
-    region_name: str
-    branch_code: int
-    branch_name: str
-    office_space: float
+    region_name: str | None=None
+    branch_code: int | None=None
+    branch_name: str | None=None
+    office_space: float | None=0

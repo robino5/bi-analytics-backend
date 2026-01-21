@@ -22,7 +22,9 @@ from ..models import (
     TotalWithdrawalToday,
     TotalWithdrawalThisYear,
     TotalDepositMonthWise,
-    TotalPaymentMonthWise
+    TotalPaymentMonthWise,
+    YearWiseSSLDetails,
+    DayWiseSSLDetails,
 )
 from ..orm import (
     TotalDepositTodayOrm,
@@ -30,7 +32,9 @@ from ..orm import (
     TotalWithdrawalTodayOrm,
     TotalWithdrawalThisYearOrm,
     TotalDepositMonthWiseORM,
-    TotalPaymentMonthWiseORM
+    TotalPaymentMonthWiseORM,
+    DayWiseSSLDetailsORM,
+    YearWiseSSLDetailsORM,
 )
 
 __all__ = [
@@ -39,7 +43,9 @@ __all__ = [
     "get_admin_total_withdrawal_branch_wise_today",
     "get_admin_total_withdrawal_branch_wise_this_year",
     "get_admin_total_deposit_branch_wise_monthly",
-    "get_admin_total_withdrawal_branch_wise_monthly"
+    "get_admin_total_withdrawal_branch_wise_monthly",
+    "get_admin_day_wise_ssl_details",
+    "get_admin_year_wise_ssl_details",
 ]
 
 
@@ -284,6 +290,59 @@ def get_admin_total_withdrawal_branch_wise_monthly(request: Request) -> Response
 
     return Response(response)
 
+
+
+#### Total Withdrawal Month Wise  ####
+@extend_schema(
+    tags=[OpenApiTags.FINANCIAL_INFORMATION],
+    parameters=[
+        OpenApiParameter(
+            "year",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific Year",
+        )
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_year_wise_ssl_details(request: Request) -> Response:
+    """fetch admin year wise ssl details"""
+    request.accepted_renderer = CustomRenderer()
+    has_year = request.query_params.get("year", None)
+
+    with Session(engine) as session:
+        qs = select(YearWiseSSLDetailsORM)
+        
+        if has_year:
+            qs = qs.where(YearWiseSSLDetailsORM.year == has_year)
+
+        rows = session.execute(qs).scalars()
+
+        results = [YearWiseSSLDetails.model_validate(row).model_dump() for row in rows]
+
+    return Response(results)
+
+
+#### Total Withdrawal Month Wise  ####
+@extend_schema(tags=[OpenApiTags.FINANCIAL_INFORMATION])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_day_wise_ssl_details(request: Request) -> Response:
+    """fetch admin day wise ssl details"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = select(DayWiseSSLDetailsORM).order_by(
+                DayWiseSSLDetailsORM.trans_date
+            )
+
+        rows = session.execute(qs).scalars()
+
+        results = [DayWiseSSLDetails.model_validate(row).model_dump() for row in rows]
+
+    return Response(results)
 
 
 

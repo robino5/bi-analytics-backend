@@ -117,6 +117,8 @@ urlpatterns = [
     path("admin/total-withdrawal-branch-wise-this-year/", views.get_admin_total_withdrawal_branch_wise_this_year),
     path("admin/total-deposit-branch-wise-monthly/", views.get_admin_total_deposit_branch_wise_monthly),
     path("admin/total-withdrawal-branch-wise-monthly/", views.get_admin_total_withdrawal_branch_wise_monthly),
+    path("admin/day-wise-ssl-details/", views.get_admin_day_wise_ssl_details),
+    path("admin/year-wise-ssl-details/", views.get_admin_year_wise_ssl_details),
 
     # regional business performance
     path("exchange-wise-market-statistics/", views.get_exchange_wise_market_statistics),

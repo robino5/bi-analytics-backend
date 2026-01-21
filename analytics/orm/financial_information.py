@@ -1,5 +1,5 @@
 
-from sqlalchemy import Integer, Numeric, String
+from sqlalchemy import Integer, Numeric, String, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db import BaseOrm
@@ -9,7 +9,9 @@ __all__ = [
     "TotalWithdrawalTodayOrm",
     "TotalWithdrawalThisYearOrm",
     "TotalDepositMonthWiseORM",
-    "TotalPaymentMonthWiseORM"
+    "TotalPaymentMonthWiseORM",
+    "DayWiseSSLDetailsORM",
+    "YearWiseSSLDetailsORM",
 ]
 
 class TotalDepositTodayOrm(BaseOrm):
@@ -100,3 +102,20 @@ class TotalPaymentMonthWiseORM(BaseOrm):
     october: Mapped[float] = mapped_column("October", Numeric(34, 2))
     november: Mapped[float] = mapped_column("November", Numeric(34, 2))
     december: Mapped[float] = mapped_column("December", Numeric(34, 2))
+
+
+class DayWiseSSLDetailsORM(BaseOrm):
+    __tablename__ = "BI_trd_Admin_Fin_DayWise_SSL_details"
+
+    channel: Mapped[str] = mapped_column("channel", String(255), primary_key=True)
+    no_of_transactions: Mapped[int] = mapped_column("No of transactions", Integer)
+    amount: Mapped[float] = mapped_column("Amount", Numeric(34, 2))
+    trans_date: Mapped[DateTime] = mapped_column("Trade_dt", DateTime)
+
+class YearWiseSSLDetailsORM(BaseOrm):
+    __tablename__ = "BI_trd_Admin_Fin_YearWise_SSL_details"
+
+    channel: Mapped[str] = mapped_column("channel", String(255), primary_key=True)
+    no_of_transactions: Mapped[int] = mapped_column("No of transactions", Integer)
+    amount: Mapped[float] = mapped_column("Amount", Numeric(34, 2))
+    year: Mapped[int] = mapped_column("year_date", Integer)
