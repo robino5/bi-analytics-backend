@@ -313,7 +313,9 @@ def get_admin_year_wise_ssl_details(request: Request) -> Response:
     has_year = request.query_params.get("year", None)
 
     with Session(engine) as session:
-        qs = select(YearWiseSSLDetailsORM)
+        qs = select(YearWiseSSLDetailsORM).order_by(
+                YearWiseSSLDetailsORM.amount.desc()
+            )
         
         if has_year:
             qs = qs.where(YearWiseSSLDetailsORM.year == has_year)
@@ -335,7 +337,7 @@ def get_admin_day_wise_ssl_details(request: Request) -> Response:
 
     with Session(engine) as session:
         qs = select(DayWiseSSLDetailsORM).order_by(
-                DayWiseSSLDetailsORM.trans_date
+                DayWiseSSLDetailsORM.amount.desc()
             )
 
         rows = session.execute(qs).scalars()

@@ -15,8 +15,8 @@ from core.metadata.openapi import OpenApiTags
 from core.renderer import CustomRenderer
 from db import engine
 
-from ..models import RMWiseClientDetail,InvestroLiveNetTradeRMWise,LiveInvestorTopSaleRMWise,LiveInvestorTopBuyRMWise,BranchWiseNonePerformClient
-from ..orm import RMWiseClientDetailOrm, RMWiseTurnoverPerformanceOrm,InvestroLiveNetTradeRMWiseOrm,LiveInvestorTopBuyRMWiseOrm,LiveInvestorTopSaleRMWiseOrm,BranchWiseNonePerformClientOrm
+from ..models import RMWiseClientDetail,InvestroLiveNetTradeRMWise,LiveInvestorTopSaleRMWise,LiveInvestorTopBuyRMWise,BranchWiseNonePerformClient,RMAuction,RMOffMarket
+from ..orm import RMWiseClientDetailOrm, RMWiseTurnoverPerformanceOrm,InvestroLiveNetTradeRMWiseOrm,LiveInvestorTopBuyRMWiseOrm,LiveInvestorTopSaleRMWiseOrm,BranchWiseNonePerformClientOrm,RMOffMarketOrm,RMAuctionOrm 
 from .utils import rolewise_branch_data_filter
 
 __all__ = ["get_turnover_perfomance_rmwise", 
@@ -25,7 +25,9 @@ __all__ = ["get_turnover_perfomance_rmwise",
            "get_live_investor_top_buy_rm_wise",
            "get_live_investor_top_sale_rm_wise",
            "get_branch_wise_none_performing_client",
-           "get_top_turnover_investor"
+           "get_top_turnover_investor",
+           "get_rm_wise_auction_market",
+           "get_rm_wise_off_market"
            ]
 
 
@@ -368,5 +370,93 @@ def get_branch_wise_none_performing_client(request: Request) -> Response:
         results = [BranchWiseNonePerformClient.model_validate(row).model_dump() for row in rows]
     return Response(results)
 
+
+
+@extend_schema(
+    tags=[OpenApiTags.RMWISE_PERFORMANCE],
+    parameters=[
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Branch Code Of the RM",
+        ),
+        OpenApiParameter(
+            "trader",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Username of the RM",
+        ),
+    ],
+)
+@extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_rm_wise_off_market(request: Request) -> Response:
+    """fetch rm wise off market details"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
+    with Session(engine) as session:
+        qs = select(RMOffMarketOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, RMOffMarketOrm)
+        if has_branch:
+            qs = qs.where(
+                RMOffMarketOrm.branch_code == has_branch,
+            )
+        if has_trader:
+            qs = qs.where(
+                RMOffMarketOrm.rm_name == has_trader,
+            )
+        rows = session.execute(qs).scalars()
+        results = [RMOffMarket.model_validate(row).model_dump() for row in rows]
+    return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.RMWISE_PERFORMANCE],
+    parameters=[
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Branch Code Of the RM",
+        ),
+        OpenApiParameter(
+            "trader",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Username of the RM",
+        ),
+    ],
+)
+@extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_rm_wise_auction_market(request: Request) -> Response:
+    """fetch rm wise auction market details"""
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+    has_branch = request.query_params.get("branch", None)
+    has_trader = request.query_params.get("trader", None)
+    with Session(engine) as session:
+        qs = select(RMAuctionOrm)
+        qs = rolewise_branch_data_filter(qs, current_user, RMAuctionOrm)
+        if has_branch:
+            qs = qs.where(
+                RMAuctionOrm.branch_code == has_branch,
+            )
+        if has_trader:
+            qs = qs.where(
+                RMAuctionOrm.rm_name == has_trader,
+            )
+        rows = session.execute(qs).scalars()
+        results = [RMAuction.model_validate(row).model_dump() for row in rows]
+    return Response(results)
 
 

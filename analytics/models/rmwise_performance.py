@@ -4,7 +4,9 @@ __all__ = ["RMWiseClientDetail",
            "InvestroLiveNetTradeRMWise",
            "LiveInvestorTopSaleRMWise",
            "LiveInvestorTopBuyRMWise",
-           "BranchWiseNonePerformClient"
+           "BranchWiseNonePerformClient",
+           "RMOffMarket",
+           "RMAuction"
            ]
 
 
@@ -68,4 +70,20 @@ class BranchWiseNonePerformClient(BaseModel):
     available_balance: float 
     mobile: str | None
     email: str | None
+class RMOffMarket(BaseModel):
+    region_name: str
+    branch_code: int
+    branch_name: str
+    rm_name: str
+    off_market_fund: float
+    off_market_income: float
+    year: int
+class RMAuction(BaseModel):
+    region_name: str
+    branch_code: int
+    branch_name: str
+    rm_name: str
+    auction_fund: float
+    auction_income: float
+    year: int
     
