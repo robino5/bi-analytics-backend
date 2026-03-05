@@ -389,6 +389,13 @@ def get_branch_wise_none_performing_client(request: Request) -> Response:
             required=False,
             description="Username of the RM",
         ),
+          OpenApiParameter(
+            "year",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Year of the Data",
+        ),
     ],
 )
 @extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
@@ -400,8 +407,9 @@ def get_rm_wise_off_market(request: Request) -> Response:
     current_user: User = request.user
     has_branch = request.query_params.get("branch", None)
     has_trader = request.query_params.get("trader", None)
+    has_year = request.query_params.get("year", None)
     with Session(engine) as session:
-        qs = select(RMOffMarketOrm)
+        qs = select(RMOffMarketOrm).order_by(RMOffMarketOrm.off_market_income.desc()).order_by(RMOffMarketOrm.year)
         qs = rolewise_branch_data_filter(qs, current_user, RMOffMarketOrm)
         if has_branch:
             qs = qs.where(
@@ -410,6 +418,10 @@ def get_rm_wise_off_market(request: Request) -> Response:
         if has_trader:
             qs = qs.where(
                 RMOffMarketOrm.rm_name == has_trader,
+            )
+        if has_year:
+            qs = qs.where(
+                RMOffMarketOrm.year == has_year,
             )
         rows = session.execute(qs).scalars()
         results = [RMOffMarket.model_validate(row).model_dump() for row in rows]
@@ -424,14 +436,21 @@ def get_rm_wise_off_market(request: Request) -> Response:
             OpenApiTypes.INT,
             OpenApiParameter.QUERY,
             required=False,
-            description="Branch Code Of the RM",
+            description="Branch Code Of the Data",
         ),
         OpenApiParameter(
             "trader",
             OpenApiTypes.STR,
             OpenApiParameter.QUERY,
             required=False,
-            description="Username of the RM",
+            description="Username of the Data",
+        ),
+          OpenApiParameter(
+            "year",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Year of the Data",
         ),
     ],
 )
@@ -444,8 +463,9 @@ def get_rm_wise_auction_market(request: Request) -> Response:
     current_user: User = request.user
     has_branch = request.query_params.get("branch", None)
     has_trader = request.query_params.get("trader", None)
+    has_year = request.query_params.get("year", None)
     with Session(engine) as session:
-        qs = select(RMAuctionOrm)
+        qs = select(RMAuctionOrm).order_by(RMAuctionOrm.auction_income.desc()).order_by(RMAuctionOrm.year)
         qs = rolewise_branch_data_filter(qs, current_user, RMAuctionOrm)
         if has_branch:
             qs = qs.where(
@@ -454,6 +474,10 @@ def get_rm_wise_auction_market(request: Request) -> Response:
         if has_trader:
             qs = qs.where(
                 RMAuctionOrm.rm_name == has_trader,
+            )
+        if has_year:
+            qs = qs.where(
+                RMAuctionOrm.year == has_year,
             )
         rows = session.execute(qs).scalars()
         results = [RMAuction.model_validate(row).model_dump() for row in rows]
