@@ -80,13 +80,17 @@ def get_admin_total_deposit_branch_wise_today(request: Request) -> Response:
             +get_sum_of_property("scb_deposit", results)
             +get_sum_of_property("pay_order", results)
             +get_sum_of_property("cash_dividend", results)
-            +get_sum_of_property("ipo_mode", results),
+            +get_sum_of_property("ipo_mode", results)
+            +get_sum_of_property("transfer_deposit", results)
+            +get_sum_of_property("online_receive", results),
            "cash_deposit": get_sum_of_property("cash_deposit", results),
            "cheque_deposit": get_sum_of_property("cheque_deposit", results),
            "scb_deposit": get_sum_of_property("scb_deposit", results),
            "pay_order": get_sum_of_property("pay_order", results),
            "cash_dividend": get_sum_of_property("cash_dividend", results),
            "ipo_mode": get_sum_of_property("ipo_mode", results),
+            "transfer_deposit": get_sum_of_property("transfer_deposit", results),
+            "online_receive": get_sum_of_property("online_receive", results),
         },
         "rows": results,
     }
@@ -313,7 +317,9 @@ def get_admin_year_wise_ssl_details(request: Request) -> Response:
     has_year = request.query_params.get("year", None)
 
     with Session(engine) as session:
-        qs = select(YearWiseSSLDetailsORM)
+        qs = select(YearWiseSSLDetailsORM).order_by(
+                YearWiseSSLDetailsORM.amount.desc()
+            )
         
         if has_year:
             qs = qs.where(YearWiseSSLDetailsORM.year == has_year)
@@ -335,7 +341,7 @@ def get_admin_day_wise_ssl_details(request: Request) -> Response:
 
     with Session(engine) as session:
         qs = select(DayWiseSSLDetailsORM).order_by(
-                DayWiseSSLDetailsORM.trans_date
+                DayWiseSSLDetailsORM.amount.desc()
             )
 
         rows = session.execute(qs).scalars()

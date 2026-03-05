@@ -133,6 +133,8 @@ urlpatterns = [
     path("branch-wise-regional-exposure-details/", views.get_branch_wise_regional_exposure_details),
     path("branch-wise-regional-business-performance/", views.get_branch_wise_regional_business_performance),
     path("branch-wise-regional-office-space/", views.get_branch_wise_regional_office_space_details),
+    path("rm-wise-auction-market/", views.get_rm_wise_auction_market),
+    path("rm-wise-off-market/", views.get_rm_wise_off_market),
 
     # portal live data
     path("portal-dse-live-trade/", views.live_dse_trade),

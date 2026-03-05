@@ -23,6 +23,8 @@ class TotalDepositToday(BaseModel):
     pay_order: float
     cash_dividend: float
     ipo_mode: float
+    transfer_deposit: float
+    online_receive: float
 
 
 class TotalDepositThisYear(BaseModel):

@@ -22,6 +22,7 @@ class ExchangeWisearketStatistics(BaseModel):
     avg_turnover: float
     lbsl_total_turnover: float
     lbsl_avg_turnover: float
+    trade_day: int
 
 class BranchWisearketStatistics(BaseModel):
     region_id: int

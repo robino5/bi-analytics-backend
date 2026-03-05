@@ -8,9 +8,10 @@ __all__ = ["RMWiseTurnoverPerformanceOrm",
            "InvestroLiveNetTradeRMWiseOrm",
            "LiveInvestorTopBuyRMWiseOrm",
            "LiveInvestorTopSaleRMWiseOrm",
-           "BranchWiseNonePerformClientOrm"
+           "BranchWiseNonePerformClientOrm",
+           "RMOffMarketOrm",
+           "RMAuctionOrm"
            ]
-
 
 class RMWiseTurnoverPerformanceOrm(BaseOrm):
     __tablename__ = "BI_trd_RMWise_Turnover_Performance"
@@ -100,3 +101,25 @@ class BranchWiseNonePerformClientOrm(BaseOrm):
     available_balance: Mapped[float] = mapped_column("Available Balance", Numeric(38, 6), default=0)
     mobile: Mapped[str] = mapped_column("mobile",String(50))
     email: Mapped[str] = mapped_column("Email",String(100))
+
+class RMOffMarketOrm(BaseOrm):
+    __tablename__ = "BI_trd_RMWise_GSEC_Off_market_details"
+
+    region_name: Mapped[str] = mapped_column("region_name", String(255))
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer,primary_key=True)
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(255))
+    rm_name: Mapped[str] = mapped_column("RM_Name", String(255),primary_key=True) 
+    off_market_fund: Mapped[float] = mapped_column("OffMkt_fund", Numeric(38, 6), default=0)
+    off_market_income: Mapped[float] = mapped_column("OffMkt_income", Numeric(38, 6), default=0)
+    year: Mapped[int] = mapped_column("year_date", Integer,primary_key=True)
+
+class RMAuctionOrm(BaseOrm):
+    __tablename__ = "BI_trd_RMWise_GSEC_auction_details"
+
+    region_name: Mapped[str] = mapped_column("region_name", String(255))
+    branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(255))
+    rm_name: Mapped[str] = mapped_column("RM_Name", String(255),primary_key=True) 
+    auction_fund: Mapped[float] = mapped_column("auction_fund", Numeric(38, 6), default=0)
+    auction_income: Mapped[float] = mapped_column("auction_income", Numeric(38, 6), default=0)
+    year: Mapped[int] = mapped_column("year_date", Integer,primary_key=True)

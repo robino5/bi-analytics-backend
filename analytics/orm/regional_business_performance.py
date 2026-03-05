@@ -28,7 +28,7 @@ class ExchangeWisearketStatisticsORM(BaseOrm):
     avg_turnover: Mapped[float] = mapped_column("avg_turnover", Numeric(34, 0), nullable=False)
     lbsl_total_turnover: Mapped[float] = mapped_column("lbsl_total_turnover", Numeric(34, 0), nullable=False)
     lbsl_avg_turnover: Mapped[float] = mapped_column("lbsl_avg_turnover", Numeric(34, 0), nullable=False)
-
+    trade_day: Mapped[int] = mapped_column("count_Total_trade_day", Integer, nullable=False)
 
 class BranchWisearketStatisticsORM(BaseOrm):
     __tablename__ = "BI_trd_Admin_BranchWise_Market_Statistics"

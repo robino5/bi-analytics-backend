@@ -656,9 +656,7 @@ def get_branch_wise_regional_office_space_details(request: Request) -> Response:
     has_branch_code = request.query_params.get("branch_code", None)
     
     with Session(engine) as session:
-      qs = select(
-           func.sum(RegionalOfficeSpaceORM.office_space).label("office_space"),
-           )
+      qs = select(RegionalOfficeSpaceORM).order_by(RegionalOfficeSpaceORM.branch_code)
     qs = rolewise_branch_data_filter(qs, current_user, RegionalOfficeSpaceORM)
    
     if has_region_name:
@@ -666,7 +664,7 @@ def get_branch_wise_regional_office_space_details(request: Request) -> Response:
     if has_branch_code:
             qs = qs.where(RegionalOfficeSpaceORM.branch_code == has_branch_code)
 
-    rows = session.execute(qs).mappings().first()
-    results =  RegionalOfficeSpace.model_validate(rows).model_dump()
-   
+    rows = session.execute(qs).scalars()
+    results = [RegionalOfficeSpace.model_validate(row).model_dump()for row in rows ]
+
     return Response(results)
