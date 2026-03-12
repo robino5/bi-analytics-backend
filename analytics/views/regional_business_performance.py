@@ -31,7 +31,8 @@ from ..models import (
      RegionalCashMarginDetails,
      RegionalExposureDetails,
      RegionalBusinessPerformance,
-     RegionalOfficeSpace
+     RegionalOfficeSpace,
+     RegionalPerformanceProcess
      )
 
 from ..orm import (
@@ -46,7 +47,8 @@ from ..orm import (
     RegionalCashMarginDetailsORM,
     RegionalExposureDetailsORM,
     RegionalBusinessPerformanceORM,
-    RegionalOfficeSpaceORM
+    RegionalOfficeSpaceORM,
+    RegionalPerformanceProcessORM
 )
 
 __all__ = [
@@ -61,7 +63,8 @@ __all__ = [
     "get_branch_wise_regional_deposit_withdraw_details",
     "get_branch_wise_regional_exposure_details",
     "get_branch_wise_regional_business_performance",
-    "get_branch_wise_regional_office_space_details"
+    "get_branch_wise_regional_office_space_details",
+    "get_branch_performance_process_details"
 ]
 
 
@@ -606,6 +609,7 @@ def get_branch_wise_regional_business_performance(request: Request) -> Response:
    
     if has_region_name:
             qs = qs.where(RegionalBusinessPerformanceORM.region_name == has_region_name)
+            qs = qs.where(RegionalBusinessPerformanceORM.region_name == has_region_name)
     if has_branch_code:
             qs = qs.where(RegionalBusinessPerformanceORM.branch_code == has_branch_code)
 
@@ -668,3 +672,45 @@ def get_branch_wise_regional_office_space_details(request: Request) -> Response:
     results = [RegionalOfficeSpace.model_validate(row).model_dump()for row in rows ]
 
     return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.RBP],
+     parameters=[
+        OpenApiParameter(
+            "procedure_name",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="get results with specific procedure name",
+        )
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated])
+def get_branch_performance_process_details(request: Request) -> Response:
+    """fetch branch performance process details like last execution time, parameters used etc."""
+
+    request.accepted_renderer = CustomRenderer()
+    current_user: User = request.user
+    has_procedure_name = request.query_params.get("procedure_name", None)
+
+    with Session(engine) as session:
+        qs = (
+            select(RegionalPerformanceProcessORM)
+            .where(RegionalPerformanceProcessORM.procedure_name == has_procedure_name)
+            .order_by(RegionalPerformanceProcessORM.run_time.desc())
+            .limit(1)
+        )
+
+        qs = rolewise_branch_data_filter(qs, current_user, RegionalPerformanceProcessORM)
+
+        row = session.execute(qs).scalar_one_or_none()
+
+        if not row:
+            return Response({})
+
+        result = RegionalPerformanceProcess.model_validate(row).model_dump()
+
+    return Response(result)
+

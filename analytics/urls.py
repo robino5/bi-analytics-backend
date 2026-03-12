@@ -61,6 +61,9 @@ urlpatterns = [
     path("branchwise-margin-status/", views.get_bw_margin_status),
     path("branchwise-fund-status/", views.get_bw_fund_status),
     path("branchwise-exposure-status/", views.get_bw_exposure_status),
+    
+   
+
     ################# RM Wise Dashboards URL ##########################
     # Daily Trade Performance
     path("rm/basic-summaries/", views.get_basic_summaries_rmwise),
@@ -135,6 +138,11 @@ urlpatterns = [
     path("branch-wise-regional-office-space/", views.get_branch_wise_regional_office_space_details),
     path("rm-wise-auction-market/", views.get_rm_wise_auction_market),
     path("rm-wise-off-market/", views.get_rm_wise_off_market),
+    path("regional-business-performance-csv/", views.download_regional_business_performance_csv),
+    path("branch-performance-process/", views.get_branch_performance_process_details),
+     # Stored Procedure execution endpoint
+    path("sp/branch-performance/", views.execute_branch_performance_sp),
+    path("sp/region-wise-management/", views.execute_region_wise_management_sp),
 
     # portal live data
     path("portal-dse-live-trade/", views.live_dse_trade),
