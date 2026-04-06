@@ -106,37 +106,21 @@ def get_exchange_wise_market_statistics(request: Request) -> Response:
     rows = session.execute(qs).scalars()
     results = [ExchangeWisearketStatistics.model_validate(row).model_dump()for row in rows ]
 
-    response = {
-        "detail": {
-            "sum_of_total_turnover": get_sum_of_property('total_turnover', results),
-            "sum_of_avg_turnover": get_sum_of_property('avg_turnover', results),
-            "sum_of_lbsl_total_turnover": get_sum_of_property('lbsl_total_turnover', results),
-            "sum_of_lbsl_avg_turnover": get_sum_of_property('lbsl_avg_turnover', results),
-        },
-        "rows": results,
-    }
+    # response = {
+    #     "detail": {
+    #         "sum_of_total_turnover": get_sum_of_property('total_turnover', results),
+    #         "sum_of_avg_turnover": get_sum_of_property('avg_turnover', results),
+    #         "sum_of_lbsl_total_turnover": get_sum_of_property('lbsl_total_turnover', results),
+    #         "sum_of_lbsl_avg_turnover": get_sum_of_property('lbsl_avg_turnover', results),
+    #     },
+    #     "rows": results,
+    # }
     
-    return Response(response)
+    return Response(results)
 
 
 @extend_schema(
     tags=[OpenApiTags.RBP],
-    parameters=[
-        OpenApiParameter(
-            "region_name",
-            OpenApiTypes.STR,
-            OpenApiParameter.QUERY,
-            required=False,
-            description="get results with specific region name",
-        ),
-           OpenApiParameter(
-            "branch_code",
-            OpenApiTypes.INT,
-            OpenApiParameter.QUERY,
-            required=False,
-            description="get results with specific branch code",
-        ),
-    ],
 )
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
@@ -145,31 +129,16 @@ def get_branch_wise_market_statistics(request: Request) -> Response:
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
 
-    has_region_name = request.query_params.get("region_name", None)
-    has_branch_code = request.query_params.get("branch_code", None)
-    
     with Session(engine) as session:
       qs = select(BranchWisearketStatisticsORM).order_by(BranchWisearketStatisticsORM.branch_code)
 
     qs = rolewise_branch_data_filter(qs, current_user, BranchWisearketStatisticsORM)
 
-   
-    if has_region_name:
-            qs = qs.where(BranchWisearketStatisticsORM.region_name == has_region_name)
-    if has_branch_code:
-            qs = qs.where(BranchWisearketStatisticsORM.branch_code == has_branch_code)
 
     rows = session.execute(qs).scalars()
     results = [BranchWisearketStatistics.model_validate(row).model_dump()for row in rows ]
-    
-    response = {
-        "detail": {
-            "sum_of_total_turnover": get_sum_of_property('total_turnover', results),
-            "sum_of_avg_turnover": get_sum_of_property('avg_turnover', results)
-        },
-        "rows": results,
-    }
-    return Response(response)
+
+    return Response(results)
 
 
 @extend_schema(
@@ -575,23 +544,7 @@ def get_branch_wise_regional_exposure_details(request: Request) -> Response:
     return Response(results)
 
 @extend_schema(
-    tags=[OpenApiTags.RBP],
-    parameters=[
-        OpenApiParameter(
-            "region_name",
-            OpenApiTypes.STR,
-            OpenApiParameter.QUERY,
-            required=False,
-            description="get results with specific region name",
-        ),
-           OpenApiParameter(
-            "branch_code",
-            OpenApiTypes.INT,
-            OpenApiParameter.QUERY,
-            required=False,
-            description="get results with specific branch code",
-        ),
-    ],
+    tags=[OpenApiTags.RBP]
 )
 @api_view([HTTPMethod.GET])
 @permission_classes([IsAuthenticated])
@@ -600,32 +553,15 @@ def get_branch_wise_regional_business_performance(request: Request) -> Response:
     request.accepted_renderer = CustomRenderer()
     current_user: User = request.user
 
-    has_region_name = request.query_params.get("region_name", None)
-    has_branch_code = request.query_params.get("branch_code", None)
-    
     with Session(engine) as session:
       qs = select(RegionalBusinessPerformanceORM).order_by(RegionalBusinessPerformanceORM.branch_code)
-    qs = rolewise_branch_data_filter(qs, current_user, RegionalBusinessPerformanceORM)
+      qs = rolewise_branch_data_filter(qs, current_user, RegionalBusinessPerformanceORM)
    
-    if has_region_name:
-            qs = qs.where(RegionalBusinessPerformanceORM.region_name == has_region_name)
-            qs = qs.where(RegionalBusinessPerformanceORM.region_name == has_region_name)
-    if has_branch_code:
-            qs = qs.where(RegionalBusinessPerformanceORM.branch_code == has_branch_code)
+  
 
     rows = session.execute(qs).scalars()
     results = [RegionalBusinessPerformance.model_validate(row).model_dump()for row in rows ]
     
-    # response = {
-    #     "detail": {
-    #         "sum_of_total_ledger_bal": get_sum_of_property('ledger_bal', results),
-    #         "sum_of_total_green": get_sum_of_property('green', results),
-    #         "sum_of_total_yellow": get_sum_of_property('yellow', results),
-    #         "sum_of_margin_red": get_sum_of_property('red', results),
-    #         "sum_of_negative_equity": get_sum_of_property('negative_equity', results),
-    #     },
-    #     "rows": results,
-    # }
     return Response(results)
 
 
