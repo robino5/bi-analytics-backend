@@ -13,3 +13,4 @@ from .excels import *
 from .dse_api import *  # noqa: F403, I001
 from .financial_information import *  # noqa: F403, I001
 from .regional_business_performance import *  # noqa: F403, I001
+from .branch_performance_process import *  # noqa: F403, I001

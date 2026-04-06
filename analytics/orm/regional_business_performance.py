@@ -17,7 +17,8 @@ __all__ = [
     "RegionalCashMarginDetailsORM",
     "RegionalExposureDetailsORM",
     "RegionalBusinessPerformanceORM",
-    "RegionalOfficeSpaceORM"
+    "RegionalOfficeSpaceORM",
+    "RegionalPerformanceProcessORM"
     ]
 
 class ExchangeWisearketStatisticsORM(BaseOrm):
@@ -177,3 +178,11 @@ class RegionalOfficeSpaceORM(BaseOrm):
     branch_code: Mapped[int] = mapped_column("branch_code", Integer,primary_key=True) 
     branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
     office_space: Mapped[float] = mapped_column("office_area", Numeric(34, 0), nullable=False)
+
+class RegionalPerformanceProcessORM(BaseOrm):
+    __tablename__ = "BIAnalytics_SP_Run_Log"
+
+    procedure_name: Mapped[str] = mapped_column("procedure_Name", String(200),)
+    date_from: Mapped[DateTime] = mapped_column("date_from", DateTime) 
+    date_to: Mapped[DateTime] = mapped_column("date_to", DateTime)
+    run_time: Mapped[DateTime] = mapped_column("run_time", DateTime, primary_key=True)

@@ -39,6 +39,8 @@ class TotalDepositThisYearOrm(BaseOrm):
     pay_order: Mapped[float] = mapped_column("Pay_order", Numeric(34, 2))
     cash_dividend: Mapped[float] = mapped_column("Cash_dividend", Numeric(34, 2))
     ipo_mode: Mapped[float] = mapped_column("IPO_Mode", Numeric(34, 2))
+    transfer_deposit: Mapped[float] = mapped_column("Transfer_deposit", Numeric(34, 2))
+    online_receive: Mapped[float] = mapped_column("Online_Receive", Numeric(34, 2))
 
 class TotalWithdrawalTodayOrm(BaseOrm):
     __tablename__ = "BI_trd_Admin_Fin_branchWise_payment"

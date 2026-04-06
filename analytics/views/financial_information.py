@@ -122,13 +122,17 @@ def get_admin_total_deposit_branch_wise_this_year(request: Request) -> Response:
             +get_sum_of_property("scb_deposit", results)
             +get_sum_of_property("pay_order", results)
             +get_sum_of_property("cash_dividend", results)
-            +get_sum_of_property("ipo_mode", results),
+            +get_sum_of_property("ipo_mode", results)
+            +get_sum_of_property("transfer_deposit", results)
+            +get_sum_of_property("online_receive", results),
             "cash_deposit": get_sum_of_property("cash_deposit", results),
             "cheque_deposit": get_sum_of_property("cheque_deposit", results),
             "scb_deposit": get_sum_of_property("scb_deposit", results),
             "pay_order": get_sum_of_property("pay_order", results),
             "cash_dividend": get_sum_of_property("cash_dividend", results),
             "ipo_mode": get_sum_of_property("ipo_mode", results),
+            "transfer_deposit": get_sum_of_property("transfer_deposit", results),
+            "online_receive": get_sum_of_property("online_receive", results),
         },
         "rows": results,
     }

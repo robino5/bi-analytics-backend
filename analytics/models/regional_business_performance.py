@@ -13,7 +13,8 @@ __all__ = ["ExchangeWisearketStatistics",
            "RegionalCashMarginDetails",
            "RegionalExposureDetails",
            "RegionalBusinessPerformance",
-           "RegionalOfficeSpace"
+           "RegionalOfficeSpace",
+           "RegionalPerformanceProcess"
            ]
 
 class ExchangeWisearketStatistics(BaseModel):
@@ -147,3 +148,9 @@ class RegionalOfficeSpace(BaseModel):
     branch_code: int | None=None
     branch_name: str | None=None
     office_space: float | None=0
+
+class RegionalPerformanceProcess(BaseModel):
+    procedure_name: str
+    date_from: datetime
+    date_to: datetime
+    run_time: datetime
