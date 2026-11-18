@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from .base import BaseModel, BranchInfoBaseModel
 
 __all__ = ["MarginLoanUsgae", "Exposure", "RMWiseNetTrade", "MarkedInvestor"]
@@ -28,6 +30,13 @@ class MarkedInvestor(BaseModel):
     investor_name: str
     ledger_balance: float
     rm_name: str
-    exposure:float
-    equity:float
-    loan_ratio:str
+    exposure: float
+    equity: float
+    loan_ratio: str
+    marginable_exposure: float | None = None
+    marginable_equity: float | None = None
+    marginable_loan_ratio: str | None = None
+    stock_value: float | None = None
+    last_trading_dt: datetime | None = None
+    acc_type: str | None = None
+    branch_name: str | None = None

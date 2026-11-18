@@ -22,7 +22,10 @@ from ..models import (
     CompanyWiseSaleableStock,
     CompanyWiseSaleableStockPercentage,
     InvestorWiseSaleableStock,
-    MarketShareLBSL
+    MarketShareLBSL,
+    DateWiseTopTenTurnover,
+    DateWiseTopTenInternetTurnover,
+    BlockMarketShare
   
 )
 from ..orm import (
@@ -32,7 +35,10 @@ from ..orm import (
     CompanyWiseSaleableStockOrm,
     CompanyWiseSaleableStockPercentageOrm,
     InvestorWiseSaleableStockOrm,
-    MarketShareLBSLOrm
+    MarketShareLBSLOrm,
+    DateWiseTopTenTurnoverOrm,
+    DateWiseTopTenInternetTurnoverOrm,
+    BlockMarketShareOrm
 )
 
 
@@ -324,4 +330,60 @@ def get_company_wise_saleable_stock_percentage(request: Request) -> Response:
             for row in paginated_results
         ]
         return paginator.get_paginated_response(results)
+    
+
+@extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_date_wise_top_ten_turnover(request: Request) -> Response:
+    """fetch date wise top ten turnover"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(DateWiseTopTenTurnoverOrm).order_by(DateWiseTopTenTurnoverOrm.turnover.desc())
+        ).scalars()
+
+        results = [DateWiseTopTenTurnover.model_validate(row).model_dump() for row in qs]
+
+    return Response(results)
+
+@extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_date_wise_top_ten_internet_turnover(request: Request) -> Response:
+    """fetch date wise top ten internet turnover"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(DateWiseTopTenInternetTurnoverOrm).order_by(DateWiseTopTenInternetTurnoverOrm.turnover.desc())
+        ).scalars()
+
+        results = [DateWiseTopTenInternetTurnover.model_validate(row).model_dump() for row in qs]
+
+    return Response(results)
+
+
+
+@extend_schema(tags=[OpenApiTags.BUSINESS_TRADE_MANAGEMENT])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_block_market_share(request: Request) -> Response:
+    """Fetch block market share"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        row = session.execute(
+            select(BlockMarketShareOrm)
+        ).scalars().first()
+
+        result = (
+            BlockMarketShare.model_validate(row).model_dump()
+            if row else {}
+        )
+
+    return Response(result)
+    
+
     

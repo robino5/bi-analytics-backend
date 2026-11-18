@@ -12,6 +12,7 @@ class OpenApiTags:
     BP = "branch-performance"
     RBP = "regional-business-performance"
 
+
     RMWISE_DTP = "rmwise-daily-trade-performance"
     RMWISE_PERFORMANCE = "rmwise-performance"
     RMWISE_PORTFOLIO = "rmwise-portfolio"
@@ -21,6 +22,8 @@ class OpenApiTags:
     PORTAL_LIVE_DATA = "portal-live-data"
     FINANCIAL_INFORMATION = "financial-information"
     REGIONAL_BUSINESS_PERFORMANCE = "regional-business-performance"
+    RM_WISE_BUSINESS_PERFORMANCE_INSIGHT = "rmwise-business-performance-insight"
+    TRADE_INSIGHTS = "trade-insights"
 
 
 openapi_description = r"""

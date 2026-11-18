@@ -19,18 +19,21 @@ from core.renderer import CustomRenderer
 from ..models import (
     AdminOMSBranchWiseTurnoverAsOnMonth,
     AdminOMSBranchWiseTurnoverDtAsOnMonth,
-    RegionalBusinessPerformance
+    RegionalBusinessPerformance,
+    MarketRiskData
 )
 from ..orm import (
     AdminOMSBranchWiseTurnoverAsOnMonthORM,
     AdminOMSBranchWiseTurnoverDtAsOnMonthORM,
-    RegionalBusinessPerformanceORM
+    RegionalBusinessPerformanceORM,
+    MarketRiskDataORM
 )
 
 __all__ = [
     "download_admin_oms_datewise_turnover_csv",
     "download_admin_oms_datewise_dt_turnover_csv",
-    "download_regional_business_performance_csv"
+    "download_regional_business_performance_csv",
+    "download_admin_market_risk_data_csv"
 ]
 
 
@@ -160,6 +163,44 @@ def download_regional_business_performance_csv(request):
     ]
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     filename = f"business_performance-{current_time}"
+    return generate_csv(remapped_results, headers, filename)
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+def download_admin_market_risk_data_csv(request):
+    """Download admin market risk data as CSV"""
+    with Session(engine) as session:
+        qs = session.execute(select(MarketRiskDataORM)).scalars()
+
+        results = [MarketRiskData.model_validate(row).model_dump() for row in qs]
+        
+    header_mapping = {
+        "symbol": "Symbol",
+        "risk_level": "Risk Level",
+        "lbs_free_float_salable": "LBS Free Float Salable",
+        "single_scrip_bar": "Single Scrip Bar (%)",
+        "buy_qty": "Buy Quantity",
+        "sell_qty": "Sell Quantity",
+        "block_pb_contact_today": "Block PB Contact Today",
+        "holding_live": "Holding Live",
+        "free_float_salable": "Free Float Salable",
+        "sector_name": "Sector Name",
+        "market_category": "Market Category",
+        "dse_30": "DSE 30",
+        "m_loan_listed": "M Loan Listed",
+        "lbs_holding_percent": "LBS Holding Percentage",
+        "margin_qty_percentage": "Margin Quantity Percentage",
+        "third_party_percentage": "Third Party Percentage",
+        "in_house_transaction": "In-House Transaction"
+    }
+
+    headers = list(header_mapping.values())
+    remapped_results = [
+        {header_mapping[key]: value for key, value in row.items() if key in header_mapping}
+        for row in results
+    ]
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    filename = f"market_risk_data-{current_time}"
     return generate_csv(remapped_results, headers, filename)
 
    

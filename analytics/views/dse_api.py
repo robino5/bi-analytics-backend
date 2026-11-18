@@ -6,7 +6,8 @@ from drf_spectacular.utils import extend_schema,OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 from core.metadata.openapi.configs import OpenApiTags
 from rest_framework.request import Request
-from analytics.views.utils import fetch_from_lankabd_api,fetchAamarStockWeb
+from analytics.views.utils import fetchAamarStockWeb 
+from .lankabd_api import fetch_from_lankabd_api
 
 __all__ = ["live_dse_trade",
             "live_tickers",

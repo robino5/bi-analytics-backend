@@ -10,3 +10,4 @@ from .rmwise_performance import *  # noqa: F403
 from .rmwise_portfolio import *  # noqa: F403
 from .financial_information import *  # noqa: F403
 from .regional_business_performance import *  # noqa: F403
+from .trade_insights import *  # noqa: F403``

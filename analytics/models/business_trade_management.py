@@ -1,3 +1,4 @@
+from datetime import datetime
 from .base import BaseModel, TradingDateModel,PushDateModel
 
 __all__ = [
@@ -7,7 +8,10 @@ __all__ = [
     "ATBMarketShareSME",
     "CompanyWiseSaleableStock",
     "InvestorWiseSaleableStock",
-    "CompanyWiseSaleableStockPercentage"
+    "CompanyWiseSaleableStockPercentage",
+    "DateWiseTopTenTurnover",
+    "DateWiseTopTenInternetTurnover",
+    "BlockMarketShare"
 ]
 
 
@@ -76,6 +80,20 @@ class CompanyWiseSaleableStockPercentage(BaseModel):
     branch_name: str
     stock_available: int
     stock_available_percentage: float
+
+class DateWiseTopTenTurnover(BaseModel):
+    trade_date: datetime
+    turnover: float
+
+class DateWiseTopTenInternetTurnover(BaseModel):
+    trade_date: datetime
+    turnover: float
+
+class BlockMarketShare(BaseModel):
+
+    dse_bl_market_percentage: float
+    cse_bl_market_percentage: float
+
 
 
 

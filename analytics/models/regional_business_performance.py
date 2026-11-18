@@ -14,7 +14,8 @@ __all__ = ["ExchangeWisearketStatistics",
            "RegionalExposureDetails",
            "RegionalBusinessPerformance",
            "RegionalOfficeSpace",
-           "RegionalPerformanceProcess"
+           "RegionalPerformanceProcess",
+            "AdminRegionalManagerRMBusinessperformance"    
            ]
 
 class ExchangeWisearketStatistics(BaseModel):
@@ -39,6 +40,7 @@ class RegionalClientPerformanceNonPerformance(BaseModel):
     cluster_name: str | None=None
     branch_code: int | None=None
     branch_name: str | None=None
+    trader_id: str | None=None
     total_investor: float | None=0
     texpress_investor: float | None=0
     ibroker_investor: float | None=0
@@ -52,6 +54,7 @@ class RegionalECRMDetails(BaseModel):
     cluster_name: str | None=None
     branch_code: int | None=None
     branch_name: str | None=None
+    trader_id: str | None=None
     total_visits: float | None=0
     total_success: float | None=0
     total_in_progress: float | None=0
@@ -63,6 +66,7 @@ class RegionaleKYCDetail(BaseModel):
     cluster_name: str | None=None
     branch_code: int | None=None
     branch_name: str | None=None
+    trader_id: str | None=None
     total_investor: float | None=0
     total_submitted: float | None=0
     due: float | None=0
@@ -80,6 +84,7 @@ class RegionalChannelWiseTrades(BaseModel):
     region_name: str
     branch_code: int
     branch_name: str
+    trader_id: str
     channel: str
     total_clients: int
     total_trades: int
@@ -101,6 +106,7 @@ class RegionalCashMarginDetails(BaseModel):
     region_name: str | None=None
     branch_code: int | None=None
     branch_name: str | None=None
+    trader_id: str | None=None
     total_deposit: float | None=0
     total_withdrawal: float | None=0
     total_portfolio: float | None=0
@@ -154,3 +160,32 @@ class RegionalPerformanceProcess(BaseModel):
     date_from: datetime
     date_to: datetime
     run_time: datetime
+
+class AdminRegionalManagerRMBusinessperformance(BaseModel):
+    region_name: str
+    cluster_name: str
+    branch_code: int
+    branch_name: str
+    trader_id: str
+    target: float
+    turnover_achieved: float
+    turnover_percentage: float
+    fund_target: float
+    total_net_fund: float
+    total_net_link_share: float
+    fund_percentage: float
+    bo_opening_target: float
+    bo_opened: float
+    bo_percentage: float
+    total_trade_days: int
+    commission: float
+    total_link_share_in: float
+    total_link_share_out: float
+    total_deposit: float
+    total_withdrawal: float
+    total_expenses: float
+    profit_loss: float  
+    ctc_daily: float
+    ctc_monthly: float
+    ctc_quarterly: float
+    ctc_yearly: float
