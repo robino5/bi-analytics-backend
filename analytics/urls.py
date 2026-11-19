@@ -56,10 +56,12 @@ urlpatterns = [
     path("rmwise-net-trades/", views.get_rmwise_net_trades),
     path("rmwise-net-trades/<int:id>", views.get_rmwise_net_trades_by_branch_id),
     path("zonewise-investors/", views.get_zone_marked_clients),
+    path("zonewise-investors/export/", views.export_zone_marked_clients_csv),
     # Branch Wise Performance
     path("branchwise-turnover-status/", views.get_bw_turnover_status),
     path("branchwise-margin-status/", views.get_bw_margin_status),
     path("branchwise-fund-status/", views.get_bw_fund_status),
+    path("branchwise-exposure-status/", views.get_bw_exposure_status),
     path("branchwise-exposure-status/", views.get_bw_exposure_status),
     
    
@@ -94,7 +96,7 @@ urlpatterns = [
     path("admin/live-investor-top-sale-rm-wise/", views.get_live_investor_top_sale_rm_wise),
     path("admin/live-investor-top-buy-rm-wise/", views.get_live_investor_top_buy_rm_wise),
     path("admin/rm-performance-summary/", views.get_rmwise_performance_summary),
-    
+
 
     # Active Trading Codes Route
     path("active-trading-today/", views.get_active_trading_summary),
@@ -112,7 +114,20 @@ urlpatterns = [
     path("admin-realtime-turnover-comparison-sector-wise/", views.get_admin_realtime_turnover_comaparison_sector_wise),
     path("admin-realtime-turnover-comparison-top20-sector-wise/", views.get_admin_realtime_turnover_comaparison_top20_sector_wise),
     path("admin-realtime-turnover-comparison-top20-sector-wise/", views.get_admin_realtime_turnover_comaparison_top20_sector_wise),
+    path("admin-region-wise-oms-summary/", views.get_admin_region_wise_oms_summary),
+    path("admin-region-wise-details-market-share-lbsl/", views.get_admin_region_wise_details_market_share_lbsl),
+    path("admin-exchange-wise-market-statistics-as-on-date/", views.get_admin_exchange_wise_market_statistics_as_on_date),
+    path("admin-market-risk-data/", views.get_marketRiskData),
+    path("admin-market-risk-data-investor-drilldown/", views.get_marketRiskData_investor_drilldown),
+    path("admin-market-risk-data-csv/", views.download_admin_market_risk_data_csv),
 
+
+    # Trade Insights Route
+    path("market-spot-data-investor-drilldown/", views.get_marketSpotDataInvestorDrillDown),
+    path("market-spot-data-investor-drilldown-csv/", views.get_marketSpotDataInvestorDrillDowncsv),
+    path("market-zgroup-data-investor-drilldown/", views.get_marketZGroupDataInvestorDrillDown),
+    path("market-zgroup-data-investor-drilldown-csv/", views.get_marketZGroupDataInvestorDrillDowncsv),
+    
     # Financial Information Route
     path("admin/total-deposit-branch-wise-today/", views.get_admin_total_deposit_branch_wise_today),
     path("admin/total-deposit-branch-wise-this-year/", views.get_admin_total_deposit_branch_wise_this_year),
@@ -140,6 +155,7 @@ urlpatterns = [
     path("rm-wise-off-market/", views.get_rm_wise_off_market),
     path("regional-business-performance-csv/", views.download_regional_business_performance_csv),
     path("branch-performance-process/", views.get_branch_performance_process_details),
+    path("admin-regional-manager-rm-business-performance/", views.get_admin_regional_manager_rm_business_performance),
      # Stored Procedure execution endpoint
     path("sp/branch-performance/", views.execute_branch_performance_sp),
     path("sp/region-wise-management/", views.execute_region_wise_management_sp),
@@ -163,6 +179,9 @@ urlpatterns = [
     path("admin/companywise-saleable-stock/", views.get_company_wise_saleable_stock),
     path("admin/investorwise-saleable-stock/", views.get_investor_wise_saleable_stock),
     path("admin/companywise-saleable-stock-percentage/",views.get_company_wise_saleable_stock_percentage,),
+    path("admin/date-wise-top-ten-turnover/", views.get_admin_date_wise_top_ten_turnover),
+    path("admin/date-wise-top-ten-internet-turnover/", views.get_admin_date_wise_top_ten_internet_turnover),
+    path("admin/block-market-share/", views.get_admin_block_market_share),
     # Admin Customer Management
     path(
         "admin/customer-management/client-segmentations/",
@@ -204,4 +223,5 @@ urlpatterns = [
         "admin/customer-management/gsec-turnover-comparison/",
         views.get_admin_gsec_turnover_comparison,
     ),
+
 ]

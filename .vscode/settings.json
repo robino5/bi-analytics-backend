@@ -1,5 +1,8 @@
 {
     "python.analysis.extraPaths": [
         "./core"
+    ],
+    "cSpell.words": [
+        "pywhatkit"
     ]
 }

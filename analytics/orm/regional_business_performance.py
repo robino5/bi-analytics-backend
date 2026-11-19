@@ -18,7 +18,8 @@ __all__ = [
     "RegionalExposureDetailsORM",
     "RegionalBusinessPerformanceORM",
     "RegionalOfficeSpaceORM",
-    "RegionalPerformanceProcessORM"
+    "RegionalPerformanceProcessORM",
+    "AdminRegionalManagerRMBusinessperformanceORM"
     ]
 
 class ExchangeWisearketStatisticsORM(BaseOrm):
@@ -44,11 +45,12 @@ class BranchWisearketStatisticsORM(BaseOrm):
 
 
 class RegionalClientPerformanceNonPerformanceORM(BaseOrm):
-    __tablename__ = "BI_trd_Regional_Client_Performance_NonPerformance"
+    __tablename__ = "BI_trd_Regional_RM_Client_Performance_NonPerformance"
 
-    region_name: Mapped[str] = mapped_column("region_Name", String(50), primary_key=True)
+    region_name: Mapped[str] = mapped_column("region_Name", String(50))
     branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
     branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
+    trader_id: Mapped[str] = mapped_column("Trader_id", String(50), primary_key=True)
     total_investor: Mapped[float] = mapped_column("BranchWise_Total_Investor", Numeric(34, 0), nullable=False)
     texpress_investor: Mapped[float] = mapped_column("BranchWise_Texpress_Investor", Numeric(34, 0), nullable=False)
     ibroker_investor: Mapped[float] = mapped_column("BranchWise_Ibroker_Investor", Numeric(34, 0), nullable=False)
@@ -59,12 +61,13 @@ class RegionalClientPerformanceNonPerformanceORM(BaseOrm):
 
 
 class RegionalECRMDetailsORM(BaseOrm):
-    __tablename__ = "BI_trd_Regional_ECRM_Details"
+    __tablename__ = "BI_trd_Regional_RM_ECRM_Details"
 
     region_name: Mapped[str] = mapped_column("Region", String(50), primary_key=True)
     cluster_name: Mapped[str] = mapped_column("Cluster", String(50))
     branch_code: Mapped[int] = mapped_column("branch_code", Integer, primary_key=True)
     branch_name: Mapped[str] = mapped_column("Branch", String(50))
+    trader_id: Mapped[str] = mapped_column("RM_id", String(50), primary_key=True)
     total_visits: Mapped[float] = mapped_column("Total_Visits", Numeric(34, 0), nullable=False)
     total_success: Mapped[float] = mapped_column("Success", Numeric(34, 0), nullable=False)
     total_in_progress: Mapped[float] = mapped_column("InProgress", Numeric(34, 0), nullable=False)
@@ -72,12 +75,13 @@ class RegionalECRMDetailsORM(BaseOrm):
     total_existing_client_visit: Mapped[float] = mapped_column("ExistingClientVisit", Numeric(34, 0), nullable=False)
 
 class RegionaleKYCDetailORM(BaseOrm):
-    __tablename__ = "BI_trd_Regional_eKYC_Details"
+    __tablename__ = "BI_trd_Regional_RM_eKYC_Details"
 
     region_name: Mapped[str] = mapped_column("region_Name", String(50), primary_key=True)
     cluster_name: Mapped[str] = mapped_column("cluster_Name", String(50))
     branch_code: Mapped[int] = mapped_column("branch_Code", Integer, primary_key=True)
     branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
+    trader_id: Mapped[str] = mapped_column("Trader_id", String(50), primary_key=True)
     total_investor: Mapped[float] = mapped_column("total_Investor", Numeric(34, 0), nullable=False)
     total_submitted: Mapped[float] = mapped_column("Total_Submitted", Numeric(34, 0), nullable=False)
     due: Mapped[float] = mapped_column("Due", Numeric(34, 0), nullable=False)
@@ -94,11 +98,12 @@ class RegionalEmployeeStructureORM(BaseOrm):
     contractual_without_salary: Mapped[float] = mapped_column("Contractual_without_salary", Numeric(34, 0), nullable=False)
 
 class RegionalChannelWiseTradesORM(BaseOrm):
-    __tablename__ = "BI_trd_Regional_ChannelWise_trades"
+    __tablename__ = "BI_trd_Regional_RM_ChannelWise_trades"
 
     region_name: Mapped[str] = mapped_column("region_Name", String(50), )
     branch_code: Mapped[int] = mapped_column("branch_Code", Integer,primary_key=True) 
     branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
+    trader_id: Mapped[str] = mapped_column("Trader_id", String(50), primary_key=True)
     channel: Mapped[str] = mapped_column("channel", String(20),primary_key=True)
     total_clients: Mapped[int] = mapped_column("Total_Clients", Integer, nullable=False)
     total_trades: Mapped[int] = mapped_column("Trades", Integer, nullable=False)
@@ -119,10 +124,11 @@ class RegionalPartyTurnoverCommissionORM(BaseOrm):
     total_commission: Mapped[float] = mapped_column("commission", Numeric(34, 0), nullable=False)
 
 class RegionalCashMarginDetailsORM(BaseOrm):
-    __tablename__ = "BI_trd_Regional_Tpv_Cash_margin_dep_Witdrawal_details"
+    __tablename__ = "BI_trd_Regional_RM_Tpv_Cash_margin_dep_Witdrawal_details"
 
     region_name: Mapped[str] = mapped_column("region_Name", String(50),)
     branch_code: Mapped[int] = mapped_column("branch_Code", Integer,primary_key=True) 
+    trader_id: Mapped[str] = mapped_column("trader_id", String(50), primary_key=True)
     branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
     total_deposit: Mapped[float] = mapped_column("Total_Deposit", Numeric(34, 0), nullable=False)
     total_withdrawal: Mapped[float] = mapped_column("Total_Withdrawal", Numeric(34, 0), nullable=False)
@@ -186,3 +192,34 @@ class RegionalPerformanceProcessORM(BaseOrm):
     date_from: Mapped[DateTime] = mapped_column("date_from", DateTime) 
     date_to: Mapped[DateTime] = mapped_column("date_to", DateTime)
     run_time: Mapped[DateTime] = mapped_column("run_time", DateTime, primary_key=True)
+
+class AdminRegionalManagerRMBusinessperformanceORM(BaseOrm):
+    __tablename__ = "BI_trd_Regional_Manager_RM_Business_performance"
+
+    region_name: Mapped[str] = mapped_column("region_Name", String(50),)
+    cluster_name: Mapped[str] = mapped_column("cluster_Name", String(50))
+    branch_code: Mapped[int] = mapped_column("branch_code", Integer,primary_key=True) 
+    branch_name: Mapped[str] = mapped_column("branch_Name", String(50))
+    trader_id: Mapped[str] = mapped_column("trader_id", String(50), primary_key=True)
+    target: Mapped[float] = mapped_column("Target(mn)", Numeric(34, 0), nullable=False)
+    turnover_achieved: Mapped[float] = mapped_column("Turnover Achieved (mn)", Numeric(34, 0), nullable=False)
+    turnover_percentage: Mapped[float] = mapped_column("Turnover Percentage(%)", Numeric(34, 0), nullable=False)
+    fund_target: Mapped[float] = mapped_column("fund_target", Numeric(34, 0), nullable=False)
+    total_net_fund: Mapped[float] = mapped_column("Total_net_fund", Numeric(34, 0), nullable=False)
+    total_net_link_share: Mapped[float] = mapped_column("total_net_link_share", Numeric(34, 0), nullable=False)
+    fund_percentage: Mapped[float] = mapped_column("Fund Percentage(%)", Numeric(34, 0), nullable=False)
+    bo_opening_target: Mapped[float] = mapped_column("Bo Opening Traget", Numeric(34, 0), nullable=False)
+    bo_opened: Mapped[float] = mapped_column("Bo Opened", Numeric(34, 0), nullable=False)
+    bo_percentage: Mapped[float] = mapped_column("Bo Percentage(%)", Numeric(34, 0), nullable=False)
+    total_trade_days: Mapped[int] = mapped_column("total_trade_days", Integer, nullable=False)
+    commission: Mapped[float] = mapped_column("commission", Numeric(34, 0), nullable=False)
+    total_link_share_in: Mapped[float] = mapped_column("total_link_share_in", Numeric(34, 0), nullable=False)
+    total_link_share_out: Mapped[float] = mapped_column("total_link_share_out", Numeric(34, 0), nullable=False)
+    total_deposit: Mapped[float] = mapped_column("total_deposit", Numeric(34, 0), nullable=False)
+    total_withdrawal: Mapped[float] = mapped_column("total_withdrawal", Numeric(34, 0), nullable=False)
+    total_expenses: Mapped[float] = mapped_column("Total_expenses", Numeric(34, 0), nullable=False)
+    profit_loss: Mapped[float] = mapped_column("Profit_loss", Numeric(34, 0), nullable=False)
+    ctc_daily: Mapped[float] = mapped_column("CTC_Daily", Numeric(34, 0), nullable=False)
+    ctc_monthly: Mapped[float] = mapped_column("CTC_Monthly", Numeric(34, 0), nullable=False)
+    ctc_quarterly: Mapped[float] = mapped_column("CTC_Quarterly", Numeric(34, 0), nullable=False)
+    ctc_yearly: Mapped[float] = mapped_column("CTC_Yearly", Numeric(34, 0), nullable=False)

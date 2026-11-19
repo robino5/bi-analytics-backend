@@ -17,7 +17,12 @@ __all__ = [
     "AdminRealTimeTurnoverComparisonSectorWise",
     "AdminOMSBranchWiseTurnoverDtAsOnMonth",
     "AdminRealTimeTurnoverExchangeTop20",
-    "AdminRealTimeTurnoverComparisonTop20SectorWise"
+    "AdminRealTimeTurnoverComparisonTop20SectorWise",
+    "AdminRegionWiseOMSSummary",
+    "AdminRegionWiseDetailsMarketShareLBSL",
+    "AdminExchangeWiseMarketStatisticsAsOnDate",
+    "MarketRiskData",
+    "MarketRiskDataInvestorDrillDown"
 ]
 
 
@@ -111,14 +116,14 @@ class AdminRealTimeTurnoverExchangeTop20(TradingDateModel):
 
 class AdminRealTimeTurnoverComparisonSectorWise(TradingDateModel):
     name: str
-    primary_value: float
-    secondary_value: float
+    DSE_turnover: float
+    LBSL_turnover: float
 
 class AdminRealTimeTurnoverComparisonTop20SectorWise(TradingDateModel):
     name: str
-    primary_value: float
-    secondary_value: float
-    secondary_percent: float
+    DSE_turnover: float
+    LBSL_turnover: float
+    LBSL_percent: float
     push_date: Optional[datetime] = None 
 
     @field_serializer("push_date")
@@ -126,6 +131,73 @@ class AdminRealTimeTurnoverComparisonTop20SectorWise(TradingDateModel):
         if dt:
             return f"{dt.strftime('%d-%b-%y')} ({dt.strftime('%I:%M:%S %p')})"
         return ""
+    
+class AdminRegionWiseOMSSummary(TradingDateModel):
+    channel: str
+    total_clients: int
+    trades: int
+    total_turnover: float
+    region_Name: str
+    push_date: Optional[datetime] = None  # Explicitly mark as Optional
+
+    @field_serializer("push_date")
+    def serialize_push_date(self, dt: Optional[datetime], _info) -> str:
+        if dt:
+            return f"{dt.strftime('%d-%b-%y')} ({dt.strftime('%I:%M:%S %p')})"
+        return ""  # Return empty string if push_date is None
+  
+class AdminRegionWiseDetailsMarketShareLBSL(TradingDateModel):
+    llbsl_buy_of_dse: float | None = None
+    lbsl_sale_of_dse: float | None = None
+    lbsl_total_of_dse: float | None = None
+    dse_market_turnover: float | None = None
+    lbsl_share_of_dse: float | None = None
+    lbsl_buy_of_cse: float | None = None
+    lbsl_sale_of_cse: float | None = None
+    lbsl_total_of_cse: float | None = None
+    cse_market_turnover: float | None = None
+    lbsl_share_of_cse: float | None = None
+    lbsl_total_turnover: float | None = None
+    exch_total_market: float | None = None
+    lbsl_market_all: float | None = None
+    foreign: float | None = None
+    net_income: float | None = None
+    region_Name: str | None = None
+
+
+class AdminExchangeWiseMarketStatisticsAsOnDate(BaseModel):
+    exchange: str
+    total_turnover: float
+    avg_turnover: float
+    lbsl_total_turnover: float
+    lbsl_avg_turnover: float
+    count_Total_trade_day: int
+
+class MarketRiskData(BaseModel):
+    symbol: str
+    risk_level: str
+    lbs_free_float_salable: float
+    single_scrip_bar: float
+    buy_qty: float
+    sell_qty: float
+    block_pb_contact_today: int
+    holding_live: float
+    free_float_salable: float
+    sector_name: str
+    market_category: str
+    dse_30: str
+    m_loan_listed: str
+    lbs_holding_percent: float
+    margin_qty_percentage: float
+    third_party_percentage: float
+    in_house_transaction: float
+
+class MarketRiskDataInvestorDrillDown(BaseModel):
+    symbol: str
+    investor_code: str
+    investor_name: str
+    holding_qty: float
+    holding_percentage: float | None
 
 
 

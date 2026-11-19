@@ -1,18 +1,30 @@
-from typing import Any, Dict, Type,List
 import csv
-from sqlalchemy import Select, select
-from sqlalchemy.orm import Session
-from django.http import HttpResponse
-from authusers.models import User
-from db import BaseOrm, engine
+import logging
+import threading
+import time
+from typing import Any, Dict, List, Type
+
 import requests
 from bs4 import BeautifulSoup
+from django.http import HttpResponse, JsonResponse
+from sqlalchemy import Select, select
+from sqlalchemy.orm import Session
+
+from authusers.models import User
+from db import BaseOrm, engine
 
 from ..orm import ClusterManagerOrm
 
+logger = logging.getLogger(__name__)
+
 BASE_URL = "https://lankabd.com"
 TIMEOUT = 10
-
+TOKEN_TTL_SECONDS = 10 * 60          # re-scrape token every 10 min
+RETRY_STATUS_CODES = {400, 401, 403}  # antiforgery / auth failures
+USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+)
 
 def parse_summary(data: Dict[str, Any], key: str) -> dict:
     """utility function to parse the summary data of the daily performance board"""
@@ -81,63 +93,116 @@ def generate_csv(data: List[dict], headers: List[str], filename: str) -> HttpRes
 
     return response
 
+class LankaBDClient:
+    """Reusable client: keeps cookies + antiforgery token and refreshes them when needed."""
 
-def get_token_and_cookies() -> tuple[dict, str]:
-    """
-    Fetch Lankabd homepage to extract cookies and verification token.
-    """
-    session = requests.Session()
-    headers = {
-        'User-Agent': (
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-            '(KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
-        )
-    }
+    def __init__(self, base_url: str = BASE_URL, timeout: int = TIMEOUT):
+        self.base_url = base_url.rstrip("/")
+        self.timeout = timeout
+        self._session = requests.Session()
+        self._session.headers.update({
+            "User-Agent": USER_AGENT,
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Referer": self.base_url + "/",
+            "X-Requested-With": "XMLHttpRequest",
+        })
+        self._token = ""
+        self._token_at = 0.0
+        self._lock = threading.Lock()
 
-    res = session.get(BASE_URL, headers=headers, timeout=TIMEOUT)
-    res.raise_for_status()
+    # ---------- token handling ----------
+    def _refresh_token(self) -> None:
+        """Load the homepage: sets fresh cookies on the session and extracts the token."""
+        self._session.cookies.clear()
+        res = self._session.get(self.base_url, timeout=self.timeout)
+        res.raise_for_status()
 
-    soup = BeautifulSoup(res.text, 'html.parser')
-    token_input = soup.find("input", {"name": "__RequestVerificationToken"})
-    token = token_input["value"] if token_input else ""
-    return session.cookies.get_dict(), token
+        soup = BeautifulSoup(res.text, "html.parser")
+        node = soup.find("input", {"name": "__RequestVerificationToken"})
+        if not node or not node.get("value"):
+            raise RuntimeError("Antiforgery token not found on homepage")
+
+        self._token = node["value"]
+        self._token_at = time.time()
+
+    def _ensure_token(self, force: bool = False) -> None:
+        with self._lock:
+            expired = (time.time() - self._token_at) > TOKEN_TTL_SECONDS
+            if force or not self._token or expired:
+                self._refresh_token()
+
+    # ---------- generic request ----------
+    def request(
+        self,
+        method: str,
+        endpoint: str,
+        *,
+        params: dict | None = None,
+        json: Any = None,
+        data: Any = None,
+        headers: dict | None = None,
+    ) -> Any:
+        """Call any endpoint. Retries once with a fresh token if the server rejects it."""
+        url = endpoint if endpoint.startswith("http") else f"{self.base_url}/{endpoint.lstrip('/')}"
+
+        for attempt in (1, 2):
+            self._ensure_token(force=(attempt == 2))
+            req_headers = {"RequestVerificationToken": self._token, **(headers or {})}
+
+            response = self._session.request(
+                method.upper(), url,
+                params=params, json=json, data=data,
+                headers=req_headers, timeout=self.timeout,
+            )
+
+            if response.status_code in RETRY_STATUS_CODES and attempt == 1:
+                logger.warning("LankaBD %s %s -> %s, refreshing token", method, endpoint, response.status_code)
+                continue
+
+            response.raise_for_status()
+            return response.json() if response.content else None
 
 
-def build_headers(cookies: dict, token: str) -> dict:
-    cookie_header = "; ".join([f"{k}={v}" for k, v in cookies.items()])
-    return {
-        'Accept': '*/*',
-        'Accept-Encoding': 'gzip, deflate, br, zstd',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Connection': 'keep-alive',
-        'Cookie': cookie_header,
-        'Host': 'lankabd.com',
-        'Referer': BASE_URL + '/',
-        'RequestVerificationToken': token,
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-origin',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
-        'sec-ch-ua': '"Chromium";v="138", "Google Chrome";v="138", "Not)A;Brand";v="8"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-    }
+# One shared instance per process
+_client = LankaBDClient()
 
 
-def fetch_from_lankabd_api(endpoint: str) -> dict | None:
-    """
-    Fetch data from a Lankabd API endpoint with fresh cookies and token.
-    """
+def call_lankabd_api(
+    endpoint: str,
+    method: str = "GET",
+    *,
+    params: dict | None = None,
+    json: Any = None,
+    data: Any = None,
+) -> Any | None:
+    """Returns parsed JSON, or None on failure."""
     try:
-        cookies, token = get_token_and_cookies()
-        headers = build_headers(cookies, token)
-        url = f"{BASE_URL}{endpoint}"
-        response = requests.get(url, headers=headers, timeout=TIMEOUT)
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        print(f"❌ Error fetching data from {endpoint}: {e}")
+        return _client.request(method, endpoint, params=params, json=json, data=data)
+    except Exception:
+        logger.exception("LankaBD call failed: %s %s", method, endpoint)
         return None
+
+
+def lankabd_response(
+    endpoint: str,
+    method: str = "GET",
+    *,
+    params: dict | None = None,
+    json: Any = None,
+    error_message: str = "Failed to fetch live data.",
+) -> JsonResponse:
+    """Call the API and return a ready-to-use Django JsonResponse."""
+    data = call_lankabd_api(endpoint, method, params=params, json=json)
+    if data is None:
+        return JsonResponse({"error": error_message}, status=502)
+    return JsonResponse(data, safe=False)
+
+
+# Backward compatible with your old code
+def fetch_from_lankabd_api(endpoint: str) -> dict | None:
+    return call_lankabd_api(endpoint)
+
     
 def fetchAamarStockWeb(endpoint: str):
     response = requests.get(endpoint)

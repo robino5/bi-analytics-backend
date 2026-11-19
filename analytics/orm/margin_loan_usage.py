@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Numeric, String
+from sqlalchemy import Integer, Numeric, String, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db import BaseOrm
@@ -76,9 +76,24 @@ class RMWiseNetTradeOrm(BaseOrm):
 class RedZoneInvestorOrm(BaseInvestor):
     __tablename__ = "BI_trd_RM_Investors_Red_zone"
 
+    marginable_exposure: Mapped[float] = mapped_column("marginable_exposure", Numeric(34,2), nullable=False)
+    marginable_equity: Mapped[float] = mapped_column("marginable_equity", Numeric(34,2), nullable=False)
+    marginable_loan_ratio: Mapped[str] = mapped_column("marginable_loan_ratio", String(20), nullable=False)
+    stock_value: Mapped[float] = mapped_column("stock_value", Numeric(34,2), nullable=False)
+    last_trading_dt: Mapped[DateTime] = mapped_column("last_trading_dt", DateTime)
+    acc_type: Mapped[str] = mapped_column("acc_type", String(10), nullable=False)
+    branch_name: Mapped[str] = mapped_column("branch_name", String(30), nullable=False)
 
 class YellowZoneInvestorOrm(BaseInvestor):
     __tablename__ = "BI_trd_RM_Investors_Yellow_zone"
+
+    marginable_exposure: Mapped[float] = mapped_column("marginable_exposure", Numeric(34,2), nullable=False)
+    marginable_equity: Mapped[float] = mapped_column("marginable_equity", Numeric(34,2), nullable=False)
+    marginable_loan_ratio: Mapped[str] = mapped_column("marginable_loan_ratio", String(20), nullable=False)
+    stock_value: Mapped[float] = mapped_column("stock_value", Numeric(34,2), nullable=False)
+    last_trading_dt: Mapped[DateTime] = mapped_column("last_trading_dt", DateTime)
+    acc_type: Mapped[str] = mapped_column("acc_type", String(10), nullable=False)
+    branch_name: Mapped[str] = mapped_column("branch_name", String(30), nullable=False)
 
 
 class NegativeEquityInvestorOrm(BaseInvestor):

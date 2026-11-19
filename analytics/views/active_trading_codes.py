@@ -1,6 +1,7 @@
 from http import HTTPMethod
 from typing import Any, Dict
 from datetime import datetime
+from decimal import Decimal
 from drf_spectacular.types import OpenApiTypes
 import pandas as pd
 from drf_spectacular.utils import extend_schema
@@ -8,9 +9,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from sqlalchemy import Sequence, func, select
+from sqlalchemy import Sequence, func, or_, select
 from sqlalchemy.orm import Session
 from drf_spectacular.utils import OpenApiParameter, extend_schema
+
 
 from core.metadata.openapi import OpenApiTags
 from core.permissions import IsManagementUser
@@ -27,7 +29,12 @@ from ..models import (
     AdminRealTimeTurnoverComparisonSectorWise,
     AdminRealTimeTurnoverExchangeTop20,
     AdminRealTimeTurnoverComparisonTop20SectorWise,
-    AdminOMSBranchWiseTurnoverDtAsOnMonth
+    AdminOMSBranchWiseTurnoverDtAsOnMonth,
+    AdminRegionWiseOMSSummary,
+    AdminRegionWiseDetailsMarketShareLBSL,
+    AdminExchangeWiseMarketStatisticsAsOnDate,
+    MarketRiskData,
+    MarketRiskDataInvestorDrillDown
 
 
 )
@@ -43,7 +50,13 @@ from ..orm import (
     AdminRealTimeTurnoverComparisonSectorWiseORM,
     AdminRealTimeTurnoverExchangeTop20ORM,
     AdminRealTimeTurnoverComparisonTop20SectorWiseORM,
-    AdminOMSBranchWiseTurnoverDtAsOnMonthORM
+    AdminOMSBranchWiseTurnoverDtAsOnMonthORM,
+    RMWiseDailyTradeDataOrm,
+    AdminRegionWiseOMSSummaryORM,
+    AdminRegionWiseDetailsMarketShareLBSLORM,
+    AdminExchangeWiseMarketStatisticsAsOnDateORM,
+    MarketRiskDataORM,
+    MarketRiskDataInvestorDrillDownORM
 )
 
 __all__ = [
@@ -58,7 +71,13 @@ __all__ = [
     "get_admin_realtime_turnover_comaparison_sector_wise",
     "get_admin_realtime_turnover_exchange_top_20",
     "get_admin_realtime_turnover_comaparison_top20_sector_wise",
-    "get_admin_oms_branch_wise_turnover_dt_as_on_month"
+    "get_admin_oms_branch_wise_turnover_dt_as_on_month",
+    "get_rmwise_daily_trade_date",
+    "get_admin_region_wise_oms_summary",
+    "get_admin_region_wise_details_market_share_lbsl",
+    "get_admin_exchange_wise_market_statistics_as_on_date",
+    "get_marketRiskData",
+    "get_marketRiskData_investor_drilldown",
 
 ]
 
@@ -448,7 +467,7 @@ def get_admin_realtime_turnover_comaparison_sector_wise(request: Request) -> Res
         qs = session.execute(
             select(AdminRealTimeTurnoverComparisonSectorWiseORM)
             .where(AdminRealTimeTurnoverComparisonSectorWiseORM.trading_date == trading_date)
-            .order_by(AdminRealTimeTurnoverComparisonSectorWiseORM.primary_value.desc())
+            .order_by(AdminRealTimeTurnoverComparisonSectorWiseORM.DSE_turnover.desc())
         ).scalars()
 
         results = [
@@ -458,6 +477,77 @@ def get_admin_realtime_turnover_comaparison_sector_wise(request: Request) -> Res
 
     return Response(results)
 
+@extend_schema(
+    tags=[OpenApiTags.ACTIVE_TRADING_CODE],
+    parameters=[
+        OpenApiParameter(
+            "branch_code",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Branch code to filter results",
+        ),
+        OpenApiParameter(
+            "rm_name",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="RM name to filter results",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_rmwise_daily_trade_date(request: Request) -> Response:
+    """Fetch RM-wise and branch-wise daily trade data with client count and turnover information."""
+    request.accepted_renderer = CustomRenderer()
+    
+    branch_code = request.query_params.get("branch_code")
+    rm_name = request.query_params.get("rm_name")
+
+    with Session(engine) as session:
+        query = select(RMWiseDailyTradeDataOrm).order_by(
+            RMWiseDailyTradeDataOrm.total_turnover_today.desc()
+        )
+        
+        if branch_code:
+            try:
+                branch_code = int(branch_code)
+                query = query.where(RMWiseDailyTradeDataOrm.branch_code == branch_code)
+            except ValueError:
+                return Response(
+                    {"error": "Invalid branch_code. Must be an integer."}, 
+                    status=400
+                )
+        
+        if rm_name:
+            query = query.where(
+                func.upper(RMWiseDailyTradeDataOrm.rm_name) == func.upper(rm_name)
+            )
+        
+        qs = session.execute(query).scalars()
+        results = []
+        
+        for row in qs:
+            results.append({
+                "pushDate": row.push_date.strftime("%d-%b-%y (%H:%M:%S %p)") if row.push_date else None,
+                "branchCode": int(row.branch_code),
+                "branch": row.branch,
+                "rmName": row.rm_name,
+                "totalClientToday": row.total_client_today,
+                "totalTurnoverToday": float(row.total_turnover_today) if row.total_turnover_today else 0,
+            })
+        
+        response = {
+            "detail": {
+                "totalRecords": len(results),
+                "sumTotalClient": sum(r["totalClientToday"] for r in results),
+                "sumTotalTurnover": sum(r["totalTurnoverToday"] for r in results),
+            },
+            "rows": results,
+        }
+
+    return Response(response)
 
 @extend_schema(
     tags=[OpenApiTags.ACTIVE_TRADING_CODE],
@@ -496,9 +586,118 @@ def get_admin_realtime_turnover_comaparison_top20_sector_wise(request: Request) 
         qs = session.execute(
             select(AdminRealTimeTurnoverComparisonTop20SectorWiseORM)
             .where(AdminRealTimeTurnoverComparisonTop20SectorWiseORM.trading_date == trading_date)
-            .order_by(AdminRealTimeTurnoverComparisonTop20SectorWiseORM.primary_value.desc())
+            .order_by(AdminRealTimeTurnoverComparisonTop20SectorWiseORM.DSE_turnover.desc())
         ).scalars()
 
         results = [AdminRealTimeTurnoverComparisonTop20SectorWise.model_validate(row).model_dump() for row in qs]
+
+    return Response(results)
+
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_region_wise_oms_summary(request: Request) -> Response:
+    """fetch region wise OMS summary"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(AdminRegionWiseOMSSummaryORM).order_by(
+                AdminRegionWiseOMSSummaryORM.region_Name
+            )
+        ).scalars()
+
+        results = [AdminRegionWiseOMSSummary.model_validate(row).model_dump() for row in qs]
+
+    return Response(results)
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_region_wise_details_market_share_lbsl(request: Request) -> Response:
+    """fetch region wise details market share LBSL"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(AdminRegionWiseDetailsMarketShareLBSLORM).order_by(
+                AdminRegionWiseDetailsMarketShareLBSLORM.trading_date
+            ).order_by(AdminRegionWiseDetailsMarketShareLBSLORM.region_Name)
+        ).scalars()
+
+        results = [AdminRegionWiseDetailsMarketShareLBSL.model_validate(row).model_dump() for row in qs]
+
+    return Response(results)
+
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_admin_exchange_wise_market_statistics_as_on_date(request: Request) -> Response:
+    """fetch exchange wise market statistics as on date"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(AdminExchangeWiseMarketStatisticsAsOnDateORM).order_by(AdminExchangeWiseMarketStatisticsAsOnDateORM.exchange)
+        ).scalars()
+
+        results = [AdminExchangeWiseMarketStatisticsAsOnDate.model_validate(row).model_dump() for row in qs]
+
+    return Response(results)
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_marketRiskData(request: Request) -> Response:
+    """fetch market risk data"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(MarketRiskDataORM)
+        ).scalars()
+
+        results = [MarketRiskData.model_validate(row).model_dump() for row in qs]
+
+    return Response(results)
+
+@extend_schema(tags=[OpenApiTags.ACTIVE_TRADING_CODE],
+               parameters=[
+                       OpenApiParameter(
+                           "symbol",
+                           OpenApiTypes.STR,
+                           OpenApiParameter.QUERY,
+                           required=False,
+                           description="Symbol to filter results",
+                       ),
+                   ],
+               )
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_marketRiskData_investor_drilldown(request: Request) -> Response:
+    """fetch market risk data investor drilldown"""
+    request.accepted_renderer = CustomRenderer()
+    has_symbol = request.query_params.get("symbol")
+
+    with Session(engine) as session:
+        query = select(MarketRiskDataInvestorDrillDownORM)
+
+        if has_symbol:
+            query = query.where(
+                MarketRiskDataInvestorDrillDownORM.symbol == has_symbol
+            )
+
+        query = query.where(
+            or_(
+                MarketRiskDataInvestorDrillDownORM.holding_percentage.is_(None),
+                MarketRiskDataInvestorDrillDownORM.holding_percentage
+                >= Decimal("0.001"),
+            )
+        )
+
+        qs = session.execute(query).scalars()
+        results = [MarketRiskDataInvestorDrillDown.model_validate(row).model_dump() for row in qs]
 
     return Response(results)

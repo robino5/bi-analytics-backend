@@ -10,7 +10,10 @@ __all__ = [
     "ATBMarketShareSMEOrm",
     "CompanyWiseSaleableStockOrm",
     "InvestorWiseSaleableStockOrm",
-    "CompanyWiseSaleableStockPercentageOrm"
+    "CompanyWiseSaleableStockPercentageOrm",
+    "DateWiseTopTenTurnoverOrm",
+    "DateWiseTopTenInternetTurnoverOrm",
+    "BlockMarketShareOrm"
 ]
 
 
@@ -154,6 +157,21 @@ class CompanyWiseSaleableStockPercentageOrm(BaseOrm):
     stock_available: Mapped[int] = mapped_column("Total_Stock", Integer)
     stock_available_percentage: Mapped[float] = mapped_column("Stock_percentage", Numeric(6,4))
 
+class DateWiseTopTenTurnoverOrm(BaseOrm):
+    __tablename__ = "BI_trd_Admin_Turnover_Top_10"
 
+    trade_date: Mapped[DateTime] = mapped_column("trd_dt", DateTime, primary_key=True)
+    turnover: Mapped[float] = mapped_column("TurnOver", Numeric(34,2))
 
-    
+class DateWiseTopTenInternetTurnoverOrm(BaseOrm):
+    __tablename__ = "BI_trd_Admin_Internet_Turnover_Top_10"
+
+    trade_date: Mapped[DateTime] = mapped_column("trd_dt", DateTime, primary_key=True)
+    turnover: Mapped[float] = mapped_column("TurnOver", Numeric(34,2))
+
+class BlockMarketShareOrm(BaseOrm):
+    __tablename__ = "BI_trd_Admin_details_Block_market_share"
+
+    dse_bl_market_percentage: Mapped[float] = mapped_column("DSE BL_Market Percentage", Numeric(34,2), primary_key=True)
+    cse_bl_market_percentage: Mapped[float] = mapped_column("CSE BL_Market Percentage", Numeric(34,2))
+

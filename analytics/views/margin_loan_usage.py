@@ -1,14 +1,20 @@
+from datetime import datetime
 from enum import StrEnum
 from http import HTTPMethod
 from typing import Type
 
+from django.http import HttpResponse
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from sqlalchemy import func, select
+from sqlalchemy import func, literal, select
 from sqlalchemy.orm import Session
 
 from authusers.models import User
@@ -25,7 +31,7 @@ from ..orm import (
     RMWiseNetTradeOrm,
     YellowZoneInvestorOrm,
 )
-from .utils import rolewise_branch_data_filter
+from .utils import generate_csv, rolewise_branch_data_filter
 
 __all__ = [
     "get_margin_loan_allocations",
@@ -35,6 +41,7 @@ __all__ = [
     "get_rmwise_net_trades",
     "get_rmwise_net_trades_by_branch_id",
     "get_zone_marked_clients",
+    "export_zone_marked_clients_csv",
 ]
 
 
@@ -49,9 +56,18 @@ InvestorOrmType = RedZoneInvestorOrm | YellowZoneInvestorOrm | NegativeEquityInv
 
 def get_marked_investors(
     investor_cls: Type[InvestorOrmType],
-    user: User,
+    user: User | None,
     branch_code: int | None = None,
 ):
+    marginable_columns = (
+        "marginable_exposure",
+        "marginable_equity",
+        "marginable_loan_ratio",
+        "stock_value",
+        "last_trading_dt",
+        "acc_type",
+        "branch_name",
+    )
     qs = select(
         investor_cls.branch_code,
         func.trim(investor_cls.investor_code).label(
@@ -64,10 +80,15 @@ def get_marked_investors(
         investor_cls.rm_name,
         investor_cls.exposure,
         investor_cls.equity,
-        investor_cls.loan_ratio
+        investor_cls.loan_ratio,
+        *(
+            getattr(investor_cls, column, literal(None).label(column))
+            for column in marginable_columns
+        ),
     ).order_by(investor_cls.investor_name)
 
-    qs = rolewise_branch_data_filter(qs, user, investor_cls)
+    if user is not None:
+        qs = rolewise_branch_data_filter(qs, user, investor_cls)
     if branch_code:
         qs = qs.where(investor_cls.branch_code == branch_code)
 
@@ -293,3 +314,76 @@ def get_zone_marked_clients(request: Request) -> Response:
             MarkedInvestor.model_validate(row._asdict()).model_dump() for row in rows
         ]
     return Response(results)
+
+
+@extend_schema(
+    tags=[OpenApiTags.MLU],
+    parameters=[
+        OpenApiParameter(
+            "investor_type",
+            OpenApiTypes.STR,
+            OpenApiParameter.QUERY,
+            required=True,
+            description="Type of the investors to export",
+            enum=MarkedInvestorEnum,
+            allow_blank=False,
+        ),
+        OpenApiParameter(
+            "branch",
+            OpenApiTypes.INT,
+            OpenApiParameter.QUERY,
+            required=False,
+            description="Export marked investors under a specific branch",
+        ),
+    ],
+)
+@api_view([HTTPMethod.GET])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def export_zone_marked_clients_csv(request: Request) -> HttpResponse:
+    """Export zone-marked investor data as a CSV that can be opened in Excel."""
+    mark = request.query_params.get("investor_type")
+    branch_code = request.query_params.get("branch")
+
+    match mark:
+        case MarkedInvestorEnum.RED:
+            investor_cls = RedZoneInvestorOrm
+            zone_name = MarkedInvestorEnum.RED
+        case MarkedInvestorEnum.YELLOW:
+            investor_cls = YellowZoneInvestorOrm
+            zone_name = MarkedInvestorEnum.YELLOW
+        case _:
+            investor_cls = NegativeEquityInvestorOrm
+            zone_name = MarkedInvestorEnum.NEGATIVE_EQUITY
+
+    with Session(engine) as session:
+        rows = session.execute(
+            get_marked_investors(investor_cls, None, branch_code)
+        )
+        results = [
+            MarkedInvestor.model_validate(row._asdict()).model_dump() for row in rows
+        ]
+
+    header_mapping = {
+        "investor_code": "Investor Code",
+        "investor_name": "Investor Name",
+        "branch_name": "Branch Name",
+        "ledger_balance": "Ledger Balance",
+        "rm_name": "RM Name",
+        "exposure": "Exposure",
+        "equity": "Equity",
+        "loan_ratio": "Loan Ratio",
+        "marginable_exposure": "Marginable Exposure",
+        "marginable_equity": "Marginable Equity",
+        "marginable_loan_ratio": "Marginable Loan Ratio",
+        "stock_value": "Stock Value",
+        "last_trading_dt": "Last Trading Date",
+        "acc_type": "Account Type",
+    }
+    remapped_results = [
+        {header: row.get(field) for field, header in header_mapping.items()}
+        for row in results
+    ]
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    filename = f"zonewise-investors-{zone_name}-{timestamp}"
+    return generate_csv(remapped_results, list(header_mapping.values()), filename)
