@@ -171,6 +171,7 @@ urlpatterns = [
     path("dse-traded-company-list/", views.dse_traded_company_list),
     path("portal-pe-rsi-company-wise/", views.get_poral_pe_rsi_conpanywise),
     path("portal-history-comapny-wise/", views.dse_history_company),
+    path("portal-live-event-types-count/", views.live_event_types_count),
     # Business And Trade Management
     path("admin/board-turnover/", views.get_board_turnovers),
     path("admin/board-turnovers-breakdown/", views.get_board_turnovers_breakdown),

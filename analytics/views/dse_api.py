@@ -18,7 +18,8 @@ __all__ = ["live_dse_trade",
             "stock_pe_ration",
             "dse_traded_company_list",
             "get_poral_pe_rsi_conpanywise",
-            "dse_history_company"
+            "dse_history_company",
+            "live_event_types_count"
             ]
 
 
@@ -207,4 +208,15 @@ def dse_history_company(request: Request):
             status=500
         )
 
+    return JsonResponse(data, safe=False)
+
+@extend_schema(tags=[OpenApiTags.PORTAL_LIVE_DATA])
+@api_view(["GET"])
+def live_event_types_count(request: Request):
+    data = fetch_from_lankabd_api("/api/Event/GetEventTypeWithCountToday")
+    if data is None:
+        return JsonResponse(
+            {"error": "Failed to fetch event type counts."},
+            status=500
+        )
     return JsonResponse(data, safe=False)
