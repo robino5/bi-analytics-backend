@@ -6,8 +6,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 __all__ = [
     "MarketSpotDataInvestorDrillDownORM",
-    "MarketZGroupDataInvestorDrillDownORM"
-
+    "MarketZGroupDataInvestorDrillDownORM",
+    "MarketNegativeEquityHoldingScripAnalysisORM"
 ]
 
 
@@ -46,4 +46,17 @@ class MarketZGroupDataInvestorDrillDownORM(BaseOrm):
     fund_using_level: Mapped[str] = mapped_column("FUND_USING_LEVEL", String(15))
     rm_branch: Mapped[str] = mapped_column("RM Branch", String(50))
     rm_name: Mapped[str] = mapped_column("RM Name", String(200))
+
+class MarketNegativeEquityHoldingScripAnalysisORM(BaseOrm):
+    __tablename__ = "BI_trd_Market_NegativeEquity_Holding_Scrip_Analysis"
+
+    company_name: Mapped[str] = mapped_column("company_F_Name", String(100))
+    company_code: Mapped[str] = mapped_column("company_Code", String(100), primary_key=True)
+    free_qty: Mapped[float] = mapped_column("free_qty", Numeric(34, 2))
+    lock_qty: Mapped[float] = mapped_column("lock_qty", Numeric(34, 2))
+    total_investor: Mapped[int] = mapped_column("total_investor", Integer)
+    avg_price: Mapped[float] = mapped_column("avg_price", Numeric(34, 2))
+    ltp: Mapped[str] = mapped_column("ltp", String(100))
+    market_value: Mapped[float] = mapped_column("market_value", Numeric(34, 2))
+    last_week_price: Mapped[float] = mapped_column("Last_week_price", Numeric(34, 2))
 

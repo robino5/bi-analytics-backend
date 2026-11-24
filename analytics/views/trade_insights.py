@@ -17,11 +17,13 @@ from db import engine
 
 from ..models import (
 MarketSpotDataInvestorDrillDown,
-MarketZGroupDataInvestorDrillDown
+MarketZGroupDataInvestorDrillDown,
+MarketNegativeEquityHoldingScripAnalysis
 )
 from ..orm import (
    MarketSpotDataInvestorDrillDownORM,
-   MarketZGroupDataInvestorDrillDownORM
+   MarketZGroupDataInvestorDrillDownORM,
+   MarketNegativeEquityHoldingScripAnalysisORM
 )
 from .utils import generate_csv
 
@@ -29,7 +31,8 @@ __all__ = [
   "get_marketSpotDataInvestorDrillDown",
   "get_marketSpotDataInvestorDrillDowncsv",
   "get_marketZGroupDataInvestorDrillDown",
-  "get_marketZGroupDataInvestorDrillDowncsv"
+  "get_marketZGroupDataInvestorDrillDowncsv",
+  "get_marketNegativeEquityHoldingScripAnalysis"
 ]
 
 @extend_schema(tags=[OpenApiTags.TRADE_INSIGHTS])
@@ -142,3 +145,19 @@ def get_marketZGroupDataInvestorDrillDowncsv(request: Request) -> Response:
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         filename = f"market_zgroup_investor_drilldown-{timestamp}"
         return generate_csv(remapped_results, list(header_mapping.values()), filename)
+
+@extend_schema(tags=[OpenApiTags.TRADE_INSIGHTS])
+@api_view([HTTPMethod.GET])
+@permission_classes([IsAuthenticated, IsManagementUser])
+def get_marketNegativeEquityHoldingScripAnalysis(request: Request) -> Response:
+    """fetch market negative equity holding scrip analysis"""
+    request.accepted_renderer = CustomRenderer()
+
+    with Session(engine) as session:
+        qs = session.execute(
+            select(MarketNegativeEquityHoldingScripAnalysisORM)
+        ).scalars()
+
+        results = [MarketNegativeEquityHoldingScripAnalysis.model_validate(row).model_dump() for row in qs]
+
+    return Response(results)

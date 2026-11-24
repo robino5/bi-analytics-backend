@@ -2,7 +2,8 @@ from .base import BaseModel
 
 __all__ = [
     "MarketSpotDataInvestorDrillDown",
-    "MarketZGroupDataInvestorDrillDown"
+    "MarketZGroupDataInvestorDrillDown",
+    "MarketNegativeEquityHoldingScripAnalysis"
 ]
 
 class MarketSpotDataInvestorDrillDown(BaseModel):
@@ -36,3 +37,14 @@ class MarketZGroupDataInvestorDrillDown(BaseModel):
     fund_using_level: str
     rm_branch: str
     rm_name: str
+
+class MarketNegativeEquityHoldingScripAnalysis(BaseModel):
+    company_name: str
+    company_code: str
+    free_qty: float
+    lock_qty: float
+    total_investor: int
+    avg_price: float
+    ltp: str
+    market_value: float
+    last_week_price: float
