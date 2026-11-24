@@ -127,6 +127,7 @@ urlpatterns = [
     path("market-spot-data-investor-drilldown-csv/", views.get_marketSpotDataInvestorDrillDowncsv),
     path("market-zgroup-data-investor-drilldown/", views.get_marketZGroupDataInvestorDrillDown),
     path("market-zgroup-data-investor-drilldown-csv/", views.get_marketZGroupDataInvestorDrillDowncsv),
+    path("market-negative-equity-holding-scrip-analysis/", views.get_marketNegativeEquityHoldingScripAnalysis),
     
     # Financial Information Route
     path("admin/total-deposit-branch-wise-today/", views.get_admin_total_deposit_branch_wise_today),
